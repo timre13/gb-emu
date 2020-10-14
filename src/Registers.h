@@ -27,6 +27,7 @@ private:
 public:
     enum class r8{A, B, C, D, E, F, H, L};
     enum class r16{AF, BC, DE, HL, SP, PC};
+    enum class flag{Z, N, H, C, NZ, NN, NH, NC};
 
     Registers();
 
@@ -154,6 +155,22 @@ public:
     inline uint8_t getCarryFlag()       const { return (m_F & 0b01000000) >>  6; }
     inline uint8_t getNegativeFlag()    const { return (m_F & 0b00100000) >>  5; }
     inline uint8_t getHalfCarryFlag()   const { return (m_F & 0b00010000) >>  4; }
+
+    inline uint8_t getFlag(flag f)
+    {
+        switch (f)
+        {
+            case flag::Z: return getZeroFlag();
+            case flag::N: return getNegativeFlag();
+            case flag::H: return getHalfCarryFlag();
+            case flag::C: return getCarryFlag();
+            case flag::NZ: return !getZeroFlag();
+            case flag::NN: return !getNegativeFlag();
+            case flag::NH: return !getHalfCarryFlag();
+            case flag::NC: return !getCarryFlag();
+            default: IMPOSSIBLE();
+        }
+    }
 
     // -- set --
     inline void setZeroFlag()       { m_F |=  0b10000000; }

@@ -54,6 +54,7 @@ private:
     using n16   =       uint16_t; // constant
     using e8    =         int8_t; // offset
     using u3    =        uint8_t; // constant
+    using cc    = Registers::flag;// condition (enum class)
     using vec   =        uint8_t; // address
 
     //=========================================================================
@@ -434,6 +435,13 @@ private:
         m_registers->setPC(m_registers->get16(reg));
     }
 
+    // ----
+    inline void relativeJumpIf(cc cond, e8 offset)
+    {
+        if (m_registers->getFlag(cond))
+            m_registers->setPC(m_registers->getPC()+offset);
+    }
+    
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
         // The Z80-like processors do not crash the system when
@@ -475,33 +483,33 @@ private:
     inline void i_0x1d()        { decrementRegister8F(r8::E); }
     inline void i_0x1e(n8 x)    { setRegister8(r8::E, x); }
     inline void i_0x1f()        { rotateRegister8BitsRightThroughCarryFlagF(r8::A); }
-    inline void i_0x20(e8 x)    { UNIMPLEMENTED(); }
+    inline void i_0x20(e8 x)    { relativeJumpIf(cc::NZ, x); }
     inline void i_0x21(n16 x)   { setRegister16(r16::HL, x); }
-    inline void i_0x22()        { UNIMPLEMENTED(); }
+    inline void i_0x22()        { setValueAtAddressInRegister16(r16::HL, m_registers->getA()); incrementRegister16(r16::HL); }
     inline void i_0x23()        { incrementRegister16(r16::HL); }
     inline void i_0x24()        { incrementRegister8F(r8::H); }
     inline void i_0x25()        { decrementRegister8F(r8::H); }
     inline void i_0x26(n8 x)    { setRegister8(r8::H, x); }
     inline void i_0x27()        { UNIMPLEMENTED(); }
-    inline void i_0x28()        { UNIMPLEMENTED(); }
+    inline void i_0x28(e8 x)    { relativeJumpIf(cc::Z, x); }
     inline void i_0x29()        { addRegister16ToRegister16F(r16::HL, r16::HL); }
-    inline void i_0x2a()        { UNIMPLEMENTED(); }
+    inline void i_0x2a()        { setRegister8ToValueAtAddressInRegister16(r8::A, r16::HL); incrementRegister16(r16::HL); }
     inline void i_0x2b()        { decrementRegister16(r16::HL); }
     inline void i_0x2c()        { incrementRegister8F(r8::L); }
     inline void i_0x2d()        { decrementRegister8F(r8::L); }
     inline void i_0x2e(n8 x)    { setRegister8(r8::L, x); }
     inline void i_0x2f()        { complementRegister8F(r8::A); }
-    inline void i_0x30()        { UNIMPLEMENTED(); }
+    inline void i_0x30(e8 x)    { relativeJumpIf(cc::NC, x); }
     inline void i_0x31(n16 x)   { m_registers->setSP(x); }
-    inline void i_0x32()        { UNIMPLEMENTED(); }
+    inline void i_0x32()        { setValueAtAddressInRegister16ToRegister8(r16::HL, r8::A); decrementRegister16(r16::HL); }
     inline void i_0x33()        { incrementRegister16(r16::SP); }
     inline void i_0x34()        { incrementValueAtAddressInRegister16F(r16::HL); }
     inline void i_0x35()        { decrementValueAtAddressInRegister16F(r16::HL); }
     inline void i_0x36(n8 x)    { setValueAtAddressInRegister16(r16::HL, x); }
     inline void i_0x37()        { m_registers->unsetNegativeFlag(); m_registers->unsetHalfCarryFlag(); m_registers->setHalfCarryFlag(); }
-    inline void i_0x38()        { UNIMPLEMENTED(); }
+    inline void i_0x38(e8 x)    { relativeJumpIf(cc::C, x); }
     inline void i_0x39()        { addRegister16ToRegister16F(r16::HL, r16::SP); }
-    inline void i_0x3a()        { UNIMPLEMENTED(); }
+    inline void i_0x3a()        { setRegister8ToValueAtAddressInRegister16(r8::A, r16::HL); decrementRegister16(r16::HL); }
     inline void i_0x3b()        { decrementRegister16(r16::SP); }
     inline void i_0x3c()        { incrementRegister8F(r8::A); }
     inline void i_0x3d()        { decrementRegister8F(r8::A); }
