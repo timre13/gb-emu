@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 link_libraries(SDL2)
 include_directories(/usr/include/SDL2)
 
-set(CMAKE_CXX_FLAGS "-D_REENTRANT")
+set(CMAKE_CXX_FLAGS "-D_REENTRANT -Wall -Wextra -Wpedantic")
 
 project(GBEmu VERSION 1.0)
 
