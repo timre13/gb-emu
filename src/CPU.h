@@ -436,10 +436,72 @@ private:
     }
 
     // ----
+    inline void jpIf(cc cond, n16 addr)
+    {
+        if (m_registers->getFlag(cond))
+            m_registers->setPC(addr);
+    }
+
+    // ----
     inline void relativeJumpIf(cc cond, e8 offset)
     {
         if (m_registers->getFlag(cond))
             m_registers->setPC(m_registers->getPC()+offset);
+    }
+
+    // ----
+    inline void ret()
+    {
+        pop16();
+    }
+
+    // ----
+    inline void retIf(cc cond)
+    {
+        if (m_registers->getFlag(cond))
+            ret();
+    }
+
+    // ----
+    inline n8 pop()
+    {
+        auto ret{m_memoryPtr->get(m_registers->getSP())};
+        m_registers->decrementSP();
+        return ret;
+    }
+
+    // ----
+    inline n16 pop16()
+    {
+        auto ret{m_memoryPtr->get16(m_registers->getSP())};
+        m_registers->decrementSP(2);
+        return ret;
+    }
+
+    // ----
+    inline void push16(n16 val)
+    {
+        m_registers->incrementSP(2);
+        m_memoryPtr->set16(m_registers->getSP(), val);
+    }
+
+    // ----
+    inline void pushRegister16(r16 reg)
+    {
+        push16(m_registers->get16(reg));
+    }
+
+    // ----
+    inline void call(n16 addr)
+    {
+        push16(addr);
+    }
+
+    // ----
+    inline void callIf(cc cond, n16 addr)
+    {
+        if (m_registers->getFlag(cond))
+            call(addr);
     }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
@@ -643,47 +705,47 @@ private:
     inline void i_0xbd()        { cpRegister8AndRegister8F(r8::A, r8::L); }
     inline void i_0xbe()        { cpRegister8AndValue(r8::A, m_memoryPtr->get(m_registers->getHL())); }
     inline void i_0xbf()        { cpRegister8AndRegister8F(r8::A, r8::A); }
-    inline void i_0xc0()        { UNIMPLEMENTED(); }
-    inline void i_0xc1()        { UNIMPLEMENTED(); }
-    inline void i_0xc2()        { UNIMPLEMENTED(); }
+    inline void i_0xc0()        { retIf(cc::NZ); }
+    inline void i_0xc1()        { pop(); }
+    inline void i_0xc2(n16 x)   { jpIf(cc::NZ, x); }
     inline void i_0xc3(n16 x)   { jpToAddress(x); }
-    inline void i_0xc4()        { UNIMPLEMENTED(); }
-    inline void i_0xc5()        { UNIMPLEMENTED(); }
+    inline void i_0xc4(n16 x)   { callIf(cc::NZ, x); }
+    inline void i_0xc5()        { pushRegister16(r16::BC); }
     inline void i_0xc6(n8 x)    { addToRegister8F(r8::A, x); }
     inline void i_0xc7()        { UNIMPLEMENTED(); }
-    inline void i_0xc8()        { UNIMPLEMENTED(); }
-    inline void i_0xc9()        { UNIMPLEMENTED(); }
-    inline void i_0xca()        { UNIMPLEMENTED(); }
+    inline void i_0xc8()        { retIf(cc::Z); }
+    inline void i_0xc9()        { ret(); }
+    inline void i_0xca(n16 x)   { jpIf(cc::Z, x); }
     inline void i_0xcb()        { UNIMPLEMENTED(); Logger::info("Found an CB prefix"); }
-    inline void i_0xcc()        { UNIMPLEMENTED(); }
-    inline void i_0xcd()        { UNIMPLEMENTED(); }
+    inline void i_0xcc(n16 x)   { callIf(cc::Z, x); }
+    inline void i_0xcd(n16 x)   { call(x); }
     inline void i_0xce(n8 x)    { addValueAndCarryFlagToRegister8F(r8::A, x); }
     inline void i_0xcf()        { UNIMPLEMENTED(); }
-    inline void i_0xd0()        { UNIMPLEMENTED(); }
-    inline void i_0xd1()        { UNIMPLEMENTED(); }
-    inline void i_0xd2()        { UNIMPLEMENTED(); }
+    inline void i_0xd0()        { retIf(cc::NC); }
+    inline void i_0xd1()        { m_registers->set16(r16::DE, pop16()); }
+    inline void i_0xd2(n16 x)   { jpIf(cc::NC, x); }
     inline void i_0xd3()        { ILLEGAL_INSTRUCTION(0xd3); }
-    inline void i_0xd4()        { UNIMPLEMENTED(); }
-    inline void i_0xd5()        { UNIMPLEMENTED(); }
+    inline void i_0xd4(n16 x)   { callIf(cc::NC, x); }
+    inline void i_0xd5()        { pushRegister16(r16::DE); }
     inline void i_0xd6(n8 x)    { subFromRegister8F(r8::A, x); }
     inline void i_0xd7()        { UNIMPLEMENTED(); }
-    inline void i_0xd8()        { UNIMPLEMENTED(); }
+    inline void i_0xd8()        { retIf(cc::C); }
     inline void i_0xd9()        { UNIMPLEMENTED(); }
-    inline void i_0xda()        { UNIMPLEMENTED(); }
+    inline void i_0xda(n16 x)   { jpIf(cc::C, x); }
     inline void i_0xdb()        { ILLEGAL_INSTRUCTION(0xdb); }
-    inline void i_0xdc()        { UNIMPLEMENTED(); }
+    inline void i_0xdc(n16 x)   { callIf(cc::C, x); }
     inline void i_0xdd()        { ILLEGAL_INSTRUCTION(0xdd); }
     inline void i_0xde(n8 x)    { subValueAndCarryFlagFromRegister8F(r8::A, x); }
     inline void i_0xdf()        { UNIMPLEMENTED(); }
     inline void i_0xe0()        { UNIMPLEMENTED(); }
-    inline void i_0xe1()        { UNIMPLEMENTED(); }
+    inline void i_0xe1()        { m_registers->setHL(pop16()); }
     inline void i_0xe2()        { UNIMPLEMENTED(); }
     inline void i_0xe3()        { ILLEGAL_INSTRUCTION(0xe3); }
     inline void i_0xe4()        { ILLEGAL_INSTRUCTION(0xe4); }
-    inline void i_0xe5()        { UNIMPLEMENTED(); }
+    inline void i_0xe5()        { pushRegister16(r16::HL); }
     inline void i_0xe6(n8 x)    { andValueAndRegister8F(r8::A, x); }
     inline void i_0xe7()        { UNIMPLEMENTED(); }
-    inline void i_0xe8()        { UNIMPLEMENTED(); }
+    inline void i_0xe8(e8 x)    { m_registers->incrementSP(x); }
     inline void i_0xe9()        { jpToAddressInRegister16(r16::HL); }
     inline void i_0xea(n8 x)    { setValueAtAddressToRegister8(x, r8::A); }
     inline void i_0xeb()        { ILLEGAL_INSTRUCTION(0xeb); }
@@ -692,14 +754,14 @@ private:
     inline void i_0xee(n8 x)    { xorValueAndRegister8F(r8::A, x); }
     inline void i_0xef()        { UNIMPLEMENTED(); }
     inline void i_0xf0()        { UNIMPLEMENTED(); }
-    inline void i_0xf1()        { UNIMPLEMENTED(); }
+    inline void i_0xf1()        { m_registers->setAF(pop16()); }
     inline void i_0xf2()        { UNIMPLEMENTED(); }
     inline void i_0xf3()        { UNIMPLEMENTED(); }
     inline void i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); }
-    inline void i_0xf5()        { UNIMPLEMENTED(); }
+    inline void i_0xf5()        { pushRegister16(r16::AF); }
     inline void i_0xf6(n8 x)    { orValueAndRegister8F(r8::A, x); }
     inline void i_0xf7()        { UNIMPLEMENTED(); }
-    inline void i_0xf8()        { UNIMPLEMENTED(); }
+    inline void i_0xf8(e8 x)    { setRegister16(r16::HL, m_registers->getSP()+x); }
     inline void i_0xf9()        { setRegister16ToRegister16(r16::SP, r16::HL); }
     inline void i_0xfa(n8 x)    { setRegister8(r8::A, x); }
     inline void i_0xfb()        { UNIMPLEMENTED(); }

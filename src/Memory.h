@@ -102,6 +102,12 @@ public:
     uint8_t get(uint16_t address, bool log=true) const;
     void    set(uint16_t address, uint8_t value, bool log=true);
 
+    inline uint16_t get16(uint16_t address, bool log=true) const
+    {
+        return (get(address, log) << 8) |
+                get(address+1, log);
+    }
+
     inline void set16(uint16_t address, uint16_t value) // uses "set()" to set 2 bytes
     {
         set(address, (value&0xf0)>>4);

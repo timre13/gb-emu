@@ -139,6 +139,12 @@ public:
         }
     }
 
+    // -- increment --
+    inline void incrementSP(uint16_t val=1) { m_SP += val; }
+
+    // -- decrement --
+    inline void decrementSP(uint16_t val=1) { m_SP -= val; }
+
 
     // --- flag register (F) ---
 
