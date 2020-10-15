@@ -104,7 +104,7 @@ public:
 
     inline void set16(uint16_t address, uint16_t value) // uses "set()" to set 2 bytes
     {
-        set(address, (value&0xf0)>>8);
+        set(address, (value&0xf0)>>4);
         set(address+1, (value&0x0f));
     }
 
