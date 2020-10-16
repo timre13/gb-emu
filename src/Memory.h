@@ -117,10 +117,10 @@ public:
 
     inline uint32_t get32(uint16_t address, bool log=true) const
     {
-        return (get(address, log) << 24) |
-               (get(address+1, log) << 16) |
-               (get(address+2, log) <<  8) |
-               (get(address+3, log));
+        return (get(address+0, log) <<  0) |
+               (get(address+1, log) <<  8) |
+               (get(address+2, log) << 16) |
+               (get(address+3, log) << 24);
     }
 
     void printRom0() const;
