@@ -466,7 +466,7 @@ private:
     inline n8 pop()
     {
         auto ret{m_memoryPtr->get(m_registers->getSP())};
-        m_registers->decrementSP();
+        m_registers->incrementSP();
         return ret;
     }
 
@@ -474,14 +474,21 @@ private:
     inline n16 pop16()
     {
         auto ret{m_memoryPtr->get16(m_registers->getSP())};
-        m_registers->decrementSP(2);
+        m_registers->incrementSP(2);
         return ret;
     }
 
     // ----
-    inline void push16(n16 val)
+    inline void push(n16 val)
     {
-        m_registers->incrementSP(2);
+        m_registers->decrementSP();
+        m_memoryPtr->set(m_registers->getSP(), val);
+    }
+
+    // ----
+    inline void push16(n8 val)
+    {
+        m_registers->decrementSP(2);
         m_memoryPtr->set16(m_registers->getSP(), val);
     }
 
