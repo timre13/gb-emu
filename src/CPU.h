@@ -452,7 +452,7 @@ private:
     // ----
     inline void ret()
     {
-        pop16();
+        jpToAddress(pop16());
     }
 
     // ----
@@ -494,7 +494,8 @@ private:
     // ----
     inline void call(n16 addr)
     {
-        push16(addr);
+        push16(m_registers->getPC());
+        jpToAddress(addr);
     }
 
     // ----
