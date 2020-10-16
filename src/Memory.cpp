@@ -30,7 +30,10 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xfdff) // ECHO - Mirror RAM
         return get(address-0xbfff-1); // map the address to the start of WRAM0
     else if (address <= 0xfe9f) // OAM - Object Attribute RAM / Sprite information table
+    {
         UNIMPLEMENTED(); // TODO: implement OEM
+        return 0;
+    }
     else if (address <= 0xfeff) // UNUSED
         return 0;
     else if (address <= 0xff7f) // I/O Registers
@@ -92,6 +95,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
             return 0xff;
         default:
             UNIMPLEMENTED(); // TODO: And the rest I/O registers?
+            return 0;
         }
     else if (address <= 0xfffe) // HRAM - High RAM / internal CPU RAM
         return m_hram.at(address-0xff7f-1);
