@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-#define LOG_NO_COLOR
+//#define LOG_NO_COLOR
 
 static inline std::string getTime()
 {
