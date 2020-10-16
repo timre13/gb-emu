@@ -10,7 +10,8 @@ int WINDOW_HEIGHT{1000};
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
 #define DELAY_BETWEEN_CYCLES_MS 0
 
-GBEmulator::GBEmulator()
+GBEmulator::GBEmulator(const std::string &romFilename)
+    : m_romFilename{romFilename}
 {
     Logger::info("Starting emulator...");
 
@@ -80,12 +81,7 @@ void GBEmulator::initHardware()
 {
     Logger::info("Initializing virtual hardware");
 
-    //m_cartridgeReader   = new CartridgeReader{"roms/Pokemon - Blue Version (UE) [S][!].gb"};
-    //m_cartridgeReader   = new CartridgeReader{"roms/Super Mario Land (JUE) (V1.1) [!].gb"};
-    //m_cartridgeReader   = new CartridgeReader{"roms/Super Mario Bros. Deluxe (U) (V1.1) [C][!].gbc"};
-    //m_cartridgeReader   = new CartridgeReader{"roms/cpu_instrs.gb"};
-    //m_cartridgeReader   = new CartridgeReader{"roms/Tetris (JUE) (V1.1) [!].gb"};
-    m_cartridgeReader   = new CartridgeReader{"roms/Dr. Mario (JU) (V1.1).gb"};
+    m_cartridgeReader   = new CartridgeReader{m_romFilename};
 
     if (!m_cartridgeReader)
     {

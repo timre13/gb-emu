@@ -9,6 +9,7 @@
 
 #include "DebugWindow.h"
 
+#include <string>
 #include <SDL2/SDL.h>
 
 class GBEmulator final
@@ -27,6 +28,8 @@ private:
 
     DebugWindow     *m_debugWindow{nullptr};
 
+    std::string     m_romFilename;
+
     void initGUI();
     void initDebugWindow();
     void deinit();
@@ -36,7 +39,7 @@ private:
     void emulateCycle();
 
 public:
-    GBEmulator();
+    GBEmulator(const std::string &romFilename);
 
     void startLoop();
 
