@@ -104,14 +104,15 @@ public:
 
     inline uint16_t get16(uint16_t address, bool log=true) const
     {
-        return (get(address, log) << 8) |
-                get(address+1, log);
+        // Get 2 bytes and swap them (little endianess!)
+        return get(address, log) | (get(address+1, log) << 8);
     }
 
-    inline void set16(uint16_t address, uint16_t value) // uses "set()" to set 2 bytes
+    inline void set16(uint16_t address, uint16_t value)
     {
-        set(address, (value&0xf0)>>4);
-        set(address+1, (value&0x0f));
+        // Set the 2 bytes swapped (little endianess!)
+        set(address, (value&0x00ff));
+        set(address+1, (value&0xff00)>>8);
     }
 
     inline uint32_t get32(uint16_t address, bool log=true) const
