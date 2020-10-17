@@ -115,12 +115,13 @@ public:
         set(address+1, (value&0xff00)>>8);
     }
 
-    inline uint32_t get32(uint16_t address, bool log=true) const
+    // Gets a 24-bit opcode
+    inline uint32_t getOpcodeAt(uint16_t address, bool log=true) const
     {
-        return (get(address+0, log) <<  0) |
-               (get(address+1, log) <<  8) |
-               (get(address+2, log) << 16) |
-               (get(address+3, log) << 24);
+        return
+            (get(address+0, log) << 24) |
+            (get(address+2, log) << 16) |
+            (get(address+1, log) <<  8);
     }
 
     void printRom0() const;
