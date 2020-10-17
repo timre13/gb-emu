@@ -19,10 +19,14 @@ private:
     Registers       *m_registers{nullptr};
     Memory          *m_memoryPtr{nullptr};
 
-    int             m_lastOpcodeSize{};
-    int             m_currentOpcodeSize{};
+    int             m_opcodeSize{};
 
     opcode_t        m_currentOpcode{};
+
+    // After executing an instruction the PC is incremented.
+    // After a JMP-like opcode we should not increment it,
+    // because we need to be at the address we jumped to.
+    bool            m_wasJump{};
 
 public:
     CPU(Memory *memory);
@@ -33,8 +37,8 @@ public:
 
     void fetchOpcode();
     inline opcode_t getCurrentOpcode() const     { return m_currentOpcode; }
-    inline void stepPC()                         { m_registers->setPC(m_registers->getPC()+m_lastOpcodeSize); }
-    inline int getCurrentOpcodeSize() const      { return m_currentOpcodeSize; }
+    inline void stepPC()                         { if (m_wasJump) return; m_registers->setPC(m_registers->getPC()+m_opcodeSize); }
+    inline int getCurrentOpcodeSize() const      { return m_opcodeSize; }
     void emulateCurrentOpcode();
 
 private:
@@ -410,7 +414,7 @@ private:
     // ----
     inline void relativeJump(e8 offset)
     {
-        m_registers->setPC(m_registers->getPC()+offset+1);
+        jpToAddress(m_registers->getPC()+offset+1);
     }
 
     // -11-
@@ -427,26 +431,27 @@ private:
     inline void jpToAddress(n16 addr)
     {
         m_registers->setPC(addr);
+        m_wasJump = true;
     }
 
     // ----
     inline void jpToAddressInRegister16(r16 reg)
     {
-        m_registers->setPC(m_registers->get16(reg));
+        jpToAddress(m_registers->get16(reg));
     }
 
     // ----
     inline void jpIf(cc cond, n16 addr)
     {
         if (m_registers->getFlag(cond))
-            m_registers->setPC(addr);
+            jpToAddress(addr);
     }
 
     // ----
     inline void relativeJumpIf(cc cond, e8 offset)
     {
         if (m_registers->getFlag(cond))
-            m_registers->setPC(m_registers->getPC()+offset);
+            jpToAddress(m_registers->getPC()+offset);
     }
 
     // ----

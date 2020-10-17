@@ -11,13 +11,14 @@ CPU::CPU(Memory *memory)
 
 void CPU::fetchOpcode()
 {
-    m_lastOpcodeSize = m_currentOpcodeSize;
-    m_currentOpcode = m_memoryPtr->get32(m_registers->getPC(), false);
-    m_currentOpcodeSize = opcodeSizes.at((m_currentOpcode&0xff000000) >> 24);
+    m_currentOpcode = m_memoryPtr->getOpcodeAt(m_registers->getPC(), false);
+    m_opcodeSize = opcodeSizes.at((m_currentOpcode&0xff000000) >> 24);
 }
 
 void CPU::emulateCurrentOpcode()
 {
+    m_wasJump = false;
+
     switch ((m_currentOpcode & 0xff'00'00'00) >> 24)
     {
     case 0x00: i_0x00();                                    break;
