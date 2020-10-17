@@ -516,6 +516,13 @@ private:
         if (m_registers->getFlag(cond))
             call(addr);
     }
+
+    // ----
+    inline void callVector(vec addr)
+    {
+        // Call the address stored in a jump vector
+        call(m_memoryPtr->get16(addr));
+    }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
@@ -725,7 +732,7 @@ private:
     inline void i_0xc4(n16 x)   { callIf(cc::NZ, x); }
     inline void i_0xc5()        { pushRegister16(r16::BC); }
     inline void i_0xc6(n8 x)    { addToRegister8F(r8::A, x); }
-    inline void i_0xc7()        { UNIMPLEMENTED(); }
+    inline void i_0xc7()        { callVector(0x00); }
     inline void i_0xc8()        { retIf(cc::Z); }
     inline void i_0xc9()        { ret(); }
     inline void i_0xca(n16 x)   { jpIf(cc::Z, x); }
@@ -733,7 +740,7 @@ private:
     inline void i_0xcc(n16 x)   { callIf(cc::Z, x); }
     inline void i_0xcd(n16 x)   { call(x); }
     inline void i_0xce(n8 x)    { addValueAndCarryFlagToRegister8F(r8::A, x); }
-    inline void i_0xcf()        { UNIMPLEMENTED(); }
+    inline void i_0xcf()        { callVector(0x08); }
     inline void i_0xd0()        { retIf(cc::NC); }
     inline void i_0xd1()        { m_registers->set16(r16::DE, pop16()); }
     inline void i_0xd2(n16 x)   { jpIf(cc::NC, x); }
@@ -741,7 +748,7 @@ private:
     inline void i_0xd4(n16 x)   { callIf(cc::NC, x); }
     inline void i_0xd5()        { pushRegister16(r16::DE); }
     inline void i_0xd6(n8 x)    { subFromRegister8F(r8::A, x); }
-    inline void i_0xd7()        { UNIMPLEMENTED(); }
+    inline void i_0xd7()        { callVector(0x10); }
     inline void i_0xd8()        { retIf(cc::C); }
     inline void i_0xd9()        { UNIMPLEMENTED(); }
     inline void i_0xda(n16 x)   { jpIf(cc::C, x); }
@@ -749,7 +756,7 @@ private:
     inline void i_0xdc(n16 x)   { callIf(cc::C, x); }
     inline void i_0xdd()        { ILLEGAL_INSTRUCTION(0xdd); }
     inline void i_0xde(n8 x)    { subValueAndCarryFlagFromRegister8F(r8::A, x); }
-    inline void i_0xdf()        { UNIMPLEMENTED(); }
+    inline void i_0xdf()        { callVector(0x18); }
     inline void i_0xe0()        { UNIMPLEMENTED(); }
     inline void i_0xe1()        { m_registers->setHL(pop16()); }
     inline void i_0xe2()        { UNIMPLEMENTED(); }
@@ -757,7 +764,7 @@ private:
     inline void i_0xe4()        { ILLEGAL_INSTRUCTION(0xe4); }
     inline void i_0xe5()        { pushRegister16(r16::HL); }
     inline void i_0xe6(n8 x)    { andValueAndRegister8F(r8::A, x); }
-    inline void i_0xe7()        { UNIMPLEMENTED(); }
+    inline void i_0xe7()        { callVector(0x20); }
     inline void i_0xe8(e8 x)    { m_registers->incrementSP(x); }
     inline void i_0xe9()        { jpToAddressInRegister16(r16::HL); }
     inline void i_0xea(n8 x)    { setValueAtAddressToRegister8(x, r8::A); }
@@ -765,7 +772,7 @@ private:
     inline void i_0xec()        { ILLEGAL_INSTRUCTION(0xec); }
     inline void i_0xed()        { ILLEGAL_INSTRUCTION(0xed); }
     inline void i_0xee(n8 x)    { xorValueAndRegister8F(r8::A, x); }
-    inline void i_0xef()        { UNIMPLEMENTED(); }
+    inline void i_0xef()        { callVector(0x28); }
     inline void i_0xf0()        { UNIMPLEMENTED(); }
     inline void i_0xf1()        { m_registers->setAF(pop16()); }
     inline void i_0xf2()        { UNIMPLEMENTED(); }
@@ -773,7 +780,7 @@ private:
     inline void i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); }
     inline void i_0xf5()        { pushRegister16(r16::AF); }
     inline void i_0xf6(n8 x)    { orValueAndRegister8F(r8::A, x); }
-    inline void i_0xf7()        { UNIMPLEMENTED(); }
+    inline void i_0xf7()        { callVector(0x30); }
     inline void i_0xf8(e8 x)    { setRegister16(r16::HL, m_registers->getSP()+x); }
     inline void i_0xf9()        { setRegister16ToRegister16(r16::SP, r16::HL); }
     inline void i_0xfa(n8 x)    { setRegister8(r8::A, x); }
@@ -781,7 +788,7 @@ private:
     inline void i_0xfc()        { ILLEGAL_INSTRUCTION(0xfc); }
     inline void i_0xfd()        { ILLEGAL_INSTRUCTION(0xfd); }
     inline void i_0xfe(n8 x)    { cpRegister8AndValue(r8::A, x); }
-    inline void i_0xff()        { UNIMPLEMENTED(); }
+    inline void i_0xff()        { callVector(0x38); }
 };
 
 
