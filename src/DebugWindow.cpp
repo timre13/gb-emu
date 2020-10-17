@@ -1,6 +1,7 @@
 #include "DebugWindow.h"
 #include "Logger.h"
 #include "string_formatting.h"
+#include "opcode_names.h"
 
 #include <bitset>
 #include <stdint.h>
@@ -99,8 +100,9 @@ void DebugWindow::updateOpcodeValue(const CPU *cpu)
 {
     renderText("===== Opcode ====", 10, 10+m_fontH*27);
     renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 10, 10+m_fontH*28);
-    renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*29);
-    renderText("=================", 10, 10+m_fontH*30);
+    renderText("Name:  "+OpcodeNames::get((cpu->getCurrentOpcode() & 0xff000000) >> 24), 10, 10+m_fontH*29);
+    renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*30);
+    renderText("=================", 10, 10+m_fontH*31);
 }
 
 void DebugWindow::updateMemoryvalues(const Memory *memory)
@@ -110,10 +112,10 @@ void DebugWindow::updateMemoryvalues(const Memory *memory)
     //for (uint32_t i{}; i <= 0xffff; ++i)
     //    renderText(toHexStr(memory->get(i, false), 2, false), 500+m_fontW*(i%0x100), 10+m_fontH*(i/0x100));
 
-    renderText("===== Misc. Registers =====", 10, 10+m_fontH*32);
+    renderText("===== Misc. Registers =====", 10, 10+m_fontH*33);
 
     auto regIE{memory->get(0xffff, false)};
-    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*33);
+    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*34);
 }
 
 DebugWindow::~DebugWindow()

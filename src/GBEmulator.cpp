@@ -1,6 +1,7 @@
 #include "GBEmulator.h"
 #include "Logger.h"
 #include "string_formatting.h"
+#include "opcode_names.h"
 
 #include <SDL2/SDL_hints.h>
 
@@ -183,11 +184,13 @@ void GBEmulator::emulateCycle()
     {
         m_cpu->fetchOpcode();
 
-        Logger::info("Current opcode: "+toHexStr(m_cpu->getCurrentOpcode()));
+        Logger::info("----- Cycle -----");
         Logger::info("PC: "+toHexStr(m_cpu->getRegisters()->getPC()));
+        Logger::info("Opcode value: "+toHexStr(m_cpu->getCurrentOpcode(), 8));
+        Logger::info("Opcode name:  "+OpcodeNames::get((m_cpu->getCurrentOpcode() & 0xff000000) >> 24));
+        Logger::info("Opcode size:  "+std::to_string(m_cpu->getCurrentOpcodeSize()));
 
         m_cpu->emulateCurrentOpcode();
-        m_cpu->stepPC();
 
         m_debugWindow->clearRenderer();
         m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
@@ -197,6 +200,8 @@ void GBEmulator::emulateCycle()
 
         SDL_RenderPresent(m_renderer);
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);
+
+        m_cpu->stepPC();
     }
 }
 

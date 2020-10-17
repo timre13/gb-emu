@@ -33,4 +33,5 @@ add_executable(gb-emu
     src/main.cpp
     src/opcode_sizes.h
     src/string_formatting.h
+    src/opcode_names.h
 )
