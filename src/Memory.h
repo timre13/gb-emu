@@ -46,6 +46,50 @@ private:
     // We just always read 0 here and ignore writes.
 
     // I/O Registers
+    // NR10 - 0xff10
+    uint8_t                                         m_nr10Register{};
+    // NR11 - 0xff11
+    uint8_t                                         m_nr11Register{};
+    // NR12 - 0xff12
+    uint8_t                                         m_nr12Register{};
+    // NR13 - 0xff13
+    uint8_t                                         m_nr13Register{};
+    // NR14 - 0xff14
+    uint8_t                                         m_nr14Register{};
+    // NR21 - 0xff16
+    uint8_t                                         m_nr21Register{};
+    // NR22 - 0xff17
+    uint8_t                                         m_nr22Register{};
+    // NR23 - 0xff18
+    uint8_t                                         m_nr23Register{};
+    // NR24 - 0xff19
+    uint8_t                                         m_nr24Register{};
+    // NR30 - 0xff1a
+    uint8_t                                         m_nr30Register{};
+    // NR31 - 0xff1b
+    uint8_t                                         m_nr31Register{};
+    // NR32 - 0xff1c
+    uint8_t                                         m_nr32Register{};
+    // NR33 - 0xff1d
+    uint8_t                                         m_nr33Register{};
+    // NR34 - 0xff1e
+    uint8_t                                         m_nr34Register{};
+    // Wave Pattern RAM - 0xff30-0xff3f
+    //std::array<uint8_t, 0x10>                       m_wavePatternRam{};
+    // NR41 - 0xff20
+    uint8_t                                         m_nr41Register{};
+    // NR42 - 0xff21
+    uint8_t                                         m_nr42Register{};
+    // NR43 - 0xff22
+    uint8_t                                         m_nr43Register{};
+    // NR44 - 0xff23
+    uint8_t                                         m_nr44Register{};
+    // NR50 - 0xff24
+    uint8_t                                         m_nr50Register{};
+    // NR51 - 0xff25
+    uint8_t                                         m_nr51Register{};
+    // NR52 - 0xff26
+    uint8_t                                         m_nr52Register{};
     // LCD  - 0xff40
     uint8_t                                         m_lcdControlRegister{};
     // LCD  - 0xff41
@@ -70,25 +114,6 @@ private:
     uint8_t                                         m_obp1Register{};
     // DMA  - 0xff46
     uint8_t                                         m_dmaRegister{};
-    // NR10 - 0xff10
-    uint8_t                                         m_nr10Register{};
-    // NR11 - 0xff11
-    uint8_t                                         m_nr11Register{};
-    // NR12 - 0xff12
-    uint8_t                                         m_nr12Register{};
-    // NR13 - 0xff13
-    uint8_t                                         m_nr13Register{};
-    // NR14 - 0xff14
-    uint8_t                                         m_nr14Register{};
-    // NR16 - 0xff16
-    uint8_t                                         m_nr16Register{};
-    // NR16 - 0xff17
-    uint8_t                                         m_nr17Register{};
-    // NR16 - 0xff18
-    uint8_t                                         m_nr18Register{};
-    // NR16 - 0xff19
-    uint8_t                                         m_nr19Register{};
-    // TODO: next to add: NR30/0xff10
 
     // High RAM, actually in the CPU
     std::array<uint8_t, 0x7e + 1>                   m_hram{};
