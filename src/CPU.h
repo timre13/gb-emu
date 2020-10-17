@@ -757,9 +757,9 @@ private:
     inline void i_0xdd()        { ILLEGAL_INSTRUCTION(0xdd); }
     inline void i_0xde(n8 x)    { subValueAndCarryFlagFromRegister8F(r8::A, x); }
     inline void i_0xdf()        { callVector(0x18); }
-    inline void i_0xe0()        { UNIMPLEMENTED(); }
+    inline void i_0xe0(e8 x)    { setValueAtAddressToRegister8(0xff00+x, r8::A); }
     inline void i_0xe1()        { m_registers->setHL(pop16()); }
-    inline void i_0xe2()        { UNIMPLEMENTED(); }
+    inline void i_0xe2()        { setValueAtAddressToRegister8(0xff00+m_registers->getC(), r8::A); }
     inline void i_0xe3()        { ILLEGAL_INSTRUCTION(0xe3); }
     inline void i_0xe4()        { ILLEGAL_INSTRUCTION(0xe4); }
     inline void i_0xe5()        { pushRegister16(r16::HL); }
@@ -773,9 +773,9 @@ private:
     inline void i_0xed()        { ILLEGAL_INSTRUCTION(0xed); }
     inline void i_0xee(n8 x)    { xorValueAndRegister8F(r8::A, x); }
     inline void i_0xef()        { callVector(0x28); }
-    inline void i_0xf0()        { UNIMPLEMENTED(); }
+    inline void i_0xf0(n8 x)    { setRegister8(r8::A, m_memoryPtr->get(0xff00+x)); }
     inline void i_0xf1()        { m_registers->setAF(pop16()); }
-    inline void i_0xf2()        { UNIMPLEMENTED(); }
+    inline void i_0xf2()        { setRegister8(r8::A, m_memoryPtr->get(0xff00+m_registers->getC())); }
     inline void i_0xf3()        { UNIMPLEMENTED(); }
     inline void i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); }
     inline void i_0xf5()        { pushRegister16(r16::AF); }

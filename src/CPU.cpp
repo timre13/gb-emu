@@ -245,7 +245,7 @@ void CPU::emulateCurrentOpcode()
     case 0xdd: i_0xdd();                                    break;
     case 0xde: i_0xde((m_currentOpcode&0x00ff0000)>>16);    break;
     case 0xdf: i_0xdf();                                    break;
-    case 0xe0: i_0xe0();                                    break;
+    case 0xe0: i_0xe0((m_currentOpcode&0x00ff0000)>>16);    break;
     case 0xe1: i_0xe1();                                    break;
     case 0xe2: i_0xe2();                                    break;
     case 0xe3: i_0xe3();                                    break;
@@ -261,7 +261,7 @@ void CPU::emulateCurrentOpcode()
     case 0xed: i_0xed();                                    break;
     case 0xee: i_0xee((m_currentOpcode&0x00ff0000)>>16);    break;
     case 0xef: i_0xef();                                    break;
-    case 0xf0: i_0xf0();                                    break;
+    case 0xf0: i_0xf0((m_currentOpcode&0x00ff0000)>>16);    break;
     case 0xf1: i_0xf1();                                    break;
     case 0xf2: i_0xf2();                                    break;
     case 0xf3: i_0xf3();                                    break;
