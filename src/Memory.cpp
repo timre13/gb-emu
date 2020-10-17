@@ -30,10 +30,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xfdff) // ECHO - Mirror RAM
         return get(address-0xbfff-1); // map the address to the start of WRAM0
     else if (address <= 0xfe9f) // OAM - Object Attribute RAM / Sprite information table
-    {
-        UNIMPLEMENTED(); // TODO: implement OEM
-        return 0;
-    }
+        return m_oam.at(address-0xfdff-1);
     else if (address <= 0xfeff) // UNUSED
         return 0;
     else if (address <= 0xff7f) // I/O Registers
@@ -127,7 +124,7 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
     else if (address <= 0xfdff) // ECHO - Mirror RAM
         set(address-0xbfff-1, value); // map the address to the start of WRAM0
     else if (address <= 0xfe9f) // OAM - Object Attribute Ram / Sprite information table
-        UNIMPLEMENTED();
+        m_oam.at(address-0xfdff-1) = value;
     else if (address <= 0xfeff) // UNUSED
     {
         // Writes are ignored

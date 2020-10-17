@@ -40,7 +40,7 @@ private:
     // Actually WRAM0 and WRAM1
 
     // OAM table
-    // ???
+    std::array<uint8_t, 0x9f + 1>                   m_oam{};
 
     // Not usable
     // We just always read 0 here and ignore writes.
