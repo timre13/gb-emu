@@ -547,6 +547,31 @@ private:
     {
         m_registers->setIme();
     }
+
+    // Z-0C
+    inline void decimalAdjustAccumulator()
+    {
+        if (m_registers->getNegativeFlag()) // After a substraction
+        {
+            if (m_registers->getCarryFlag())
+                m_registers->setA(m_registers->getA() - 0x60);
+            if (m_registers->getHalfCarryFlag())
+                m_registers->setA(m_registers->getA() - 0x06);
+        }
+        else // After an addition
+        {
+            if (m_registers->getCarryFlag() || m_registers->getA() > 0x99)
+            {
+                m_registers->setA(m_registers->getA() + 0x60);
+                m_registers->setCarryFlag();
+            }
+            if (m_registers->getHalfCarryFlag() || (m_registers->getA() & 0x0f) > 0x09)
+                m_registers->setA(m_registers->getA() + 0x06);
+        }
+
+        m_registers->setZeroFlag(m_registers->getA() == 0);
+        m_registers->unsetHalfCarryFlag();
+    }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
@@ -596,7 +621,7 @@ private:
     inline void i_0x24()        { incrementRegister8F(r8::H); }
     inline void i_0x25()        { decrementRegister8F(r8::H); }
     inline void i_0x26(n8 x)    { setRegister8(r8::H, x); }
-    inline void i_0x27()        { UNIMPLEMENTED(); }
+    inline void i_0x27()        { decimalAdjustAccumulator(); }
     inline void i_0x28(e8 x)    { relativeJumpIf(cc::Z, x); }
     inline void i_0x29()        { addRegister16ToRegister16F(r16::HL, r16::HL); }
     inline void i_0x2a()        { setRegister8ToValueAtAddressInRegister16(r8::A, r16::HL); incrementRegister16(r16::HL); }
