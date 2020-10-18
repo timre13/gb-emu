@@ -36,6 +36,8 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
+        case 0xff0f:
+            return m_ifRegister;
         case 0xff10:
             return m_nr10Register;
         case 0xff11:
@@ -159,6 +161,9 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
+        case 0xff0f:
+            m_ifRegister = value;
+            break;
         case 0xff10:
             m_nr10Register = value;
             break;

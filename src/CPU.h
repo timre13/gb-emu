@@ -27,6 +27,8 @@ private:
     // After a JMP-like opcode we should not increment it,
     // because we need to be at the address we jumped to.
     bool            m_wasJump{};
+    // The IMA has to be set after the instruction following EI
+    bool            m_wasEiInstruction{};
 
 public:
     CPU(Memory *memory);
@@ -523,6 +525,18 @@ private:
         // Call the address stored in a jump vector
         call(m_memoryPtr->get16(addr));
     }
+
+    // ----
+    inline void disableInterrupts()
+    {
+        m_registers->unsetIme();
+    }
+
+    // ----
+    inline void enableIterrupts()
+    {
+        m_registers->setIme();
+    }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
@@ -750,7 +764,7 @@ private:
     inline void i_0xd6(n8 x)    { subFromRegister8F(r8::A, x); }
     inline void i_0xd7()        { callVector(0x10); }
     inline void i_0xd8()        { retIf(cc::C); }
-    inline void i_0xd9()        { UNIMPLEMENTED(); }
+    inline void i_0xd9()        { enableIterrupts(); ret(); }
     inline void i_0xda(n16 x)   { jpIf(cc::C, x); }
     inline void i_0xdb()        { ILLEGAL_INSTRUCTION(0xdb); }
     inline void i_0xdc(n16 x)   { callIf(cc::C, x); }
@@ -776,7 +790,7 @@ private:
     inline void i_0xf0(n8 x)    { setRegister8(r8::A, m_memoryPtr->get(0xff00+x)); }
     inline void i_0xf1()        { m_registers->setAF(pop16()); }
     inline void i_0xf2()        { setRegister8(r8::A, m_memoryPtr->get(0xff00+m_registers->getC())); }
-    inline void i_0xf3()        { UNIMPLEMENTED(); }
+    inline void i_0xf3()        { disableInterrupts(); }
     inline void i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); }
     inline void i_0xf5()        { pushRegister16(r16::AF); }
     inline void i_0xf6(n8 x)    { orValueAndRegister8F(r8::A, x); }
@@ -784,7 +798,7 @@ private:
     inline void i_0xf8(e8 x)    { setRegister16(r16::HL, m_registers->getSP()+x); }
     inline void i_0xf9()        { setRegister16ToRegister16(r16::SP, r16::HL); }
     inline void i_0xfa(n8 x)    { setRegister8(r8::A, x); }
-    inline void i_0xfb()        { UNIMPLEMENTED(); }
+    inline void i_0xfb()        { m_wasEiInstruction = true; }
     inline void i_0xfc()        { ILLEGAL_INSTRUCTION(0xfc); }
     inline void i_0xfd()        { ILLEGAL_INSTRUCTION(0xfd); }
     inline void i_0xfe(n8 x)    { cpRegister8AndValue(r8::A, x); }

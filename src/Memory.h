@@ -45,7 +45,9 @@ private:
     // Not usable
     // We just always read 0 here and ignore writes.
 
-    // I/O Registers
+    // Memory-mapped registers
+    // IF (Interrupt Flag) - 0xff0f
+    uint8_t                                         m_ifRegister{};
     // NR10 - 0xff10
     uint8_t                                         m_nr10Register{};
     // NR11 - 0xff11
@@ -118,7 +120,7 @@ private:
     // High RAM, actually in the CPU
     std::array<uint8_t, 0x7e + 1>                   m_hram{};
 
-    // Interrupts Enable Register
+    // IE (Interrupt Enable Register) - 0xffff
     uint8_t                                         m_ie{};
 
 public:

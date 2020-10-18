@@ -24,6 +24,9 @@ private:
     uint16_t    m_SP{};
     uint16_t    m_PC{};
 
+    // Interrupt master enable - write only
+    bool        m_ime{};
+
 public:
     enum class r8{A, B, C, D, E, F, H, L};
     enum class r16{AF, BC, DE, HL, SP, PC};
@@ -195,6 +198,15 @@ public:
     inline void setCarryFlag(uint8_t value)      { value ? setCarryFlag()       : unsetCarryFlag();         }
     inline void setNegativeFlag(uint8_t value)   { value ? setNegativeFlag()    : unsetNegativeFlag();      }
     inline void setHalfCarryFlag(uint8_t value)  { value ? setHalfCarryFlag()   : unsetHalfCarryFlag();     }
+
+
+    // --- misc. registers ---
+
+    // -- set --
+    inline void setIme() { m_ime = true; }
+
+    // -- unset --
+    inline void unsetIme() { m_ime = false; }
 };
 
 
