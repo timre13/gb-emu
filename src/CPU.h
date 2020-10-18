@@ -42,6 +42,16 @@ public:
     inline void stepPC()                         { if (m_wasJump) return; m_registers->setPC(m_registers->getPC()+m_opcodeSize); }
     inline int getCurrentOpcodeSize() const      { return m_opcodeSize; }
     void emulateCurrentOpcode();
+    void enableImaIfNeeded()
+    {
+        // If there was an EI instruction and it is not the current one,
+        // so this is the instruction after the EI
+        if (m_wasEiInstruction && (((m_currentOpcode & 0xff000000) >> 24) != 0xfb))
+        {
+            enableIterrupts();
+            m_wasEiInstruction = false;
+        }
+    }
 
 private:
     //--------- instructions --------------

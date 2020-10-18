@@ -201,6 +201,7 @@ void GBEmulator::emulateCycle()
         SDL_RenderPresent(m_renderer);
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);
 
+        m_cpu->enableImaIfNeeded();
         m_cpu->stepPC();
     }
 }

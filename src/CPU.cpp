@@ -279,14 +279,6 @@ void CPU::emulateCurrentOpcode()
     case 0xff: i_0xff();                                    break;
     default:   IMPOSSIBLE();                                break;
     }
-
-    // If there was an EI instruction and it is not the current one,
-    // so this is the instruction after the EI
-    if (m_wasEiInstruction && (((m_currentOpcode & 0xff000000) >> 24) != 0xfb))
-    {
-        enableIterrupts();
-        m_wasEiInstruction = false;
-    }
 }
 
 CPU::~CPU()
