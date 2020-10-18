@@ -40,9 +40,13 @@ void DebugWindow::renderText(const std::string &string, int x, int y, uint8_t co
         SDL_Texture *charTexture{m_fontManager->get(string[i])->getTexture()};
 #ifdef DEBUG_TEXT_USE_COLORS
         SDL_SetTextureColorMod(charTexture, colorR, colorG, colorB);
+#else
+    (void) colorR;
+    (void) colorG;
+    (void) colorB;
 #endif
 
-        SDL_Rect destRect{x+i*m_fontW, y, m_fontW, m_fontH};
+        SDL_Rect destRect{x+(int)i*m_fontW, y, m_fontW, m_fontH};
 
         SDL_RenderCopy(m_renderer, charTexture, nullptr, &destRect);
     }
