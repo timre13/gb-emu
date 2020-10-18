@@ -202,6 +202,10 @@ public:
 
     // --- misc. registers ---
 
+
+    // -- get --
+    inline bool getIme() const { return m_ime; } // Only for internal use
+
     // -- set --
     inline void setIme() { m_ime = true; }
 

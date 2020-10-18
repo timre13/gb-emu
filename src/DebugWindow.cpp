@@ -94,28 +94,36 @@ void DebugWindow::updateRegisterValues(const Registers *registers)
     auto flagH{registers->getHalfCarryFlag()};
     renderText("Half Carry: "+std::to_string(flagH)+" | "+(flagH ? "on" : "off"), 10, 10+m_fontH*24);
     renderText("===================", 10, 10+m_fontH*25);
+    
+    renderText("=== Misc. ==", 10, 10+m_fontH*27);
+    auto regIME{registers->getIme()};
+    renderText("IME: "+std::to_string(regIME)+" | "+(regIME ? "on" : "off"), 10, 10+m_fontH*28);
+    renderText("============", 10, 10+m_fontH*29);
 }
 
 void DebugWindow::updateOpcodeValue(const CPU *cpu)
 {
-    renderText("===== Opcode ====", 10, 10+m_fontH*27);
-    renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 10, 10+m_fontH*28);
-    renderText("Name:  "+OpcodeNames::get((cpu->getCurrentOpcode() & 0xff000000) >> 24), 10, 10+m_fontH*29);
-    renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*30);
-    renderText("=================", 10, 10+m_fontH*31);
+    renderText("===== Opcode ====", 10, 10+m_fontH*31);
+    renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 10, 10+m_fontH*32);
+    renderText("Name:  "+OpcodeNames::get((cpu->getCurrentOpcode() & 0xff000000) >> 24), 10, 10+m_fontH*33);
+    renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*34);
+    renderText("=================", 10, 10+m_fontH*35);
 }
 
-void DebugWindow::updateMemoryvalues(const Memory *memory)
+void DebugWindow::updateMemoryValues(const Memory *memory)
 {
     // Disable this?
 
     //for (uint32_t i{}; i <= 0xffff; ++i)
     //    renderText(toHexStr(memory->get(i, false), 2, false), 500+m_fontW*(i%0x100), 10+m_fontH*(i/0x100));
 
-    renderText("===== Misc. Registers =====", 10, 10+m_fontH*33);
+    renderText("= Memory-mapped Registers =", 10, 10+m_fontH*37);
 
+    auto regIF{memory->get(0xff0f, false)};
+    renderText("IF: "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*38);
     auto regIE{memory->get(0xffff, false)};
-    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*34);
+    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*39);
+    renderText("===========================", 10, 10+m_fontH*40);
 }
 
 DebugWindow::~DebugWindow()

@@ -69,7 +69,7 @@ void GBEmulator::initGUI()
 
 void GBEmulator::initDebugWindow()
 {
-    m_debugWindow = new DebugWindow{0, 0, 420, 800};
+    m_debugWindow = new DebugWindow{0, 0, 420, 920};
 
     // We show the main window after the debug window, so it pops up.
     SDL_ShowWindow(m_window);
@@ -195,7 +195,7 @@ void GBEmulator::emulateCycle()
         m_debugWindow->clearRenderer();
         m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
         m_debugWindow->updateOpcodeValue(m_cpu);
-        m_debugWindow->updateMemoryvalues(m_memory);
+        m_debugWindow->updateMemoryValues(m_memory);
         m_debugWindow->updateRenderer();
 
         SDL_RenderPresent(m_renderer);
