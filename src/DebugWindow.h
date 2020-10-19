@@ -29,7 +29,7 @@ private:
     void renderText(const std::string &string, int x, int y, uint8_t colorR=0, uint8_t colorG=0, uint8_t colorB=0);
 
 public:
-    DebugWindow(int x, int y, int w, int h);
+    DebugWindow(int x, int y);
 
     inline void clearRenderer()
     {
