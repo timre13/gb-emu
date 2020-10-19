@@ -785,7 +785,7 @@ private:
     inline void i_0xc8()        { retIf(cc::Z); }
     inline void i_0xc9()        { ret(); }
     inline void i_0xca(n16 x)   { jpIf(cc::Z, x); }
-    inline void i_0xcb()        { UNIMPLEMENTED(); Logger::info("Found an CB prefix"); }
+    inline void i_0xcb()        { UNIMPLEMENTED(); Logger::error("Found an CB prefix"); }
     inline void i_0xcc(n16 x)   { callIf(cc::Z, x); }
     inline void i_0xcd(n16 x)   { call(x); }
     inline void i_0xce(n8 x)    { addValueAndCarryFlagToRegister8F(r8::A, x); }
