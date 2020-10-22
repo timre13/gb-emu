@@ -11,8 +11,27 @@ CPU::CPU(Memory *memory)
 
 void CPU::fetchOpcode()
 {
-    m_currentOpcode = m_memoryPtr->getOpcodeAt(m_registers->getPC(), false);
-    m_opcodeSize = opcodeSizes.at((m_currentOpcode&0xff000000) >> 24);
+    uint32_t bytesAtPc{m_memoryPtr->getOpcodeNoSwap(m_registers->getPC(), false)};
+    int opcodeSize{opcodeSizes[(bytesAtPc & 0xff000000) >> 24]};
+
+    switch (opcodeSize)
+    {
+    case 1:
+        m_currentOpcode = bytesAtPc & 0xff000000;
+        break;
+    case 2:
+        m_currentOpcode = bytesAtPc & 0xffff0000;
+        break;
+    case 3:
+        m_currentOpcode =  (bytesAtPc & 0xff000000) |
+                          ((bytesAtPc & 0x00ff0000) >> 8) |
+                          ((bytesAtPc & 0x0000ff00) << 8);
+        break;
+    default:
+        IMPOSSIBLE();
+    }
+
+    m_opcodeSize = opcodeSize;
 }
 
 void CPU::emulateCurrentOpcode()

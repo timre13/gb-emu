@@ -142,13 +142,13 @@ public:
         set(address+1, (value&0xff00)>>8);
     }
 
-    // Gets a 24-bit opcode
-    inline uint32_t getOpcodeAt(uint16_t address, bool log=true) const
+    // Gets a 24-bit value without endianess correction
+    inline uint32_t getOpcodeNoSwap(uint16_t address, bool log=true) const
     {
         return
             (get(address+0, log) << 24) |
-            (get(address+2, log) << 16) |
-            (get(address+1, log) <<  8);
+            (get(address+1, log) << 16) |
+            (get(address+2, log) <<  8);
     }
 
     void printRom0() const;
