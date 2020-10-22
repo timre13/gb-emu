@@ -182,11 +182,13 @@ void GBEmulator::emulateCycle()
 
     if (!m_isDone)
     {
+        m_cpu->handleInterrupts();
+
         m_cpu->fetchOpcode();
 
         Logger::info("----- Cycle -----");
         Logger::info("PC: "+toHexStr(m_cpu->getRegisters()->getPC()));
-        Logger::info("Opcode value: "+toHexStr(m_cpu->getCurrentOpcode(), 8));
+        Logger::info("Opcode value: "+toHexStr(m_cpu->getCurrentOpcode()));
         Logger::info("Opcode name:  "+OpcodeNames::get((m_cpu->getCurrentOpcode() & 0xff000000) >> 24));
         Logger::info("Opcode size:  "+std::to_string(m_cpu->getCurrentOpcodeSize()));
 

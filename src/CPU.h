@@ -30,6 +30,14 @@ private:
     // The IMA has to be set after the instruction following EI
     bool            m_wasEiInstruction{};
 
+    static constexpr uint16_t m_interruptHandlers[]{
+        0x40, // V-Blank
+        0x48, // LCDC Status
+        0x50, // Timer
+        0x58, // Serial
+        0x60  // Joypad
+    };
+
 public:
     CPU(Memory *memory);
     ~CPU();
@@ -52,6 +60,8 @@ public:
             m_wasEiInstruction = false;
         }
     }
+
+    void handleInterrupts();
 
 private:
     //--------- instructions --------------

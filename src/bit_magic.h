@@ -125,4 +125,19 @@ inline uint8_t wouldSubCarry16(uint16_t a, uint16_t b)
 
 //#############################################################################
 
+
+
+//################################# Bit #######################################
+
+/*
+ * Returns the Nth bit counted from right.
+ */
+template <typename T>
+inline T getNthBit(T value, size_t index)
+{
+    return value & (1 << index);
+}
+
+//#############################################################################
+
 #endif /* BIT_MAGIC_H_ */

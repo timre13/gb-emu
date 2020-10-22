@@ -34,6 +34,37 @@ void CPU::fetchOpcode()
     m_opcodeSize = opcodeSize;
 }
 
+void CPU::handleInterrupts()
+{
+    for (int i{}; i < 4; ++i)
+    {
+        // If interrrupts are disabled, exit
+        if (!m_registers->getIme()) break;
+
+        // Interrupt enable
+        uint8_t ieValue{m_memoryPtr->get(0xffff, false)};
+        // Interrupt request
+        uint8_t ifValue{m_memoryPtr->get(0xff0f, false)};
+
+        // If the interrupt is enabled and is requested
+        if (ieValue & (1 << i) && ifValue & (1 << i))
+        {
+            Logger::info("Handling interrupt: "+toHexStr(m_interruptHandlers[i]));
+
+            m_registers->unsetIme();
+
+            // Call the handler
+            call(m_interruptHandlers[i]);
+
+            // Reset the current bit
+            ifValue &= ~(1 << i);
+
+            // Feed back the new value of IF
+            m_memoryPtr->set(0xff0f, ifValue, false);
+        }
+    }
+}
+
 void CPU::emulateCurrentOpcode()
 {
     m_wasJump = false;
