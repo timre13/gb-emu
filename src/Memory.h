@@ -94,9 +94,9 @@ private:
     uint8_t                                         m_nr51Register{};
     // NR52 - 0xff26
     uint8_t                                         m_nr52Register{};
-    // LCD  - 0xff40
+    // LCDC - 0xff40
     uint8_t                                         m_lcdControlRegister{};
-    // LCD  - 0xff41
+    // LCD STAT - 0xff41
     uint8_t                                         m_lcdStatusRegister{};
     // SCY  - 0xff42
     uint8_t                                         m_scyRegister{};
