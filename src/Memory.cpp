@@ -28,7 +28,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xdfff) // WRAMX - Work RAM
         return m_wram1.at(address-0xcfff-1);
     else if (address <= 0xfdff) // ECHO - Mirror RAM
-        return get(address-0xbfff-1); // map the address to the start of WRAM0
+        return get(address-0xbfff-1, log); // map the address to the start of WRAM0
     else if (address <= 0xfe9f) // OAM - Object Attribute RAM / Sprite information table
         return m_oam.at(address-0xfdff-1);
     else if (address <= 0xfeff) // UNUSED
