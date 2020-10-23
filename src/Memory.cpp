@@ -311,6 +311,8 @@ void Memory::printRom0() const
 
 void Memory::printWhole() const
 {
+    std::cout << "---------------- start of memory ----------------" << '\n';
+
     int memorySize{0xffff+1};
     for (int i{}; i < memorySize; ++i)
     {
@@ -327,4 +329,6 @@ void Memory::printWhole() const
             std::cout << '\n';
     }
     std::cout << '\n';
+
+    std::cout << "----------------- end of memory -----------------" << '\n';
 }
