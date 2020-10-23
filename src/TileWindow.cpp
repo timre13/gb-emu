@@ -6,6 +6,8 @@
 #include "Logger.h"
 #include "string_formatting.h"
 
+//#define TILE_WINDOW_USE_BGP
+
 TileWindow::TileWindow(int x, int y)
 {
     m_window = SDL_CreateWindow("Tile Viewer", x, y, 16*8*5, 16*8*5, 0);
@@ -27,10 +29,24 @@ void TileWindow::updateTiles(Memory *memory)
     */
 
     static constexpr uint8_t shades[]{
-        255,
-        200,
-        100,
-        0
+        255, // 0 - white
+        200, // 1 - light gray
+        100, // 2 - dark gray
+        0    // 3 - black
+    };
+
+    // Get the value of the Background Palette Register
+    const uint8_t bgpValue{memory->get(0xff47, false)};
+
+    auto getShade{
+        [bgpValue](uint8_t colorI) {
+#ifdef TILE_WINDOW_USE_BGP
+            // Get which color is mapped to the color index
+            return shades[(bgpValue & (1 << colorI*2)) >> colorI*2];
+#else
+            return shades[colorI];
+#endif
+        }
     };
 
     static constexpr int tileSize{8};
@@ -48,7 +64,7 @@ void TileWindow::updateTiles(Memory *memory)
                     ((memory->get(tileRamStart+tileI*tileSize*2+0+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 2 : 0 |
                      (memory->get(tileRamStart+tileI*tileSize*2+1+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 1 : 0)};
 
-            SDL_SetRenderDrawColor(m_renderer, shades[colorI], shades[colorI], shades[colorI], 255);
+            SDL_SetRenderDrawColor(m_renderer, getShade(colorI), getShade(colorI), getShade(colorI), 255);
             SDL_Rect pixelRect{
                     tileI%tilesPerLine*tileSize*pixelScale+tilePixelI%tileSize*pixelScale,
                     tileI/tilesPerLine*tileSize*pixelScale+tilePixelI/tileSize*pixelScale,
