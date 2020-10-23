@@ -23,6 +23,8 @@ private:
     uint8_t                                         m_currentRomBank{};
 
     // Video RAM
+    /// - tile RAM (data about graphics) and
+    // background RAM (where these should be placed) are here
     std::array<uint8_t, 0x1fff + 1>                 m_vram{};
 
     // External RAM banks
@@ -39,7 +41,7 @@ private:
     // ECHO RAM
     // Actually WRAM0 and WRAM1
 
-    // OAM table
+    // OAM table - sprite data is here
     std::array<uint8_t, 0x9f + 1>                   m_oam{};
 
     // Not usable

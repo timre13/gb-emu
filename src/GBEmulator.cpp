@@ -18,6 +18,11 @@ GBEmulator::GBEmulator(const std::string &romFilename)
 
     initGUI();
     initDebugWindow();
+    initTileWindow();
+    
+    // We show the main window after the debug and tile window, so it pops up.
+    SDL_ShowWindow(m_window);
+
     initHardware();
 
     Logger::info("========== Emulator Started ==========");
@@ -71,11 +76,16 @@ void GBEmulator::initDebugWindow()
 {
     m_debugWindow = new DebugWindow{0, 0};
 
-    // We show the main window after the debug window, so it pops up.
-    SDL_ShowWindow(m_window);
-
     m_debugWindow->clearRenderer();
     m_debugWindow->updateRenderer();
+}
+
+void GBEmulator::initTileWindow()
+{
+    m_tileWindow = new TileWindow{1500, 0};
+
+    m_tileWindow->clearRenderer();
+    m_tileWindow->updateRenderer();
 }
 
 void GBEmulator::initHardware()
@@ -199,6 +209,10 @@ void GBEmulator::emulateCycle()
         m_debugWindow->updateOpcodeValue(m_cpu);
         m_debugWindow->updateMemoryValues(m_memory);
         m_debugWindow->updateRenderer();
+
+        m_tileWindow->clearRenderer();
+        m_tileWindow->updateTiles(m_memory);
+        m_tileWindow->updateRenderer();
 
         SDL_RenderPresent(m_renderer);
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);

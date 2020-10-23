@@ -34,4 +34,6 @@ add_executable(gb-emu
     src/opcode_sizes.h
     src/string_formatting.h
     src/opcode_names.h
+    src/TileWindow.cpp
+    src/TileWindow.h
 )

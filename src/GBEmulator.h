@@ -8,6 +8,7 @@
 #include "Memory.h"
 
 #include "DebugWindow.h"
+#include "TileWindow.h"
 
 #include <string>
 #include <SDL2/SDL.h>
@@ -27,11 +28,13 @@ private:
     CartridgeInfo   *m_cartridgeInfo{nullptr};
 
     DebugWindow     *m_debugWindow{nullptr};
+    TileWindow      *m_tileWindow{nullptr};
 
     std::string     m_romFilename;
 
     void initGUI();
     void initDebugWindow();
+    void initTileWindow();
     void deinit();
     void initHardware();
     void showCartridgeInfo();
