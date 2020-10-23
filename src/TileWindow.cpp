@@ -44,8 +44,9 @@ void TileWindow::updateTiles(Memory *memory)
         for (int tilePixelI{}; tilePixelI < tileSize*tileSize; ++tilePixelI)
         {
             uint8_t colorI{
-                    (memory->get(tileRamStart+tileI*tileSize*2+0+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 2 : 0 |
-                    (memory->get(tileRamStart+tileI*tileSize*2+1+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 1 : 0};
+                    (uint8_t)
+                    ((memory->get(tileRamStart+tileI*tileSize*2+0+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 2 : 0 |
+                     (memory->get(tileRamStart+tileI*tileSize*2+1+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 1 : 0)};
 
             SDL_SetRenderDrawColor(m_renderer, shades[colorI], shades[colorI], shades[colorI], 255);
             SDL_Rect pixelRect{
