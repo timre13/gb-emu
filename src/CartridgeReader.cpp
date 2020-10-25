@@ -5,6 +5,8 @@
 #include <cstring>
 #include "string_formatting.h"
 
+//#define CARTRIDGE_READER_NO_COPY_CHECK
+
 CartridgeReader::CartridgeReader(const std::string &filename)
     : m_filename{filename}
 {
@@ -160,11 +162,12 @@ void CartridgeReader::loadRomToMemory(Memory &memory, SDL_Renderer *renderer)
 
     memory.printRom0();
 
+#ifndef CARTRIDGE_READER_NO_COPY_CHECK
     if (readBytes != currentByteIndex)
         Logger::fatal("Failed to copy ROM");
     else
         Logger::info("ROM copied");
-
+#endif
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 }
