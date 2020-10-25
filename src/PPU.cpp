@@ -62,7 +62,7 @@ void PPU::updateBackground()
         for (int pixelI{}; pixelI < PIXELS_PER_TILE; ++pixelI)
         {
             uint8_t r, g, b;
-            getColorFromIndex(getPixelColorIndex(m_currentBgMapByteI, pixelI), &r, &g, &b);
+            getColorFromIndex(getPixelColorIndex(m_memoryPtr->get(BG_MAP_START+m_currentBgMapByteI, false), pixelI), &r, &g, &b);
 
             SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
 
