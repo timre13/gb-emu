@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "Memory.h"
+#include "PPU.h"
 
 class TileWindow final
 {
@@ -30,7 +30,7 @@ public:
         SDL_RenderPresent(m_renderer);
     }
 
-    void updateTiles(Memory *memory);
+    void updateTiles(PPU *ppu);
 
     ~TileWindow();
 };

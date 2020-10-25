@@ -36,4 +36,6 @@ add_executable(gb-emu
     src/opcode_names.h
     src/TileWindow.cpp
     src/TileWindow.h
+    src/PPU.cpp
+    src/PPU.h
 )

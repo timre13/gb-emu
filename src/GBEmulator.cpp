@@ -105,6 +105,7 @@ void GBEmulator::initHardware()
 
     m_memory            = new Memory{m_cartridgeInfo};
     m_cpu               = new CPU{m_memory}; // the CPU needs to know about the memory to do the memory operations
+    m_ppu               = new PPU{m_renderer, m_memory};
 
     showCartridgeInfo();
 
@@ -202,7 +203,6 @@ void GBEmulator::emulateCycle()
         Logger::info("Opcode name:  "+OpcodeNames::get((m_cpu->getCurrentOpcode() & 0xff000000) >> 24));
         Logger::info("Opcode size:  "+std::to_string(m_cpu->getCurrentOpcodeSize()));
 
-        m_cpu->emulateCurrentOpcode();
 
         m_debugWindow->clearRenderer();
         m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
@@ -211,14 +211,42 @@ void GBEmulator::emulateCycle()
         m_debugWindow->updateRenderer();
 
         m_tileWindow->clearRenderer();
-        m_tileWindow->updateTiles(m_memory);
+        m_tileWindow->updateTiles(m_ppu);
         m_tileWindow->updateRenderer();
 
-        SDL_RenderPresent(m_renderer);
+        //waitForSpaceKey();
+
+#if DELAY_BETWEEN_CYCLES_MS
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);
+#endif
+
+        m_cpu->emulateCurrentOpcode();
+
+        updateGraphics();
+        updateGraphics();
+        SDL_RenderPresent(m_renderer);
 
         m_cpu->enableImaIfNeeded();
         m_cpu->stepPC();
+    }
+}
+
+void GBEmulator::updateGraphics()
+{
+    m_ppu->updateBackground();
+}
+
+void GBEmulator::waitForSpaceKey()
+{
+    SDL_Event event;
+
+    while (true)
+    {
+        SDL_PollEvent(&event);
+
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) break;
+
+        SDL_Delay(16);
     }
 }
 
@@ -227,6 +255,7 @@ void GBEmulator::deinit()
     delete m_debugWindow;
 
     delete m_cpu;
+    delete m_ppu;
     delete m_memory;
     delete m_cartridgeReader;
     delete m_cartridgeInfo;

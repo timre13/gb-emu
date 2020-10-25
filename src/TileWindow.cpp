@@ -6,7 +6,9 @@
 #include "Logger.h"
 #include "string_formatting.h"
 
-//#define TILE_WINDOW_USE_BGP
+//#define TILE_WIN_USE_PALETTE
+#define TILE_WIN_TILES_PER_ROW 16
+#define TILE_WIN_SCALE 5
 
 TileWindow::TileWindow(int x, int y)
 {
@@ -17,59 +19,40 @@ TileWindow::TileWindow(int x, int y)
     if (!m_renderer) Logger::fatal("Failed to create renderer for Tile Window");
 }
 
-void TileWindow::updateTiles(Memory *memory)
+void TileWindow::updateTiles(PPU *ppu)
 {
-    /*
-    static constexpr uint8_t palette[][3]{
-            {87, 98, 81},
-            {50, 76, 42},
-            {13, 41, 33},
-            { 0,  7, 10}
-    };
-    */
-
+#ifndef TILE_WIN_USE_PALETTE
     static constexpr uint8_t shades[]{
         255, // 0 - white
         200, // 1 - light gray
         100, // 2 - dark gray
         0    // 3 - black
     };
-
-    // Get the value of the Background Palette Register
-    const uint8_t bgpValue{memory->get(0xff47, false)};
-
-    auto getShade{
-        [bgpValue](uint8_t colorI) {
-#ifdef TILE_WINDOW_USE_BGP
-            // Get which color is mapped to the color index
-            return shades[(bgpValue & (1 << colorI*2)) >> colorI*2];
-#else
-            return shades[colorI];
 #endif
-        }
-    };
 
-    static constexpr int tileSize{8};
-    static constexpr int tilesPerLine{16};
-    static constexpr int pixelScale{5};
-    static constexpr int numOfTiles{384};
-    static constexpr int tileRamStart{0x8000};
-
-    for (int tileI{}; tileI < numOfTiles; ++tileI)
+    for (int tileI{}; tileI < NUM_OF_TILES; ++tileI)
     {
-        for (int tilePixelI{}; tilePixelI < tileSize*tileSize; ++tilePixelI)
+        for (int tilePixelI{}; tilePixelI < PIXELS_PER_TILE; ++tilePixelI)
         {
-            uint8_t colorI{
-                    (uint8_t)
-                    ((memory->get(tileRamStart+tileI*tileSize*2+0+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 2 : 0 |
-                     (memory->get(tileRamStart+tileI*tileSize*2+1+tilePixelI/tileSize, false) & (1 << (tileSize-tilePixelI%tileSize))) ? 1 : 0)};
+            auto colorI{ppu->getPixelColorIndex(tileI, tilePixelI)};
 
-            SDL_SetRenderDrawColor(m_renderer, getShade(colorI), getShade(colorI), getShade(colorI), 255);
+#ifdef TILE_WIN_USE_PALETTE
+            uint8_t r, g, b;
+            ppu->getColorFromIndex(colorI, &r, &g, &b);
+
+            SDL_SetRenderDrawColor(m_renderer, r, g, b, 255);
+#else
+            SDL_SetRenderDrawColor(m_renderer, shades[colorI], shades[colorI], shades[colorI], 255);
+#endif
+
+            auto pixelX{tileI%TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE+tilePixelI%TILE_SIZE*TILE_WIN_SCALE};
+            auto pixelY{tileI/TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE+tilePixelI/TILE_SIZE*TILE_WIN_SCALE};
+
             SDL_Rect pixelRect{
-                    tileI%tilesPerLine*tileSize*pixelScale+tilePixelI%tileSize*pixelScale,
-                    tileI/tilesPerLine*tileSize*pixelScale+tilePixelI/tileSize*pixelScale,
-                    pixelScale,
-                    pixelScale};
+                    pixelX,
+                    pixelY,
+                    TILE_WIN_SCALE,
+                    TILE_WIN_SCALE};
             SDL_RenderFillRect(m_renderer, &pixelRect);
         }
     }

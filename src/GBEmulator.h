@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include "CPU.h"
+#include "PPU.h"
 #include "CartridgeReader.h"
 #include "Memory.h"
 
@@ -22,6 +23,7 @@ private:
     SDL_Renderer    *m_renderer{nullptr};
 
     CPU             *m_cpu{nullptr}; // the registers are in the CPU
+    PPU             *m_ppu{nullptr};
     Memory          *m_memory{nullptr};
     CartridgeReader *m_cartridgeReader{nullptr};
 
@@ -35,11 +37,16 @@ private:
     void initGUI();
     void initDebugWindow();
     void initTileWindow();
-    void deinit();
     void initHardware();
+
+    void deinit();
+    
     void showCartridgeInfo();
 
+    void updateGraphics();
     void emulateCycle();
+
+    void waitForSpaceKey();
 
 public:
     GBEmulator(const std::string &romFilename);
