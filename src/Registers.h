@@ -161,9 +161,9 @@ public:
 
     // -- get --
     inline uint8_t getZeroFlag()        const { return (m_F & 0b10000000) >>  7; }
-    inline uint8_t getCarryFlag()       const { return (m_F & 0b01000000) >>  6; }
-    inline uint8_t getNegativeFlag()    const { return (m_F & 0b00100000) >>  5; }
-    inline uint8_t getHalfCarryFlag()   const { return (m_F & 0b00010000) >>  4; }
+    inline uint8_t getNegativeFlag()    const { return (m_F & 0b01000000) >>  6; }
+    inline uint8_t getHalfCarryFlag()   const { return (m_F & 0b00100000) >>  5; }
+    inline uint8_t getCarryFlag()       const { return (m_F & 0b00010000) >>  4; }
 
     inline uint8_t getFlag(flag f)
     {
@@ -183,21 +183,21 @@ public:
 
     // -- set --
     inline void setZeroFlag()       { m_F |=  0b10000000; }
-    inline void setCarryFlag()      { m_F |=  0b01000000; }
-    inline void setNegativeFlag()   { m_F |=  0b00100000; }
-    inline void setHalfCarryFlag()  { m_F |=  0b00010000; }
+    inline void setNegativeFlag()   { m_F |=  0b01000000; }
+    inline void setHalfCarryFlag()  { m_F |=  0b00100000; }
+    inline void setCarryFlag()      { m_F |=  0b00010000; }
 
     // unset
     inline void unsetZeroFlag()         { m_F &= ~0b10000000; }
-    inline void unsetCarryFlag()        { m_F &= ~0b01000000; }
-    inline void unsetNegativeFlag()     { m_F &= ~0b00100000; }
-    inline void unsetHalfCarryFlag()    { m_F &= ~0b00010000; }
+    inline void unsetNegativeFlag()     { m_F &= ~0b01000000; }
+    inline void unsetHalfCarryFlag()    { m_F &= ~0b00100000; }
+    inline void unsetCarryFlag()        { m_F &= ~0b00010000; }
 
     // set depending on the argument
     inline void setZeroFlag(uint8_t value)       { value ? setZeroFlag()        : unsetZeroFlag();          }
-    inline void setCarryFlag(uint8_t value)      { value ? setCarryFlag()       : unsetCarryFlag();         }
     inline void setNegativeFlag(uint8_t value)   { value ? setNegativeFlag()    : unsetNegativeFlag();      }
     inline void setHalfCarryFlag(uint8_t value)  { value ? setHalfCarryFlag()   : unsetHalfCarryFlag();     }
+    inline void setCarryFlag(uint8_t value)      { value ? setCarryFlag()       : unsetCarryFlag();         }
 
 
     // --- misc. registers ---
