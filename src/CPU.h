@@ -436,7 +436,8 @@ private:
     // ----
     inline void relativeJump(e8 offset)
     {
-        jpToAddress(m_registers->getPC()+offset+1);
+        if (offset)
+            jpToAddress(m_registers->getPC()+offset+1);
     }
 
     // -11-
@@ -473,7 +474,7 @@ private:
     inline void relativeJumpIf(cc cond, e8 offset)
     {
         if (m_registers->getFlag(cond))
-            jpToAddress(m_registers->getPC()+offset);
+            relativeJump(offset);
     }
 
     // ----
