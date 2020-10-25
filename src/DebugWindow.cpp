@@ -94,12 +94,12 @@ void DebugWindow::updateRegisterValues(const Registers *registers)
     renderText("====== Flags ======", 10, 10+m_fontH*20);
     auto flagZ{registers->getZeroFlag()};
     renderText("Zero:       "+std::to_string(flagZ)+" | "+(flagZ ? "on" : "off"), 10, 10+m_fontH*21);
-    auto flagC{registers->getCarryFlag()};
-    renderText("Carry:      "+std::to_string(flagC)+" | "+(flagC ? "on" : "off"), 10, 10+m_fontH*22);
     auto flagN{registers->getNegativeFlag()};
-    renderText("Negative:   "+std::to_string(flagN)+" | "+(flagN ? "on" : "off"), 10, 10+m_fontH*23);
+    renderText("Negative:   "+std::to_string(flagN)+" | "+(flagN ? "on" : "off"), 10, 10+m_fontH*22);
     auto flagH{registers->getHalfCarryFlag()};
-    renderText("Half Carry: "+std::to_string(flagH)+" | "+(flagH ? "on" : "off"), 10, 10+m_fontH*24);
+    renderText("Half Carry: "+std::to_string(flagH)+" | "+(flagH ? "on" : "off"), 10, 10+m_fontH*23);
+    auto flagC{registers->getCarryFlag()};
+    renderText("Carry:      "+std::to_string(flagC)+" | "+(flagC ? "on" : "off"), 10, 10+m_fontH*24);
     renderText("===================", 10, 10+m_fontH*25);
     
     renderText("=== Misc. ==", 10, 10+m_fontH*27);
