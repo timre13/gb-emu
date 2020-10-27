@@ -76,7 +76,7 @@ private:
 
     using r8    =  Registers::r8; // 8-bit register (enum class)
     using r16   = Registers::r16; // 16-bit register (enum class)
-    using n8    =         int8_t; // constant
+    using n8    =        uint8_t; // constant
     using n16   =       uint16_t; // constant
     using e8    =         int8_t; // offset
     using u3    =        uint8_t; // constant
