@@ -816,7 +816,7 @@ private:
     inline void i_0xdd()        { ILLEGAL_INSTRUCTION(0xdd); }
     inline void i_0xde(n8 x)    { subValueAndCarryFlagFromRegister8F(r8::A, x); }
     inline void i_0xdf()        { callVector(0x18); }
-    inline void i_0xe0(e8 x)    { setValueAtAddressToRegister8(0xff00+x, r8::A); }
+    inline void i_0xe0(n8 x)    { setValueAtAddressToRegister8(0xff00+x, r8::A); }
     inline void i_0xe1()        { m_registers->setHL(pop16()); }
     inline void i_0xe2()        { setValueAtAddressToRegister8(0xff00+m_registers->getC(), r8::A); }
     inline void i_0xe3()        { ILLEGAL_INSTRUCTION(0xe3); }
