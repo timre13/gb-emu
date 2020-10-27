@@ -30,7 +30,7 @@ private:
 public:
     enum class r8{A, B, C, D, E, F, H, L};
     enum class r16{AF, BC, DE, HL, SP, PC};
-    enum class flag{Z, N, H, C, NZ, NN, NH, NC};
+    enum class flag{Z, NZ, C, NC};
 
     Registers();
 
@@ -169,13 +169,9 @@ public:
     {
         switch (f)
         {
-            case flag::Z: return getZeroFlag();
-            case flag::N: return getNegativeFlag();
-            case flag::H: return getHalfCarryFlag();
-            case flag::C: return getCarryFlag();
+            case flag::Z: return getZeroFlag();;
             case flag::NZ: return !getZeroFlag();
-            case flag::NN: return !getNegativeFlag();
-            case flag::NH: return !getHalfCarryFlag();
+            case flag::C: return getCarryFlag();
             case flag::NC: return !getCarryFlag();
             default: IMPOSSIBLE();
         }
