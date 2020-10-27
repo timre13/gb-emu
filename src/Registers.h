@@ -30,7 +30,7 @@ private:
 public:
     enum class r8{A, B, C, D, E, F, H, L};
     enum class r16{AF, BC, DE, HL, SP, PC};
-    enum class flag{Z, NZ, C, NC};
+    enum class cond{Z, NZ, C, NC};
 
     Registers();
 
@@ -165,14 +165,14 @@ public:
     inline uint8_t getHalfCarryFlag()   const { return (m_F & 0b00100000) >>  5; }
     inline uint8_t getCarryFlag()       const { return (m_F & 0b00010000) >>  4; }
 
-    inline uint8_t getFlag(flag f)
+    inline uint8_t getCondition(cond c)
     {
-        switch (f)
+        switch (c)
         {
-            case flag::Z: return getZeroFlag();;
-            case flag::NZ: return !getZeroFlag();
-            case flag::C: return getCarryFlag();
-            case flag::NC: return !getCarryFlag();
+            case cond::Z: return getZeroFlag();;
+            case cond::NZ: return !getZeroFlag();
+            case cond::C: return getCarryFlag();
+            case cond::NC: return !getCarryFlag();
             default: IMPOSSIBLE();
         }
     }

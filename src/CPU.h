@@ -80,7 +80,7 @@ private:
     using u16   =       uint16_t; // constant (old name: n16)
     using i8    =         int8_t; // offset (old name: e8)
     using u3    =        uint8_t; // constant
-    using cc    = Registers::flag;// condition (enum class)
+    using cc    = Registers::cond;// condition (enum class)
     using vec   =        uint8_t; // address
 
     //=========================================================================
@@ -465,14 +465,14 @@ private:
     // ----
     inline void jpIf(cc cond, u16 addr)
     {
-        if (m_registers->getFlag(cond))
+        if (m_registers->getCondition(cond))
             jpToAddress(addr);
     }
 
     // ----
     inline void relativeJumpIf(cc cond, i8 offset)
     {
-        if (m_registers->getFlag(cond))
+        if (m_registers->getCondition(cond))
             relativeJump(offset);
     }
 
@@ -485,7 +485,7 @@ private:
     // ----
     inline void retIf(cc cond)
     {
-        if (m_registers->getFlag(cond))
+        if (m_registers->getCondition(cond))
             ret();
     }
 
@@ -535,7 +535,7 @@ private:
     // ----
     inline void callIf(cc cond, u16 addr)
     {
-        if (m_registers->getFlag(cond))
+        if (m_registers->getCondition(cond))
             call(addr);
     }
 
