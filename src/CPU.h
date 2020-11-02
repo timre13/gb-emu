@@ -528,7 +528,7 @@ private:
     // ----
     inline void call(u16 addr)
     {
-        push16(m_registers->getPC());
+        push16(m_registers->getPC()+m_opcodeSize);
         jpToAddress(addr);
     }
 
