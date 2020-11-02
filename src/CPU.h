@@ -513,7 +513,7 @@ private:
     }
 
     // ----
-    inline void push16(u8 val)
+    inline void push16(u16 val)
     {
         m_registers->decrementSP(2);
         m_memoryPtr->set16(m_registers->getSP(), val);
