@@ -5,7 +5,10 @@
 
 #include <iostream>
 
+// Draw a grid between tiles
 //#define PPU_DRAW_GRID
+// Ignore Background Palette Register
+//#define PPU_IGNORE_BPR
 
 PPU::PPU(SDL_Renderer *renderer, Memory *memory)
     : m_rendererPtr{renderer}, m_memoryPtr{memory}
@@ -62,7 +65,20 @@ void PPU::updateBackground()
         for (int pixelI{}; pixelI < PIXELS_PER_TILE; ++pixelI)
         {
             uint8_t r, g, b;
+
+#ifdef PPU_IGNORE_BPR
+            static constexpr uint8_t shades[]{
+                255, // 0 - white
+                200, // 1 - light gray
+                100, // 2 - dark gray
+                0    // 3 - black
+            };
+
+            auto colorI{getPixelColorIndex(m_memoryPtr->get(BG_MAP_START+m_currentBgMapByteI, false), pixelI)};
+            r = shades[colorI]; g = shades[colorI]; b = shades[colorI];
+#else
             getColorFromIndex(getPixelColorIndex(m_memoryPtr->get(BG_MAP_START+m_currentBgMapByteI, false), pixelI), &r, &g, &b);
+#endif
 
             SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
 
