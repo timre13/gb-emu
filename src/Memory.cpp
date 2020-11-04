@@ -36,74 +36,74 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
-        case 0xff0f:
+        case REGISTER_ADDR_IF:
             return m_ifRegister | 0xf0; // The upper bits are always 1
-        case 0xff10:
+        case REGISTER_ADDR_NR10:
             return m_nr10Register;
-        case 0xff11:
+        case REGISTER_ADDR_NR11:
             return m_nr11Register;
-        case 0xff12:
+        case REGISTER_ADDR_NR12:
             return m_nr12Register;
-        case 0xff13:
+        case REGISTER_ADDR_NR13:
             return m_nr13Register;
-        case 0xff14:
+        case REGISTER_ADDR_NR14:
             return m_nr14Register;
-        case 0xff16:
+        case REGISTER_ADDR_NR21:
             return m_nr21Register;
-        case 0xff17:
+        case REGISTER_ADDR_NR22:
             return m_nr22Register;
-        case 0xff18:
+        case REGISTER_ADDR_NR23:
             return m_nr23Register;
-        case 0xff19:
+        case REGISTER_ADDR_NR24:
             return m_nr24Register;
-        case 0xff1a:
+        case REGISTER_ADDR_NR30:
             return m_nr30Register;
-        case 0xff1b:
+        case REGISTER_ADDR_NR31:
             return m_nr31Register;
-        case 0xff1c:
+        case REGISTER_ADDR_NR32:
             return m_nr32Register;
-        case 0xff1d:
+        case REGISTER_ADDR_NR33:
             return m_nr33Register;
-        case 0xff1e:
+        case REGISTER_ADDR_NR34:
             return m_nr34Register;
         // TODO: Wave pattern RAM: 0xff30 - 0xff3f
-        case 0xff20:
+        case REGISTER_ADDR_NR41:
             return m_nr41Register;
-        case 0xff21:
+        case REGISTER_ADDR_NR42:
             return m_nr42Register;
-        case 0xff22:
+        case REGISTER_ADDR_NR43:
             return m_nr43Register;
-        case 0xff23:
+        case REGISTER_ADDR_NR44:
             return m_nr44Register;
-        case 0xff24:
+        case REGISTER_ADDR_NR50:
             return m_nr50Register;
-        case 0xff25:
+        case REGISTER_ADDR_NR51:
             return m_nr51Register;
-        case 0xff26:
+        case REGISTER_ADDR_NR52:
             return m_nr52Register;
-        case 0xff40:
+        case REGISTER_ADDR_LCDC:
             return m_lcdControlRegister;
-        case 0xff41:
+        case REGISTER_ADDR_LCDSTAT:
             return m_lcdStatusRegister;
-        case 0xff42:
+        case REGISTER_ADDR_SCY:
             return m_scyRegister;
-        case 0xff43:
+        case REGISTER_ADDR_SCX:
             return m_scxRegister;
-        case 0xff44:
+        case REGISTER_ADDR_LY:
             return m_lyRegister;
-        case 0xff45:
+        case REGISTER_ADDR_LYC:
             return m_lycRegister;
-        case 0xff4a:
+        case REGISTER_ADDR_WY:
             return m_wyRegister;
-        case 0xff4b:
+        case REGISTER_ADDR_WX:
             return m_wxRegister;
-        case 0xff47:
+        case REGISTER_ADDR_BGP:
             return m_bgpRegister;
-        case 0xff48:
+        case REGISTER_ADDR_OBP0:
             return m_obp0Register;
-        case 0xff49:
+        case REGISTER_ADDR_OBP1:
             return m_obp1Register;
-        case 0xff46:
+        case REGISTER_ADDR_DMA:
             return m_dmaRegister;
         case 0xff4f: // VRAM bank selector, but DMG does not have switchable VRAM, so this returns 0xff
         case 0xff51: // HDMA1 - GBC only - always reads 0xff
@@ -123,7 +123,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
         }
     else if (address <= 0xfffe) // HRAM - High RAM / internal CPU RAM
         return m_hram.at(address-0xff7f-1);
-    else if (address == 0xffff) // IE Registers - Interrupt enable flags
+    else if (address == REGISTER_ADDR_IE) // IE Registers - Interrupt enable flags
         return m_ie; // the IE register is only one byte
     else
     {
@@ -161,107 +161,108 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
-        case 0xff0f:
+        case REGISTER_ADDR_IF:
             m_ifRegister = value | 0xf0;
             break;
-        case 0xff10:
+        case REGISTER_ADDR_NR10:
             m_nr10Register = value;
             break;
-        case 0xff11:
+        case REGISTER_ADDR_NR11:
             m_nr11Register = value;
             break;
-        case 0xff12:
+        case REGISTER_ADDR_NR12:
             m_nr12Register = value;
             break;
-        case 0xff13:
+        case REGISTER_ADDR_NR13:
             m_nr13Register = value;
             break;
-        case 0xff14:
+        case REGISTER_ADDR_NR14:
             m_nr14Register = value;
             break;
-        case 0xff16:
+        case REGISTER_ADDR_NR21:
             m_nr21Register = value;
             break;
-        case 0xff17:
+        case REGISTER_ADDR_NR22:
             m_nr22Register = value;
             break;
-        case 0xff18:
+        case REGISTER_ADDR_NR23:
             m_nr23Register = value;
             break;
-        case 0xff19:
+        case REGISTER_ADDR_NR24:
             m_nr24Register = value;
             break;
-        case 0xff1a:
+        case REGISTER_ADDR_NR30:
             m_nr30Register = value;
             break;
-        case 0xff1b:
+        case REGISTER_ADDR_NR31:
             m_nr31Register = value;
             break;
-        case 0xff1c:
+        case REGISTER_ADDR_NR32:
             m_nr32Register = value;
             break;
-        case 0xff1d:
+        case REGISTER_ADDR_NR33:
             m_nr33Register = value;
             break;
-        case 0xff1e:
+        case REGISTER_ADDR_NR34:
             m_nr34Register = value;
             break;
         // TODO: Wave pattern RAM: 0xff30 - 0xff3f
-        case 0xff20:
+        case REGISTER_ADDR_NR41:
+            break;
             m_nr41Register = value;
             break;
-        case 0xff21:
+        case REGISTER_ADDR_NR42:
             m_nr42Register = value;
             break;
-        case 0xff22:
+        case REGISTER_ADDR_NR43:
             m_nr43Register = value;
             break;
-        case 0xff23:
+        case REGISTER_ADDR_NR44:
             m_nr44Register = value;
             break;
-        case 0xff24:
+        case REGISTER_ADDR_NR50:
             m_nr50Register = value;
             break;
-        case 0xff25:
+        case REGISTER_ADDR_NR51:
             m_nr51Register = value;
             break;
-        case 0xff26:
+        case REGISTER_ADDR_NR52:
             m_nr52Register = value;
             break;
-        case 0xff40:
+        case REGISTER_ADDR_LCDC:
             m_lcdControlRegister = value;
             break;
-        case 0xff41:
+        case REGISTER_ADDR_LCDSTAT:
             m_lcdStatusRegister = value;
             break;
-        case 0xff42:
+        case REGISTER_ADDR_SCY:
             m_scyRegister = value;
             break;
-        case 0xff43:
+        case REGISTER_ADDR_SCX:
             m_scxRegister = value;
             break;
-        case 0xff44:
+        case REGISTER_ADDR_LY:
             m_lyRegister = value;
             break;
-        case 0xff45:
+        case REGISTER_ADDR_LYC:
             m_lycRegister = value;
             break;
-        case 0xff4a:
+        case REGISTER_ADDR_WY:
             m_wyRegister = value;
             break;
-        case 0xff4b:
+        case REGISTER_ADDR_WX:
             m_wxRegister = value;
             break;
-        case 0xff47:
+        case REGISTER_ADDR_BGP:
             m_bgpRegister = value;
             break;
-        case 0xff48:
+        case REGISTER_ADDR_OBP0:
             m_obp0Register = value;
             break;
-        case 0xff49:
+        case REGISTER_ADDR_OBP1:
             m_obp1Register = value;
             break;
-        case 0xff46:
+        case REGISTER_ADDR_DMA:
             m_dmaRegister = value;
             break;
         case 0xff4f: // VRAM bank selector, but DMG does not have switchable VRAM, so writes are ignored
@@ -283,7 +284,7 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
         }
     else if (address <= 0xfffe) // HRAM - High RAM / internal CPU RAM
         m_hram.at(address-0xff7f-1) = value;
-    else if (address == 0xffff) // IE Register - Interrupt enable flags
+    else if (address == REGISTER_ADDR_IE) // IE Register - Interrupt enable flags
         m_ie = value;
     else
         IMPOSSIBLE();

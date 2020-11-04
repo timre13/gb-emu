@@ -12,6 +12,45 @@ struct CartridgeInfo;
 #include <vector>
 #include <array>
 
+// Addresses of memory-mapped registers
+#define REGISTER_ADDR_IF      0xff0f
+#define REGISTER_ADDR_NR10    0xff10
+#define REGISTER_ADDR_NR11    0xff11
+#define REGISTER_ADDR_NR12    0xff12
+#define REGISTER_ADDR_NR13    0xff13
+#define REGISTER_ADDR_NR14    0xff14
+#define REGISTER_ADDR_NR21    0xff16
+#define REGISTER_ADDR_NR22    0xff17
+#define REGISTER_ADDR_NR23    0xff18
+#define REGISTER_ADDR_NR24    0xff19
+#define REGISTER_ADDR_NR30    0xff1a
+#define REGISTER_ADDR_NR31    0xff1b
+#define REGISTER_ADDR_NR32    0xff1c
+#define REGISTER_ADDR_NR33    0xff1d
+#define REGISTER_ADDR_NR34    0xff1e
+#define WAVE_PATTER_RAM_START 0xff30
+#define WAVE_PATTER_RAM_END   0xff3f
+#define REGISTER_ADDR_NR41    0xff20
+#define REGISTER_ADDR_NR42    0xff21
+#define REGISTER_ADDR_NR43    0xff22
+#define REGISTER_ADDR_NR44    0xff23
+#define REGISTER_ADDR_NR50    0xff24
+#define REGISTER_ADDR_NR51    0xff25
+#define REGISTER_ADDR_NR52    0xff26
+#define REGISTER_ADDR_LCDC    0xff40
+#define REGISTER_ADDR_LCDSTAT 0xff41
+#define REGISTER_ADDR_SCY     0xff42
+#define REGISTER_ADDR_SCX     0xff43
+#define REGISTER_ADDR_LY      0xff44
+#define REGISTER_ADDR_LYC     0xff45
+#define REGISTER_ADDR_WY      0xff4a
+#define REGISTER_ADDR_WX      0xff4b
+#define REGISTER_ADDR_BGP     0xff47
+#define REGISTER_ADDR_OBP0    0xff48
+#define REGISTER_ADDR_OBP1    0xff49
+#define REGISTER_ADDR_DMA     0xff46
+#define REGISTER_ADDR_IE      0xffff
+
 class Memory final
 {
 private:

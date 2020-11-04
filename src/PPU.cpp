@@ -29,7 +29,7 @@ uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI) const
 void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t *bOut)
 {
     // Get the value of the Background Palette Register
-    const uint8_t bgpValue{m_memoryPtr->get(0xff47, false)};
+    const uint8_t bgpValue{m_memoryPtr->get(REGISTER_ADDR_BGP, false)};
 
     static constexpr uint8_t palette[][3]{
             {87, 98, 81},
@@ -50,14 +50,14 @@ void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t
 
 void PPU::updateBackground()
 {
-    if (m_memoryPtr->get(0xff44, false) > 153) // End of V-BLANK
+    if (m_memoryPtr->get(REGISTER_ADDR_LY, false) > 153) // End of V-BLANK
     {
         m_currentBgMapByteI = 0;
 
-        m_memoryPtr->set(0xff44, 0);
+        m_memoryPtr->set(REGISTER_ADDR_LY, 0);
     }
 
-    if (m_memoryPtr->get(0xff44, false) < 144) // Not V-BLANK
+    if (m_memoryPtr->get(REGISTER_ADDR_LY, false) < 144) // Not V-BLANK
     {
         //if (BG_MAP_START+m_currentBgMapByteI > BG_MAP_START+BG_MAP_TILES_PER_ROW*BG_MAP_TILES_PER_COL-1)
 
@@ -99,5 +99,5 @@ void PPU::updateBackground()
 
     }
 
-    m_memoryPtr->set(0xff44, m_memoryPtr->get(0xff44, false)+1);
+    m_memoryPtr->set(REGISTER_ADDR_LY, m_memoryPtr->get(REGISTER_ADDR_LY, false)+1);
 }

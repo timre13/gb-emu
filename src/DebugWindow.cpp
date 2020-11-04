@@ -126,9 +126,9 @@ void DebugWindow::updateMemoryValues(const Memory *memory)
 
     renderText("= Memory-mapped Registers =", 10, 10+m_fontH*37);
 
-    auto regIF{memory->get(0xff0f, false)};
+    auto regIF{memory->get(REGISTER_ADDR_IF, false)};
     renderText("IF: "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*38);
-    auto regIE{memory->get(0xffff, false)};
+    auto regIE{memory->get(REGISTER_ADDR_IE, false)};
     renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*39);
     renderText("===========================", 10, 10+m_fontH*40);
 }

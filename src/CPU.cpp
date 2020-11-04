@@ -42,9 +42,9 @@ void CPU::handleInterrupts()
         if (!m_registers->getIme()) break;
 
         // Interrupt enable
-        uint8_t ieValue{m_memoryPtr->get(0xffff, false)};
+        uint8_t ieValue{m_memoryPtr->get(REGISTER_ADDR_IE, false)};
         // Interrupt request
-        uint8_t ifValue{m_memoryPtr->get(0xff0f, false)};
+        uint8_t ifValue{m_memoryPtr->get(REGISTER_ADDR_IF, false)};
 
         // If the interrupt is enabled and is requested
         if (ieValue & (1 << i) && ifValue & (1 << i))
@@ -60,7 +60,7 @@ void CPU::handleInterrupts()
             ifValue &= ~(1 << i);
 
             // Feed back the new value of IF
-            m_memoryPtr->set(0xff0f, ifValue, false);
+            m_memoryPtr->set(REGISTER_ADDR_IF, ifValue, false);
         }
     }
 }
