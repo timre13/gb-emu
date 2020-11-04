@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-// Draw a grid between tiles
+// Draw a grid between pixels
 //#define PPU_DRAW_GRID
 // Ignore Background Palette Register
 //#define PPU_IGNORE_BPR
@@ -88,12 +88,12 @@ void PPU::updateBackground()
                 PIXEL_SCALE,
                 PIXEL_SCALE};
             SDL_RenderFillRect(m_rendererPtr, &pixelRect);
-        }
 
 #ifdef PPU_DRAW_GRID
         SDL_SetRenderDrawColor(m_rendererPtr, 255, 0, 0, 255);
         SDL_RenderDrawRect(m_rendererPtr, &pixelRect);
 #endif
+        }
 
         ++m_currentBgMapByteI;
 
