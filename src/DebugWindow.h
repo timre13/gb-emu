@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+#include "common.h"
+
 #include "CPU.h"
 #include "Registers.h"
 #include "Memory.h"

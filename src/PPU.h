@@ -1,6 +1,10 @@
 #ifndef PPU_H
 #define PPU_H
 
+#include "config.h"
+
+#include "common.h"
+
 #include <SDL2/SDL.h>
 
 #include "Memory.h"

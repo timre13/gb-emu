@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+#include "common.h"
+
 #include "CPU.h"
 #include "PPU.h"
 #include "CartridgeReader.h"

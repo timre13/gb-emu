@@ -1,6 +1,10 @@
 #ifndef CARTRIDGEREADER_H_
 #define CARTRIDGEREADER_H_
 
+#include "config.h"
+
+#include "common.h"
+
 #include "Memory.h"
 
 #include <string>

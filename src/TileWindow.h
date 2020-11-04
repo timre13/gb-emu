@@ -1,6 +1,10 @@
 #ifndef TILEWINDOW_H
 #define TILEWINDOW_H
 
+#include "config.h"
+
+#include "common.h"
+
 #include <SDL2/SDL.h>
 
 #include "PPU.h"

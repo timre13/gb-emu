@@ -5,6 +5,7 @@
 
 struct CartridgeInfo;
 
+#include "common.h"
 #include "CartridgeReader.h"
 
 #include <stdint.h>
