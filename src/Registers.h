@@ -118,13 +118,13 @@ public:
     }
 
     // -- set --
-    inline void setAF(uint16_t value)   { m_A = (value & 0xff00) >> 8;
+    inline void setAF(uint16_t value)   { m_A = value >> 8;
                                           m_F =  value & 0x00ff; resetFlagRegisterLowerBits(); }
-    inline void setBC(uint16_t value)   { m_B = (value & 0xff00) >> 8;
+    inline void setBC(uint16_t value)   { m_B = value >> 8;
                                           m_C =  value & 0x00ff;        }
-    inline void setDE(uint16_t value)   { m_D = (value & 0xff00) >> 8;
+    inline void setDE(uint16_t value)   { m_D = value >> 8;
                                           m_E =  value & 0x00ff;        }
-    inline void setHL(uint16_t value)   { m_H = (value & 0xff00) >> 8;
+    inline void setHL(uint16_t value)   { m_H = value >> 8;
                                           m_L =  value & 0x00ff;        }
     inline void setSP(uint16_t value)   { m_SP = value;                 }
     inline void setPC(uint16_t value)   { m_PC = value;                 }

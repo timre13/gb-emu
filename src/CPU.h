@@ -54,7 +54,7 @@ public:
     {
         // If there was an EI instruction and it is not the current one,
         // so this is the instruction after the EI
-        if (m_wasEiInstruction && (((m_currentOpcode & 0xff000000) >> 24) != 0xfb))
+        if (m_wasEiInstruction && (m_currentOpcode >> 24 != 0xfb))
         {
             enableIterrupts();
             m_wasEiInstruction = false;

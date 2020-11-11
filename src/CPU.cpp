@@ -12,7 +12,7 @@ CPU::CPU(Memory *memory)
 void CPU::fetchOpcode()
 {
     uint32_t bytesAtPc{m_memoryPtr->getOpcodeNoSwap(m_registers->getPC())};
-    int opcodeSize{opcodeSizes[(bytesAtPc & 0xff000000) >> 24]};
+    int opcodeSize{opcodeSizes[bytesAtPc >> 24]};
 
     switch (opcodeSize)
     {
@@ -69,7 +69,7 @@ void CPU::emulateCurrentOpcode()
 {
     m_wasJump = false;
 
-    switch ((m_currentOpcode & 0xff'00'00'00) >> 24)
+    switch (m_currentOpcode >> 24)
     {
     case 0x00: i_0x00();                                    break;
     case 0x01: i_0x01((m_currentOpcode&0x00ffff00)>>8);     break;

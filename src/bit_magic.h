@@ -33,7 +33,7 @@ inline uint8_t getLowByte(uint16_t value)
  */
 inline uint8_t getHighByte(uint16_t value)
 {
-    return (value & 0xff00) >> 8;
+    return value >> 8;
 }
 
 //#############################################################################
