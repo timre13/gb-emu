@@ -112,7 +112,7 @@ void DebugWindow::updateOpcodeValue(const CPU *cpu)
 {
     renderText("===== Opcode ====", 10, 10+m_fontH*31);
     renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 10, 10+m_fontH*32);
-    renderText("Name:  "+OpcodeNames::get((cpu->getCurrentOpcode() & 0xff000000) >> 24), 10, 10+m_fontH*33);
+    renderText("Name:  "+OpcodeNames::get(cpu->getCurrentOpcode() >> 24), 10, 10+m_fontH*33);
     renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*34);
     renderText("=================", 10, 10+m_fontH*35);
 }
