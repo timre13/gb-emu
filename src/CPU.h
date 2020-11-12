@@ -19,6 +19,15 @@ using opcode_t = uint32_t;
 #define INTERRUPT_HANDLER_SERIAL   0x58
 #define INTERRUPT_HANDLER_JOYPAD   0x60
 
+#define JUMP_VECTOR_00 0x00
+#define JUMP_VECTOR_08 0x08
+#define JUMP_VECTOR_10 0x10
+#define JUMP_VECTOR_18 0x18
+#define JUMP_VECTOR_20 0x20
+#define JUMP_VECTOR_28 0x28
+#define JUMP_VECTOR_30 0x30
+#define JUMP_VECTOR_38 0x38
+
 class CPU final
 {
 private:
@@ -797,7 +806,7 @@ private:
     inline void i_0xc4(u16 x)   { callIf(cc::NZ, x); }
     inline void i_0xc5()        { pushRegister16(r16::BC); }
     inline void i_0xc6(u8 x)    { addToRegister8F(r8::A, x); }
-    inline void i_0xc7()        { callVector(0x00); }
+    inline void i_0xc7()        { callVector(JUMP_VECTOR_00); }
     inline void i_0xc8()        { retIf(cc::Z); }
     inline void i_0xc9()        { ret(); }
     inline void i_0xca(u16 x)   { jpIf(cc::Z, x); }
@@ -805,7 +814,7 @@ private:
     inline void i_0xcc(u16 x)   { callIf(cc::Z, x); }
     inline void i_0xcd(u16 x)   { call(x); }
     inline void i_0xce(u8 x)    { addValueAndCarryFlagToRegister8F(r8::A, x); }
-    inline void i_0xcf()        { callVector(0x08); }
+    inline void i_0xcf()        { callVector(JUMP_VECTOR_08); }
     inline void i_0xd0()        { retIf(cc::NC); }
     inline void i_0xd1()        { m_registers->set16(r16::DE, pop16()); }
     inline void i_0xd2(u16 x)   { jpIf(cc::NC, x); }
@@ -813,7 +822,7 @@ private:
     inline void i_0xd4(u16 x)   { callIf(cc::NC, x); }
     inline void i_0xd5()        { pushRegister16(r16::DE); }
     inline void i_0xd6(u8 x)    { subFromRegister8F(r8::A, x); }
-    inline void i_0xd7()        { callVector(0x10); }
+    inline void i_0xd7()        { callVector(JUMP_VECTOR_10); }
     inline void i_0xd8()        { retIf(cc::C); }
     inline void i_0xd9()        { enableIterrupts(); ret(); }
     inline void i_0xda(u16 x)   { jpIf(cc::C, x); }
@@ -821,7 +830,7 @@ private:
     inline void i_0xdc(u16 x)   { callIf(cc::C, x); }
     inline void i_0xdd()        { ILLEGAL_INSTRUCTION(0xdd); }
     inline void i_0xde(u8 x)    { subValueAndCarryFlagFromRegister8F(r8::A, x); }
-    inline void i_0xdf()        { callVector(0x18); }
+    inline void i_0xdf()        { callVector(JUMP_VECTOR_18); }
     inline void i_0xe0(u8 x)    { setValueAtAddressToRegister8(0xff00+x, r8::A); }
     inline void i_0xe1()        { m_registers->setHL(pop16()); }
     inline void i_0xe2()        { setValueAtAddressToRegister8(0xff00+m_registers->getC(), r8::A); }
@@ -829,7 +838,7 @@ private:
     inline void i_0xe4()        { ILLEGAL_INSTRUCTION(0xe4); }
     inline void i_0xe5()        { pushRegister16(r16::HL); }
     inline void i_0xe6(u8 x)    { andValueAndRegister8F(r8::A, x); }
-    inline void i_0xe7()        { callVector(0x20); }
+    inline void i_0xe7()        { callVector(JUMP_VECTOR_20); }
     inline void i_0xe8(i8 x)    { m_registers->incrementSP(x); }
     inline void i_0xe9()        { jpToAddressInRegister16(r16::HL); }
     inline void i_0xea(u8 x)    { setValueAtAddressToRegister8(x, r8::A); }
@@ -837,7 +846,7 @@ private:
     inline void i_0xec()        { ILLEGAL_INSTRUCTION(0xec); }
     inline void i_0xed()        { ILLEGAL_INSTRUCTION(0xed); }
     inline void i_0xee(u8 x)    { xorValueAndRegister8F(r8::A, x); }
-    inline void i_0xef()        { callVector(0x28); }
+    inline void i_0xef()        { callVector(JUMP_VECTOR_28); }
     inline void i_0xf0(u8 x)    { setRegister8(r8::A, m_memoryPtr->get(0xff00+x)); }
     inline void i_0xf1()        { m_registers->setAF(pop16()); }
     inline void i_0xf2()        { setRegister8(r8::A, m_memoryPtr->get(0xff00+m_registers->getC())); }
@@ -845,7 +854,7 @@ private:
     inline void i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); }
     inline void i_0xf5()        { pushRegister16(r16::AF); }
     inline void i_0xf6(u8 x)    { orValueAndRegister8F(r8::A, x); }
-    inline void i_0xf7()        { callVector(0x30); }
+    inline void i_0xf7()        { callVector(JUMP_VECTOR_30); }
     inline void i_0xf8(i8 x)    { setRegister16(r16::HL, m_registers->getSP()+x); }
     inline void i_0xf9()        { setRegister16ToRegister16(r16::SP, r16::HL); }
     inline void i_0xfa(u8 x)    { setRegister8(r8::A, x); }
@@ -853,7 +862,7 @@ private:
     inline void i_0xfc()        { ILLEGAL_INSTRUCTION(0xfc); }
     inline void i_0xfd()        { ILLEGAL_INSTRUCTION(0xfd); }
     inline void i_0xfe(u8 x)    { cpRegister8AndValue(r8::A, x); }
-    inline void i_0xff()        { callVector(0x38); }
+    inline void i_0xff()        { callVector(JUMP_VECTOR_38); }
 };
 
 
