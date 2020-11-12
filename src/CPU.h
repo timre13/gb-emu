@@ -557,8 +557,7 @@ private:
     // ----
     inline void callVector(vec addr)
     {
-        // Call the address stored in a jump vector
-        call(m_memoryPtr->get16(addr));
+        call(addr);
     }
 
     // ----
