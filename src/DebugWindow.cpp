@@ -28,10 +28,7 @@ DebugWindow::DebugWindow(int x, int y)
     if (!m_renderer)
         Logger::fatal("Failed to create renderer for debugger");
 
-    m_fontManager = new FontManager{m_window};
-
-    m_fontW = m_fontManager->get('A')->getW();
-    m_fontH = m_fontManager->get('A')->getH();
+    m_fontManager = new FontManager{m_window, &m_fontW, &m_fontH};
 
     Logger::info("Debug window created");
 }
@@ -40,7 +37,7 @@ void DebugWindow::renderText(const std::string &string, int x, int y, uint8_t co
 {
     for (size_t i{}; i < string.length(); ++i)
     {
-        SDL_Texture *charTexture{m_fontManager->get(string[i])->getTexture()};
+        SDL_Texture *charTexture{m_fontManager->get(string[i])};
 #ifdef DEBUG_TEXT_USE_COLORS
         SDL_SetTextureColorMod(charTexture, colorR, colorG, colorB);
 #else

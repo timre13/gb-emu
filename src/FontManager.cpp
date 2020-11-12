@@ -4,7 +4,7 @@
 #include <cassert>
 #include <string>
 
-static SDL_Texture* loadImage(const std::string &filename, SDL_Window *window, int *w, int *h)
+static SDL_Texture* loadImage(const std::string &filename, SDL_Window *window, int *wOut, int *hOut)
 {
     SDL_Surface *imageSurface{SDL_LoadBMP(filename.c_str())};
 
@@ -18,8 +18,8 @@ static SDL_Texture* loadImage(const std::string &filename, SDL_Window *window, i
         Logger::fatal("Failed to load character image: "+std::string(SDL_GetError()));
     }
 
-    *w = imageSurface->w;
-    *h = imageSurface->h;
+    if (wOut) *wOut = imageSurface->w;
+    if (hOut) *hOut = imageSurface->h;
 
     SDL_Texture *imageTexture{SDL_CreateTextureFromSurface(SDL_GetRenderer(window), imageSurface)};
 
@@ -38,33 +38,21 @@ static SDL_Texture* loadImage(const std::string &filename, SDL_Window *window, i
     return imageTexture;
 }
 
-FontManager::FontManager(SDL_Window *window)
+FontManager::FontManager(SDL_Window *window, int *charWidthOut, int *charHeightOut)
 {
     Logger::info("Loading font");
 
     for (int i{}; i < 256; ++i)
     {
-        int w, h;
-        auto texture = loadImage("assets/font/character_"+std::to_string(i)+".bmp", window, &w, &h);
-        m_characters[i] = new FontCharacter{texture, w, h};
+        m_characters[i] = loadImage("assets/font/character_"+std::to_string(i)+".bmp", window, charWidthOut, charHeightOut);
+        SDL_SetTextureColorMod(m_characters[i], 0, 0, 0);
     }
-
-    for (int i{}; i < 256; ++i)
-        SDL_SetTextureColorMod(m_characters[i]->getTexture(), 0, 0, 0);
-}
-
-FontCharacter* FontManager::get(int charCode)
-{
-    assert(charCode < 256);
-    assert(charCode >= 0);
-
-    return m_characters[charCode];
 }
 
 FontManager::~FontManager()
 {
     for (int i{}; i < 256; ++i)
-        delete m_characters[i];
+        SDL_DestroyTexture(m_characters[i]);
 
     Logger::info("Font free'd");
 }

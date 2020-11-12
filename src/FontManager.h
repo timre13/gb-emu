@@ -7,35 +7,15 @@
 
 #include <array>
 
-class FontCharacter final
-{
-private:
-    SDL_Texture *m_texture;
-    int m_w;
-    int m_h;
-
-public:
-    inline FontCharacter(SDL_Texture *texture, int w, int h)
-        : m_texture{texture}, m_w{w}, m_h{h}
-    {
-    }
-
-    inline SDL_Texture *getTexture() { return m_texture; }
-    inline int getW() const { return m_w; }
-    inline int getH() const { return m_h; }
-
-    inline ~FontCharacter() { SDL_DestroyTexture(m_texture); }
-};
-
 class FontManager
 {
 private:
-    std::array<FontCharacter*, 256> m_characters {};
+    std::array<SDL_Texture*, 256> m_characters {};
 
 public:
-    FontManager(SDL_Window *window);
+    FontManager(SDL_Window *window, int *charWidthOut, int *charHeightOut);
 
-    FontCharacter* get(int charCode);
+    inline SDL_Texture* get(unsigned char charCode) { return m_characters[charCode]; }
 
     ~FontManager();
 };
