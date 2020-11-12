@@ -13,6 +13,12 @@
 
 using opcode_t = uint32_t;
 
+#define INTERRUPT_HANDLER_VBLANK   0x40
+#define INTERRUPT_HANDLER_LCDCSTAT 0x48
+#define INTERRUPT_HANDLER_TIMER    0x50
+#define INTERRUPT_HANDLER_SERIAL   0x58
+#define INTERRUPT_HANDLER_JOYPAD   0x60
+
 class CPU final
 {
 private:
@@ -31,11 +37,11 @@ private:
     bool            m_wasEiInstruction{};
 
     static constexpr uint16_t m_interruptHandlers[]{
-        0x40, // V-Blank
-        0x48, // LCDC Status
-        0x50, // Timer
-        0x58, // Serial
-        0x60  // Joypad
+        INTERRUPT_HANDLER_VBLANK,
+        INTERRUPT_HANDLER_LCDCSTAT,
+        INTERRUPT_HANDLER_TIMER,
+        INTERRUPT_HANDLER_SERIAL,
+        INTERRUPT_HANDLER_JOYPAD,
     };
 
 public:
