@@ -17,7 +17,7 @@ PPU::PPU(SDL_Renderer *renderer, Memory *memory)
 
 uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI) const
 {
-    uint16_t pixelDataAddress{(uint16_t)(TILE_RAM_START+tileI*TILE_SIZE*2+0+tilePixelI/TILE_SIZE)};
+    uint16_t pixelDataAddress{(uint16_t)(TILE_RAM_START+tileI*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
     uint8_t colorI{
             (uint8_t)
             ((m_memoryPtr->get(pixelDataAddress+0, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE))) ? 2 : 0 |
@@ -41,8 +41,6 @@ void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t
     // Get which color is mapped to the color index
     auto paletteEntryI{(bgpValue & (3 << index*2)) >> index*2};
 
-    //std::cout << toBinStr(paletteEntryI, 8, false) << std::endl;
-
     *rOut = palette[paletteEntryI][0];
     *gOut = palette[paletteEntryI][1];
     *bOut = palette[paletteEntryI][2];
@@ -59,8 +57,6 @@ void PPU::updateBackground()
 
     if (m_memoryPtr->get(REGISTER_ADDR_LY, false) < 144) // Not V-BLANK
     {
-        //if (BG_MAP_START+m_currentBgMapByteI > BG_MAP_START+BG_MAP_TILES_PER_ROW*BG_MAP_TILES_PER_COL-1)
-
         // Draw a tile
         for (int pixelI{}; pixelI < PIXELS_PER_TILE; ++pixelI)
         {
