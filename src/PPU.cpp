@@ -32,10 +32,10 @@ void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t
     const uint8_t bgpValue{m_memoryPtr->get(REGISTER_ADDR_BGP, false)};
 
     static constexpr uint8_t palette[][3]{
-            {87, 98, 81},
-            {50, 76, 42},
-            {13, 41, 33},
-            { 0,  7, 10}
+            {0x82, 0x78, 0x0d},
+            {0x5c, 0x71, 0x22},
+            {0x3a, 0x53, 0x36},
+            {0x1c, 0x36, 0x28}
     };
 
     // Get which color is mapped to the color index
