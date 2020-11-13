@@ -20,8 +20,8 @@ uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI) const
     uint16_t pixelDataAddress{(uint16_t)(TILE_RAM_START+tileI*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
     uint8_t colorI{
             (uint8_t)
-            ((m_memoryPtr->get(pixelDataAddress+0, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE))) ? 2 : 0 |
-             (m_memoryPtr->get(pixelDataAddress+1, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE))) ? 1 : 0)};
+            ((m_memoryPtr->get(pixelDataAddress+0, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE-1))) ? 2 : 0 |
+             (m_memoryPtr->get(pixelDataAddress+1, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE-1))) ? 1 : 0)};
 
     return colorI;
 }
