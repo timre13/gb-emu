@@ -12,7 +12,7 @@
 
 TileWindow::TileWindow(int x, int y)
 {
-    m_window = SDL_CreateWindow("Tile Viewer", x, y, 16*8*5, 16*8*5, 0);
+    m_window = SDL_CreateWindow("Tile Viewer", x, y, 16*TILE_SIZE*TILE_WIN_SCALE, TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE, 0);
     if (!m_window) Logger::fatal("Failed to create window for Tile Window");
 
     m_renderer = SDL_CreateRenderer(m_window, -1, 0);
