@@ -22,12 +22,6 @@ private:
 
 public:
     TileWindow(int x, int y);
-    
-    inline void clearRenderer()
-    {
-        SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
-        SDL_RenderClear(m_renderer);
-    }
 
     inline void updateRenderer()
     {

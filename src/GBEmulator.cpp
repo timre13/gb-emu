@@ -84,7 +84,6 @@ void GBEmulator::initTileWindow()
 {
     m_tileWindow = new TileWindow{1500, 0};
 
-    m_tileWindow->clearRenderer();
     m_tileWindow->updateRenderer();
 }
 
@@ -210,7 +209,6 @@ void GBEmulator::emulateCycle()
         m_debugWindow->updateMemoryValues(m_memory);
         m_debugWindow->updateRenderer();
 
-        m_tileWindow->clearRenderer();
         m_tileWindow->updateTiles(m_ppu);
         m_tileWindow->updateRenderer();
 

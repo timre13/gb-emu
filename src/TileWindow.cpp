@@ -17,6 +17,9 @@ TileWindow::TileWindow(int x, int y)
 
     m_renderer = SDL_CreateRenderer(m_window, -1, 0);
     if (!m_renderer) Logger::fatal("Failed to create renderer for Tile Window");
+
+    SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
+    SDL_RenderClear(m_renderer);
 }
 
 void TileWindow::updateTiles(PPU *ppu)
