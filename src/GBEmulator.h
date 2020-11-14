@@ -21,6 +21,9 @@ class GBEmulator final
 private:
     bool            m_isDone{};
 
+    bool            m_isDebugWindowShown{};
+    bool            m_isTileWindowShown{};
+
     SDL_Window      *m_window{nullptr};
     SDL_Renderer    *m_renderer{nullptr};
 
@@ -49,6 +52,22 @@ private:
     void emulateCycle();
 
     void waitForSpaceKey();
+
+    inline void toggleDebugWindow()
+    {
+        m_isDebugWindowShown = !m_isDebugWindowShown;
+
+        if (m_isDebugWindowShown) m_debugWindow->show();
+        else m_debugWindow->hide();
+    }
+
+    inline void toggleTileWindow()
+    {
+        m_isTileWindowShown = !m_isTileWindowShown;
+
+        if (m_isTileWindowShown) m_tileWindow->show();
+        else m_tileWindow->hide();
+    }
 
 public:
     GBEmulator(const std::string &romFilename);

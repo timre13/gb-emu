@@ -23,6 +23,9 @@ private:
 public:
     TileWindow(int x, int y);
 
+    inline void show() { SDL_ShowWindow(m_window); }
+    inline void hide() { SDL_HideWindow(m_window); }
+
     inline void updateRenderer()
     {
         SDL_RenderPresent(m_renderer);

@@ -33,16 +33,16 @@ private:
 public:
     DebugWindow(int x, int y);
 
+    inline void show() { SDL_ShowWindow(m_window); }
+    inline void hide() { SDL_HideWindow(m_window); }
+
     inline void clearRenderer()
     {
         SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
         SDL_RenderClear(m_renderer);
     }
 
-    inline void updateRenderer()
-    {
-        SDL_RenderPresent(m_renderer);
-    }
+    inline void updateRenderer() { SDL_RenderPresent(m_renderer); }
 
     void updateRegisterValues(const Registers *registers);
     void updateOpcodeValue(const CPU *cpu);

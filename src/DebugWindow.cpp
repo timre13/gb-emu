@@ -18,7 +18,7 @@ DebugWindow::DebugWindow(int x, int y)
     m_w = DEBUG_WINDOW_WIDTH;
     m_h = DEBUG_WINDOW_HEIGHT;
 
-    m_window = SDL_CreateWindow("Debugger", m_x, m_y, m_w, m_h, 0);
+    m_window = SDL_CreateWindow("Debugger", m_x, m_y, m_w, m_h, SDL_WINDOW_HIDDEN);
 
     if (!m_window)
         Logger::fatal("Failed to create debugger window");

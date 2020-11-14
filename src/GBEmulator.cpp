@@ -179,12 +179,21 @@ void GBEmulator::emulateCycle()
         case SDL_QUIT:
             m_isDone = true;
             break;
+
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym)
             {
             case SDLK_ESCAPE:
                 m_isDone = true;
                 break;
+
+            case SDLK_F11:
+                toggleDebugWindow();
+                return;
+
+            case SDLK_F12:
+                toggleTileWindow();
+                return;
             }
             break;
         }
@@ -203,14 +212,20 @@ void GBEmulator::emulateCycle()
         Logger::info("Opcode size:  "+std::to_string(m_cpu->getCurrentOpcodeSize()));
 
 
-        m_debugWindow->clearRenderer();
-        m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
-        m_debugWindow->updateOpcodeValue(m_cpu);
-        m_debugWindow->updateMemoryValues(m_memory);
-        m_debugWindow->updateRenderer();
+        if (m_isDebugWindowShown)
+        {
+            m_debugWindow->clearRenderer();
+            m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
+            m_debugWindow->updateOpcodeValue(m_cpu);
+            m_debugWindow->updateMemoryValues(m_memory);
+            m_debugWindow->updateRenderer();
+        }
 
-        m_tileWindow->updateTiles(m_ppu);
-        m_tileWindow->updateRenderer();
+        if (m_isTileWindowShown)
+        {
+            m_tileWindow->updateTiles(m_ppu);
+            m_tileWindow->updateRenderer();
+        }
 
         //waitForSpaceKey();
 
