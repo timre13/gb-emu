@@ -165,7 +165,7 @@ private:
     }
 
     // Z0HC
-    inline int addToRegister8F(r8 reg, uint8_t value)
+    inline int addToRegister8F(r8 reg, u8 value)
     {
         m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(reg), value));
         m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(reg), value));
@@ -177,7 +177,7 @@ private:
     }
 
     // ----
-    inline int setRegister8(r8 reg, uint8_t value)
+    inline int setRegister8(r8 reg, u8 value)
     {
         m_registers->set8(reg, value);
 
@@ -185,7 +185,7 @@ private:
     }
 
     // ----
-    inline int setRegister16(r16 reg, uint16_t value)
+    inline int setRegister16(r16 reg, u16 value)
     {
         m_registers->set16(reg, value);
 
@@ -193,7 +193,7 @@ private:
     }
 
     // Z1HC
-    inline int subFromRegister8F(r8 reg, uint8_t value)
+    inline int subFromRegister8F(r8 reg, u8 value)
     {
         m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(reg), value));
         m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(reg), value));
@@ -216,7 +216,7 @@ private:
     }
 
     // ----
-    inline int setValueAtAddressInRegister16(r16 reg, uint8_t value)
+    inline int setValueAtAddressInRegister16(r16 reg, u8 value)
     {
         m_memoryPtr->set(m_registers->get16(reg), value);
 
@@ -232,7 +232,7 @@ private:
     }
 
     // ----
-    inline int setValueAtAddressToRegister8(uint16_t addr, r8 val)
+    inline int setValueAtAddressToRegister8(u16 addr, r8 val)
     {
         m_memoryPtr->set(addr, m_registers->get8(val));
 
@@ -385,7 +385,7 @@ private:
     }
 
     // Z0HC
-    inline int addValueAndCarryFlagToRegister8F(r8 dest, uint8_t val)
+    inline int addValueAndCarryFlagToRegister8F(r8 dest, u8 val)
     {
         m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
         m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
@@ -397,7 +397,7 @@ private:
     }
 
     // Z1HC
-    inline int subValueAndCarryFlagFromRegister8F(r8 dest, uint8_t val)
+    inline int subValueAndCarryFlagFromRegister8F(r8 dest, u8 val)
     {
         m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
         m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
@@ -409,7 +409,7 @@ private:
     }
 
     // Z010
-    inline int andValueAndRegister8F(r8 dest, uint8_t val)
+    inline int andValueAndRegister8F(r8 dest, u8 val)
     {
         m_registers->set8(dest, m_registers->get8(dest) & val);
         m_registers->setZeroFlag(m_registers->get8(dest) == 0);
@@ -421,7 +421,7 @@ private:
     }
 
     // Z000
-    inline int xorValueAndRegister8F(r8 dest, uint8_t val)
+    inline int xorValueAndRegister8F(r8 dest, u8 val)
     {
         m_registers->set8(dest, m_registers->get8(dest) ^ val);
         m_registers->setZeroFlag(m_registers->get8(dest) == 0);
@@ -433,7 +433,7 @@ private:
     }
 
     // Z000
-    inline int orValueAndRegister8F(r8 dest, uint8_t val)
+    inline int orValueAndRegister8F(r8 dest, u8 val)
     {
         m_registers->set8(dest, m_registers->get8(dest) | val);
         m_registers->setZeroFlag(m_registers->get8(dest) == 0);
@@ -453,7 +453,7 @@ private:
     }
 
     // Z1HC
-    inline int cpRegister8AndValue(r8 reg, uint8_t val)
+    inline int cpRegister8AndValue(r8 reg, u8 val)
     {
         m_registers->setZeroFlag(m_registers->get8(reg) == val);
         m_registers->setNegativeFlag();
