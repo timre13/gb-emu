@@ -9,6 +9,7 @@ int WINDOW_WIDTH {1000};
 int WINDOW_HEIGHT{1000};
 
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
+//#define LOG_OPCODE
 #define DELAY_BETWEEN_CYCLES_MS 0
 
 GBEmulator::GBEmulator(const std::string &romFilename)
@@ -205,11 +206,13 @@ void GBEmulator::emulateCycle()
 
         m_cpu->fetchOpcode();
 
+#ifdef LOG_OPCODE
         Logger::info("----- Cycle -----");
         Logger::info("PC: "+toHexStr(m_cpu->getRegisters()->getPC()));
         Logger::info("Opcode value: "+toHexStr(m_cpu->getCurrentOpcode()));
         Logger::info("Opcode name:  "+OpcodeNames::get(m_cpu->getCurrentOpcode() >> 24));
         Logger::info("Opcode size:  "+std::to_string(m_cpu->getCurrentOpcodeSize()));
+#endif
 
 
         if (m_isDebugWindowShown)
