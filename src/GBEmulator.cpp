@@ -10,6 +10,7 @@ int WINDOW_HEIGHT{1000};
 
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
 //#define LOG_OPCODE
+//#define USE_MAX_TEXTURE_SCALING_QUALITY
 #define DELAY_BETWEEN_CYCLES_MS 0
 
 GBEmulator::GBEmulator(const std::string &romFilename)
@@ -66,11 +67,12 @@ void GBEmulator::initGUI()
     SDL_RenderClear(m_renderer);
     SDL_RenderPresent(m_renderer);
 
+#ifdef USE_MAX_TEXTURE_SCALING_QUALITY
     // Set the best possible texture scaling.
     if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2"))
         if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
             SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-
+#endif
 }
 
 void GBEmulator::initDebugWindow()
