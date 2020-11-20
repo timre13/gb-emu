@@ -124,15 +124,13 @@ void CartridgeReader::initCartridgeInfo()
     Logger::info("Cartridge info set");
 }
 
-void CartridgeReader::loadRomToMemory(Memory &memory, SDL_Renderer *renderer)
+void CartridgeReader::loadRomToMemory(Memory &memory)
 {
     Logger::info("Loading ROM to memory");
 
     Logger::info("ROM size: "+toHexStr(m_cartridgeInfo.romSize));
 
     m_romFile.seekg(0, std::ios::beg);
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     uint8_t  currentByteValue{};
     uint32_t currentByteIndex{};
@@ -146,14 +144,6 @@ void CartridgeReader::loadRomToMemory(Memory &memory, SDL_Renderer *renderer)
 
         ++currentByteIndex;
         m_romFile.seekg(currentByteIndex, std::ios::beg);
-
-
-        if (currentByteIndex % (m_cartridgeInfo.romSize/100))
-            continue;
-        int progressbarWidth{static_cast<int>(std::round(static_cast<double>(currentByteIndex)/m_cartridgeInfo.romSize*WINDOW_WIDTH))};
-        SDL_Rect progressbarRect{0, 0, progressbarWidth, WINDOW_HEIGHT};
-        SDL_RenderFillRect(renderer, &progressbarRect);
-        SDL_RenderPresent(renderer);
     }
 
     long readBytes{m_romFile.tellg()};
@@ -168,8 +158,6 @@ void CartridgeReader::loadRomToMemory(Memory &memory, SDL_Renderer *renderer)
     else
         Logger::info("ROM copied");
 #endif
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
 }
 
 CartridgeInfo CartridgeReader::getCartridgeInfo()

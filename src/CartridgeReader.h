@@ -45,7 +45,7 @@ public:
     ~CartridgeReader();
 
     CartridgeInfo   getCartridgeInfo();
-    void            loadRomToMemory(Memory &memory, SDL_Renderer *renderer);
+    void            loadRomToMemory(Memory &memory);
 
     void            closeRomFile();
 };

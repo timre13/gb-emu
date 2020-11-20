@@ -122,17 +122,20 @@ void GBEmulator::initHardware()
         std::exit(1);
     }
 
-    SDL_SetWindowTitle(m_window, (std::string("Game Boy Emulator - ")+m_cartridgeInfo->title).c_str());
-
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
     SDL_RenderClear(m_renderer);
     SDL_RenderPresent(m_renderer);
 
-    // We pass the memory as a reference. This function needs
-    // the renderer to display the loading animation.
-    m_cartridgeReader->loadRomToMemory(*m_memory, m_renderer);
+    SDL_SetWindowTitle(m_window, ("Reading ROM: "+m_romFilename).c_str());
 
+    m_cartridgeReader->loadRomToMemory(*m_memory);
     m_cartridgeReader->closeRomFile();
+
+    SDL_SetWindowTitle(m_window, (std::string("Game Boy Emulator - ")+m_cartridgeInfo->title).c_str());
+
+    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+    SDL_RenderClear(m_renderer);
+    SDL_RenderPresent(m_renderer);
 }
 
 void GBEmulator::showCartridgeInfo()
