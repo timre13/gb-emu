@@ -42,7 +42,7 @@ void GBEmulator::initGUI()
     m_window = SDL_CreateWindow(
             "Game Boy Emulator",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            WINDOW_WIDTH, WINDOW_HEIGHT,
+            TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE, TILE_MAP_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE,
             SDL_WINDOW_HIDDEN);
 
     if (m_window)
