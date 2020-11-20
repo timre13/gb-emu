@@ -50,6 +50,8 @@ void GBEmulator::initGUI()
     else
         Logger::fatal("Failed to create window");
 
+    m_windowId = SDL_GetWindowID(m_window);
+
 
     Logger::info("Creating renderer");
 
@@ -194,11 +196,13 @@ void GBEmulator::emulateCycle()
                 break;
 
             case SDLK_F11:
-                toggleDebugWindow();
+                if (event.window.windowID == m_windowId)
+                    toggleDebugWindow();
                 return;
 
             case SDLK_F12:
-                toggleTileWindow();
+                if (event.window.windowID == m_windowId)
+                    toggleTileWindow();
                 return;
             }
             break;

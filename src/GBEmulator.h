@@ -25,6 +25,7 @@ private:
     bool            m_isTileWindowShown{};
 
     SDL_Window      *m_window{nullptr};
+    uint32_t        m_windowId{};
     SDL_Renderer    *m_renderer{nullptr};
 
     CPU             *m_cpu{nullptr}; // the registers are in the CPU
