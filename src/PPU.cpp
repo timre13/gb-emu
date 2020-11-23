@@ -33,8 +33,8 @@ void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t
 
     static constexpr uint8_t palette[][3]{
             {0x82, 0x78, 0x0d},
-            {0x5c, 0x71, 0x22},
             {0x3a, 0x53, 0x36},
+            {0x5c, 0x71, 0x22},
             {0x1c, 0x36, 0x28}
     };
 
