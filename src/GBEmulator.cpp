@@ -5,9 +5,6 @@
 
 #include <SDL2/SDL_hints.h>
 
-int WINDOW_WIDTH {1000};
-int WINDOW_HEIGHT{1000};
-
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
 //#define LOG_OPCODE
 //#define USE_MAX_TEXTURE_SCALING_QUALITY
