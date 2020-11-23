@@ -2,22 +2,25 @@
 #define PPU_H
 
 #include "config.h"
-
 #include "common.h"
-
-#include <SDL2/SDL.h>
 
 #include "Memory.h"
 
-#define PIXEL_SCALE 8
-#define TILE_RAM_START 0x8000
+#include <SDL2/SDL.h>
+
+#define PIXEL_SCALE 7
+#define TILE_DATA_L_START 0x8000
+#define TILE_DATA_H_START 0x8800
 #define TILE_SIZE 8
 #define NUM_OF_TILES 384
 #define PIXELS_PER_TILE TILE_SIZE*TILE_SIZE
 
-#define BG_MAP_START 0x9800
-#define BG_MAP_TILES_PER_ROW 14
-#define BG_MAP_TILES_PER_COL 12
+#define TILE_MAP_L_START 0x9800
+#define TILE_MAP_H_START 0x9c00
+#define TILE_MAP_TILES_PER_ROW 64
+#define TILE_MAP_TILES_PER_COL 64
+#define TILE_MAP_DISPLAYED_TILES_PER_ROW 20
+#define TILE_MAP_DISPLAYED_TILES_PER_COL 18
 
 class PPU final
 {
