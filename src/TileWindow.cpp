@@ -8,11 +8,11 @@
 
 //#define TILE_WIN_USE_PALETTE
 #define TILE_WIN_TILES_PER_ROW 16
-#define TILE_WIN_SCALE 5
+#define TILE_WIN_SCALE 3
 
 TileWindow::TileWindow(int x, int y)
 {
-    m_window = SDL_CreateWindow("Tile Viewer", x, y, 16*TILE_SIZE*TILE_WIN_SCALE, TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE, SDL_WINDOW_HIDDEN);
+    m_window = SDL_CreateWindow("Tile Viewer", x, y, TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE, 16*TILE_SIZE*TILE_WIN_SCALE*2, SDL_WINDOW_HIDDEN);
     if (!m_window) Logger::fatal("Failed to create window for Tile Window");
 
     m_renderer = SDL_CreateRenderer(m_window, -1, 0);
@@ -33,30 +33,45 @@ void TileWindow::updateTiles(PPU *ppu)
     };
 #endif
 
-    for (int tileI{}; tileI < NUM_OF_TILES; ++tileI)
+    for (int tileRamI{}; tileRamI <= 2; ++tileRamI)
     {
-        for (int tilePixelI{}; tilePixelI < PIXELS_PER_TILE; ++tilePixelI)
+        for (int tileI{}; tileI < NUM_OF_TILES; ++tileI)
         {
-            auto colorI{ppu->getPixelColorIndex(tileI, tilePixelI)};
+            for (int tilePixelI{}; tilePixelI < PIXELS_PER_TILE; ++tilePixelI)
+            {
+                auto colorI{ppu->getPixelColorIndex(tileI, tilePixelI, static_cast<PPU::TileDataSelector>(tileRamI))};
 
 #ifdef TILE_WIN_USE_PALETTE
-            uint8_t r, g, b;
-            ppu->getColorFromIndex(colorI, &r, &g, &b);
+                uint8_t r, g, b;
+                ppu->getColorFromIndex(colorI, &r, &g, &b);
 
-            SDL_SetRenderDrawColor(m_renderer, r, g, b, 255);
+                SDL_SetRenderDrawColor(m_renderer, r, g, b, 255);
 #else
-            SDL_SetRenderDrawColor(m_renderer, shades[colorI], shades[colorI], shades[colorI], 255);
+                SDL_SetRenderDrawColor(m_renderer, shades[colorI], shades[colorI], shades[colorI], 255);
 #endif
 
-            auto pixelX{tileI%TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE+tilePixelI%TILE_SIZE*TILE_WIN_SCALE};
-            auto pixelY{tileI/TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE+tilePixelI/TILE_SIZE*TILE_WIN_SCALE};
+                auto pixelX{tileI%TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE+tilePixelI%TILE_SIZE*TILE_WIN_SCALE};
+                auto pixelY{tileI/TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE+tilePixelI/TILE_SIZE*TILE_WIN_SCALE+
+                            tileRamI*16*TILE_SIZE*TILE_WIN_SCALE};
 
-            SDL_Rect pixelRect{
-                    pixelX,
-                    pixelY,
-                    TILE_WIN_SCALE,
-                    TILE_WIN_SCALE};
-            SDL_RenderFillRect(m_renderer, &pixelRect);
+                SDL_Rect pixelRect{
+                        pixelX,
+                        pixelY,
+                        TILE_WIN_SCALE,
+                        TILE_WIN_SCALE};
+                SDL_RenderFillRect(m_renderer, &pixelRect);
+            }
+        }
+
+        // Draw a line after the first tile set
+        if (!tileRamI)
+        {
+            SDL_SetRenderDrawColor(m_renderer, 0, 255, 0, 255);
+            for (int i{-1}; i <= 1; ++i)
+                SDL_RenderDrawLine(
+                        m_renderer,
+                        0, 16*TILE_SIZE*TILE_WIN_SCALE+i,
+                        TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE, 16*TILE_SIZE*TILE_WIN_SCALE+i);
         }
     }
 }
