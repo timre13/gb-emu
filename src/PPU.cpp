@@ -15,9 +15,9 @@ PPU::PPU(SDL_Renderer *renderer, Memory *memory)
 {
 }
 
-uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI) const
+uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI, TileDataSelector bgDataSelector) const
 {
-    uint16_t pixelDataAddress{(uint16_t)(TILE_RAM_START+tileI*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
+    uint16_t pixelDataAddress{(uint16_t)((bgDataSelector == TileDataSelector::Lower ? TILE_DATA_L_START : TILE_DATA_H_START)+tileI*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
     uint8_t colorI{
             (uint8_t)
             (((m_memoryPtr->get(pixelDataAddress+0, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE-1))) ? 2 : 0) |

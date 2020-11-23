@@ -28,9 +28,15 @@ private:
     int             m_currentBgMapByteI{};
 
 public:
+    enum class TileDataSelector
+    {
+        Lower,
+        Higher,
+    };
+
     PPU(SDL_Renderer *renderer, Memory *memory);
 
-    uint8_t getPixelColorIndex(int tileI, int tilePixelI) const;
+    uint8_t getPixelColorIndex(int tileI, int tilePixelI, TileDataSelector bgDataSelector) const;
     void getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t *bOut);
 
     void updateBackground();
