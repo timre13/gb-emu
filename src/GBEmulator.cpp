@@ -24,6 +24,10 @@ GBEmulator::GBEmulator(const std::string &romFilename)
 
     initHardware();
 
+    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+    SDL_RenderClear(m_renderer);
+    SDL_RenderPresent(m_renderer);
+
     Logger::info("========== Emulator Started ==========");
 }
 
@@ -62,7 +66,7 @@ void GBEmulator::initGUI()
     else
         Logger::fatal("Failed to create renderer");
 
-    SDL_SetRenderDrawColor(m_renderer, 100, 100, 100, 255);
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
     SDL_RenderClear(m_renderer);
     SDL_RenderPresent(m_renderer);
 
@@ -121,20 +125,12 @@ void GBEmulator::initHardware()
         std::exit(1);
     }
 
-    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
-    SDL_RenderClear(m_renderer);
-    SDL_RenderPresent(m_renderer);
-
     SDL_SetWindowTitle(m_window, ("Reading ROM: "+m_romFilename).c_str());
 
     m_cartridgeReader->loadRomToMemory(*m_memory);
     m_cartridgeReader->closeRomFile();
 
     SDL_SetWindowTitle(m_window, (std::string("Game Boy Emulator - ")+m_cartridgeInfo->title).c_str());
-
-    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
-    SDL_RenderClear(m_renderer);
-    SDL_RenderPresent(m_renderer);
 }
 
 void GBEmulator::showCartridgeInfo()
