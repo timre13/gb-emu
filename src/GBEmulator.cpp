@@ -18,6 +18,8 @@ GBEmulator::GBEmulator(const std::string &romFilename)
     initGUI();
     initDebugWindow();
     initTileWindow();
+    initSerialViewer();
+
     
     // We show the main window after the debug and tile window, so it pops up.
     SDL_ShowWindow(m_window);
@@ -93,6 +95,13 @@ void GBEmulator::initTileWindow()
     m_tileWindow->updateRenderer();
 }
 
+void GBEmulator::initSerialViewer()
+{
+    m_serialViewer = new SerialViewer{200, 0};
+
+    m_serialViewer->updateRenderer();
+}
+
 void GBEmulator::initHardware()
 {
     Logger::info("Initializing virtual hardware");
@@ -108,7 +117,7 @@ void GBEmulator::initHardware()
 
     m_cartridgeInfo     = new CartridgeInfo{m_cartridgeReader->getCartridgeInfo()};
 
-    m_memory            = new Memory{m_cartridgeInfo};
+    m_memory            = new Memory{m_cartridgeInfo, m_serialViewer};
     m_cpu               = new CPU{m_memory}; // the CPU needs to know about the memory to do the memory operations
     m_ppu               = new PPU{m_renderer, m_memory};
 
@@ -197,6 +206,12 @@ void GBEmulator::emulateCycle()
                 if (event.window.windowID == m_windowId)
                     toggleTileWindow();
                 return;
+
+            case SDLK_F10:
+                if (event.window.windowID == m_windowId)
+                    toggleSerialViewer();
+                return;
+
             }
             break;
         }
@@ -230,6 +245,13 @@ void GBEmulator::emulateCycle()
         {
             m_tileWindow->updateTiles(m_ppu);
             m_tileWindow->updateRenderer();
+        }
+
+        if (m_isSerialViewerShown)
+        {
+            m_serialViewer->clearRenderer();
+            m_serialViewer->updateText();
+            m_serialViewer->updateRenderer();
         }
 
         //waitForSpaceKey();

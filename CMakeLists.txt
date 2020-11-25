@@ -44,4 +44,6 @@ add_executable(gb-emu
     src/TileWindow.h
     src/PPU.cpp
     src/PPU.h
+    src/SerialViewer.cpp
+    src/SerialViewer.h
 )

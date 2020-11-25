@@ -12,6 +12,7 @@
 
 #include "DebugWindow.h"
 #include "TileWindow.h"
+#include "SerialViewer.h"
 
 #include <string>
 #include <SDL2/SDL.h>
@@ -23,6 +24,7 @@ private:
 
     bool            m_isDebugWindowShown{};
     bool            m_isTileWindowShown{};
+    bool            m_isSerialViewerShown{};
 
     SDL_Window      *m_window{nullptr};
     uint32_t        m_windowId{};
@@ -37,12 +39,14 @@ private:
 
     DebugWindow     *m_debugWindow{nullptr};
     TileWindow      *m_tileWindow{nullptr};
+    SerialViewer    *m_serialViewer{nullptr};
 
     std::string     m_romFilename;
 
     void initGUI();
     void initDebugWindow();
     void initTileWindow();
+    void initSerialViewer();
     void initHardware();
 
     void deinit();
@@ -68,6 +72,14 @@ private:
 
         if (m_isTileWindowShown) m_tileWindow->show();
         else m_tileWindow->hide();
+    }
+
+    inline void toggleSerialViewer()
+    {
+        m_isSerialViewerShown = !m_isSerialViewerShown;
+
+        if (m_isSerialViewerShown) m_serialViewer->show();
+        else m_serialViewer->hide();
     }
 
 public:

@@ -7,12 +7,15 @@ struct CartridgeInfo;
 
 #include "common.h"
 #include "CartridgeReader.h"
+#include "SerialViewer.h"
 
 #include <stdint.h>
 #include <vector>
 #include <array>
 
 // Addresses of memory-mapped registers
+#define REGISTER_ADDR_SB      0xff01
+#define REGISTER_ADDR_SC      0xff02
 #define REGISTER_ADDR_IF      0xff0f
 #define REGISTER_ADDR_NR10    0xff10
 #define REGISTER_ADDR_NR11    0xff11
@@ -88,6 +91,10 @@ private:
     // We just always read 0 here and ignore writes.
 
     // Memory-mapped registers
+    // SB (Serial transfer data) - 0xff01
+    uint8_t                                         m_sb{};
+    // SC (Serial transfer control) - 0xff02
+    // ---
     // IF (Interrupt Flag) - 0xff0f
     uint8_t                                         m_ifRegister{0xf0};
     // NR10 - 0xff10
@@ -165,8 +172,12 @@ private:
     // IE (Interrupt Enable Register) - 0xffff
     uint8_t                                         m_ie{};
 
+    // -------------------------------------------------------------------------
+
+    SerialViewer                                    *m_serial{nullptr};
+
 public:
-    Memory(const CartridgeInfo *info);
+    Memory(const CartridgeInfo *info, SerialViewer *serial);
 
     uint8_t get(uint16_t address, bool log=true) const;
     void    set(uint16_t address, uint8_t value, bool log=true);

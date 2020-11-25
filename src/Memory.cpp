@@ -5,7 +5,8 @@
 #include <iostream>
 #include "string_formatting.h"
 
-Memory::Memory(const CartridgeInfo *info)
+Memory::Memory(const CartridgeInfo *info, SerialViewer *serial)
+    : m_serial{serial}
 {
     m_romBanks.resize(std::max(1, (int)info->romBanks));
     m_ramBanks.resize(std::max(1, (int)info->ramBanks));
@@ -36,6 +37,10 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
+        case REGISTER_ADDR_SB:
+            return m_sb;
+        case REGISTER_ADDR_SC:
+            return 0; // TODO: What should we return?
         case REGISTER_ADDR_IF:
             return m_ifRegister | 0xf0; // The upper bits are always 1
         case REGISTER_ADDR_NR10:
@@ -161,6 +166,18 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
+        case REGISTER_ADDR_SB:
+            m_sb = value;
+            break;
+        case REGISTER_ADDR_SC:
+            // TODO: The other bits?
+            if (value & 0b10000000) // If bit 7 is set
+            {
+                m_serial->write(m_sb);  // Write the data in SB to the serial port
+                value &= 0b01111111; // Unset bit 7
+                // TODO: Call the serial interrupt handler (0x58)
+            }
+            break;
         case REGISTER_ADDR_IF:
             m_ifRegister = value | 0xf0;
             break;
