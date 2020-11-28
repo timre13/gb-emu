@@ -711,7 +711,30 @@ private:
     {
         // The Z80-like processors do not crash the system when
         // encountering an illegal instruction, so just report it.
-        Logger::warning("Illegal instruction: "+toHexStr(opcode));
+        Logger::warning("Illegal instruction: " + toHexStr(opcode));
+
+        std::string message{
+                "Invalid opcode: " + toHexStr(opcode) + "\n" +
+                "PC: " + toHexStr(m_registers->getPC()) + "\n" +
+                "SP: " + toHexStr(m_registers->getSP()) + "\n" +
+                "\n"};
+
+        for (int i{-8}; i <= 8; ++i)
+        {
+            if (i == 0) message += ">";
+            message += toHexStr(m_memoryPtr->get(m_registers->getPC() + i), 2, false);
+            if (i == 0) message += "<";
+            if (i != 8) message += " ";
+        }
+
+        message +=
+                std::string("\n") +
+                "\nThis is probably a bug in the ROM or in the emulator";
+
+        SDL_ShowSimpleMessageBox(
+                SDL_MESSAGEBOX_WARNING,
+                "Invalid Opcode",
+                message.c_str(), nullptr);
     }
 
     //=========================================================================
