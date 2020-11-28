@@ -43,6 +43,8 @@ private:
 
     std::string     m_romFilename;
 
+    int             m_clockCyclesUntilPPUActivity{456};
+
     void initGUI();
     void initDebugWindow();
     void initTileWindow();

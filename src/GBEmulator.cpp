@@ -262,9 +262,17 @@ void GBEmulator::emulateCycle()
 
         m_cpu->emulateCurrentOpcode();
 
-        updateGraphics();
-        updateGraphics();
-        SDL_RenderPresent(m_renderer);
+        // TODO: Cycle accuracy
+        --m_clockCyclesUntilPPUActivity;
+
+        if (m_clockCyclesUntilPPUActivity <= 1)
+        {
+            // 70224 (V-blank happens every 70224 clocks) / 154 (LY reg max value + 1)
+            // = 456
+            m_clockCyclesUntilPPUActivity = 456;
+            updateGraphics();
+            SDL_RenderPresent(m_renderer);
+        }
 
         m_cpu->enableImaIfNeeded();
         m_cpu->stepPC();
