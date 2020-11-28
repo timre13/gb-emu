@@ -28,8 +28,6 @@ private:
     SDL_Renderer    *m_rendererPtr{nullptr};
     Memory          *m_memoryPtr{nullptr};
 
-    int             m_currentBgMapByteI{};
-
 public:
     enum class TileDataSelector
     {

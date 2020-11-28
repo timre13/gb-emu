@@ -48,52 +48,79 @@ void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t
 
 void PPU::updateBackground()
 {
-    if (m_memoryPtr->get(REGISTER_ADDR_LY, false) > 153) // End of V-BLANK
-    {
-        m_currentBgMapByteI = 0;
+    const uint8_t lcdcRegValue{m_memoryPtr->get(REGISTER_ADDR_LCDC, false)};
 
+    // If the LCD and PPU are disabled
+    if ((lcdcRegValue & 0b10000000) == 0)
+        return;
+
+    const uint8_t lyRegValue{m_memoryPtr->get(REGISTER_ADDR_LY, false)};
+
+    if (lyRegValue > 153) // End of V-BLANK
+    {
         m_memoryPtr->set(REGISTER_ADDR_LY, 0);
     }
 
-    if (m_memoryPtr->get(REGISTER_ADDR_LY, false) < 144) // Not V-BLANK
+    if (lyRegValue < 144) // Not V-BLANK
     {
-        // Draw a tile
-        for (int pixelI{}; pixelI < PIXELS_PER_TILE; ++pixelI)
+        const TileDataSelector tileDataSelector{(lcdcRegValue & 0b00010000) ? TileDataSelector::Lower : TileDataSelector::Higher};
+        const uint16_t bgTileMapStart{(lcdcRegValue & 0b00001000) ? (uint16_t)TILE_MAP_H_START : (uint16_t)TILE_MAP_L_START};
+
+        /*
+        const TileDataSelector tileDataSelector{TileDataSelector::Lower};
+        const int bgTileMapStart{TILE_MAP_L_START};
+         */
+
+        // Index of tile in current row
+        for (int rowTileI{}; rowTileI < TILE_MAP_TILES_PER_ROW; ++rowTileI)
         {
-            uint8_t r, g, b;
+            // Index of pixel in the current row of the current tile
+            for (int tileRowPixelI{}; tileRowPixelI < TILE_SIZE; ++tileRowPixelI)
+            {
+                uint8_t r, g, b;
+
+                //const uint8_t colorI{getPixelColorIndex(lyRegValue/8*TILE_MAP_TILES_PER_ROW+rowTileI, lyRegValue%TILE_MAP_TILES_PER_ROW*8+tileRowPixelI%8, tileDataSelector)};
+                const uint8_t colorI{getPixelColorIndex(
+                        m_memoryPtr->get((bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI), false), // Tile index
+                        lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
+                        tileDataSelector)}; // Tile data selector
+                //const uint8_t colorI{rowPixelI%4};
 
 #ifdef PPU_IGNORE_BPR
-            static constexpr uint8_t shades[]{
-                255, // 0 - white
-                200, // 1 - light gray
-                100, // 2 - dark gray
-                0    // 3 - black
-            };
+                static constexpr uint8_t shades[]{
+                    255, // 0 - white
+                    200, // 1 - light gray
+                    100, // 2 - dark gray
+                    0    // 3 - black
+                };
 
-            auto colorI{getPixelColorIndex(m_memoryPtr->get(BG_MAP_START+m_currentBgMapByteI, false), pixelI)};
-            r = shades[colorI]; g = shades[colorI]; b = shades[colorI];
+                r = shades[colorI]; g = shades[colorI]; b = shades[colorI];
 #else
-            getColorFromIndex(getPixelColorIndex(m_memoryPtr->get(BG_MAP_START+m_currentBgMapByteI, false), pixelI), &r, &g, &b);
+                getColorFromIndex(colorI, &r, &g, &b);
 #endif
 
-            SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
+                SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
 
-            SDL_Rect pixelRect{
-                m_currentBgMapByteI%BG_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI%TILE_SIZE*PIXEL_SCALE,
-                m_currentBgMapByteI/BG_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI/TILE_SIZE*PIXEL_SCALE,
-                PIXEL_SCALE,
-                PIXEL_SCALE};
-            SDL_RenderFillRect(m_rendererPtr, &pixelRect);
+                auto scrollX{m_memoryPtr->get(REGISTER_ADDR_SCX, false)};
+                auto scrollY{m_memoryPtr->get(REGISTER_ADDR_SCY, false)};
+                SDL_Rect pixelRect{
+                    //m_currentBgMapByteI%TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI%TILE_SIZE*PIXEL_SCALE,
+                    //m_currentBgMapByteI/TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI/TILE_SIZE*PIXEL_SCALE,
+                    (rowTileI*TILE_SIZE+tileRowPixelI-scrollX)*PIXEL_SCALE,
+                    (lyRegValue-scrollY)*PIXEL_SCALE,
+                    PIXEL_SCALE,
+                    PIXEL_SCALE};
+                if (pixelRect.x > -PIXEL_SCALE && pixelRect.x < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE &&
+                    pixelRect.y > -PIXEL_SCALE && pixelRect.y < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE)
+                    SDL_RenderFillRect(m_rendererPtr, &pixelRect);
 
 #ifdef PPU_DRAW_GRID
-        SDL_SetRenderDrawColor(m_rendererPtr, 255, 0, 0, 255);
-        SDL_RenderDrawRect(m_rendererPtr, &pixelRect);
+                SDL_SetRenderDrawColor(m_rendererPtr, 255, 0, 0, 255);
+                SDL_RenderDrawRect(m_rendererPtr, &pixelRect);
 #endif
+            }
         }
-
-        ++m_currentBgMapByteI;
-
     }
 
-    m_memoryPtr->set(REGISTER_ADDR_LY, m_memoryPtr->get(REGISTER_ADDR_LY, false)+1);
+    m_memoryPtr->set(REGISTER_ADDR_LY, lyRegValue+1);
 }
