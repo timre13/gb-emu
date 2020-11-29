@@ -123,6 +123,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
         case 0xff70: // WRAM bank selector, but DMG does not have switchable WRAM, so this returns 0xff
             return 0xff;
         default:
+            Logger::error("Unimplemented I/O register: " +toHexStr(address));
             UNIMPLEMENTED(); // TODO: And the rest I/O registers?
             return 0;
         }
@@ -296,6 +297,7 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
             (void)value;
             break;
         default:
+            Logger::error("Unimplemented I/O register: " + toHexStr(address));
             UNIMPLEMENTED(); // TODO: And the rest I/O registers?
             break;
         }
