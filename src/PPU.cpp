@@ -58,7 +58,7 @@ void PPU::updateBackground()
 
     if (lyRegValue > 153) // End of V-BLANK
     {
-        m_memoryPtr->set(REGISTER_ADDR_LY, 0);
+        m_memoryPtr->set(REGISTER_ADDR_LY, 0, false);
     }
 
     if (lyRegValue < 144) // Not V-BLANK
@@ -101,8 +101,8 @@ void PPU::updateBackground()
 
                 SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
 
-                auto scrollX{m_memoryPtr->get(REGISTER_ADDR_SCX, false)};
-                auto scrollY{m_memoryPtr->get(REGISTER_ADDR_SCY, false)};
+                uint8_t scrollX{m_memoryPtr->get(REGISTER_ADDR_SCX, false)};
+                uint8_t scrollY{m_memoryPtr->get(REGISTER_ADDR_SCY, false)};
                 SDL_Rect pixelRect{
                     //m_currentBgMapByteI%TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI%TILE_SIZE*PIXEL_SCALE,
                     //m_currentBgMapByteI/TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI/TILE_SIZE*PIXEL_SCALE,
@@ -122,5 +122,5 @@ void PPU::updateBackground()
         }
     }
 
-    m_memoryPtr->set(REGISTER_ADDR_LY, lyRegValue+1);
+    m_memoryPtr->set(REGISTER_ADDR_LY, lyRegValue+1, false);
 }
