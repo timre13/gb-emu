@@ -56,6 +56,12 @@ void PPU::updateBackground()
 
     const uint8_t lyRegValue{m_memoryPtr->get(REGISTER_ADDR_LY, false)};
 
+    if (lyRegValue == 144) // Start of V-BLANK
+    {
+        // Call the V-blank interrupt
+        m_memoryPtr->set(REGISTER_ADDR_IF, m_memoryPtr->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_VBLANK, false);
+    }
+
     if (lyRegValue > 153) // End of V-BLANK
     {
         m_memoryPtr->set(REGISTER_ADDR_LY, 0, false);
