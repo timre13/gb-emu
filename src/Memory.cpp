@@ -42,7 +42,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
         case REGISTER_ADDR_SC:
             return 0; // TODO: What should we return?
         case REGISTER_ADDR_IF:
-            return m_ifRegister | 0xf0; // The upper bits are always 1
+            return m_ifRegister | 0b11100000; // The upper 3 bits are always 1
         case REGISTER_ADDR_NR10:
             return m_nr10Register;
         case REGISTER_ADDR_NR11:
@@ -180,7 +180,7 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
             }
             break;
         case REGISTER_ADDR_IF:
-            m_ifRegister = value | 0xf0;
+            m_ifRegister = value;
             break;
         case REGISTER_ADDR_NR10:
             m_nr10Register = value;

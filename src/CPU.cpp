@@ -36,7 +36,7 @@ void CPU::fetchOpcode()
 
 void CPU::handleInterrupts()
 {
-    for (int i{}; i < 4; ++i)
+    for (int i{}; i < 5; ++i)
     {
         // If interrrupts are disabled, exit
         if (!m_registers->getIme()) break;

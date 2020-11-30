@@ -96,7 +96,7 @@ private:
     // SC (Serial transfer control) - 0xff02
     // ---
     // IF (Interrupt Flag) - 0xff0f
-    uint8_t                                         m_ifRegister{0xf0};
+    uint8_t                                         m_ifRegister{};
     // NR10 - 0xff10
     uint8_t                                         m_nr10Register{};
     // NR11 - 0xff11
