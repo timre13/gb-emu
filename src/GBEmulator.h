@@ -9,6 +9,7 @@
 #include "PPU.h"
 #include "CartridgeReader.h"
 #include "Memory.h"
+#include "Joypad.h"
 
 #include "DebugWindow.h"
 #include "TileWindow.h"
@@ -34,6 +35,8 @@ private:
     PPU             *m_ppu{nullptr};
     Memory          *m_memory{nullptr};
     CartridgeReader *m_cartridgeReader{nullptr};
+    Joypad          *m_joypad{nullptr};
+
 
     CartridgeInfo   *m_cartridgeInfo{nullptr};
 

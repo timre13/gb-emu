@@ -8,12 +8,14 @@ struct CartridgeInfo;
 #include "common.h"
 #include "CartridgeReader.h"
 #include "SerialViewer.h"
+#include "Joypad.h"
 
 #include <stdint.h>
 #include <vector>
 #include <array>
 
 // Addresses of memory-mapped registers
+#define REGISTER_ADDR_JOYP    0xff00
 #define REGISTER_ADDR_SB      0xff01
 #define REGISTER_ADDR_SC      0xff02
 #define REGISTER_ADDR_IF      0xff0f
@@ -98,6 +100,8 @@ private:
     // We just always read 0 here and ignore writes.
 
     // Memory-mapped registers
+    // Joypad - 0xff00
+    uint8_t                                         m_joypRegister{};
     // SB (Serial transfer data) - 0xff01
     uint8_t                                         m_sb{};
     // SC (Serial transfer control) - 0xff02
@@ -182,14 +186,15 @@ private:
     // -------------------------------------------------------------------------
 
     SerialViewer                                    *m_serial{nullptr};
+    Joypad                                          *m_joypadPtr{nullptr};
 
 public:
-    Memory(const CartridgeInfo *info, SerialViewer *serial);
+    Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad);
 
-    uint8_t get(uint16_t address, bool log=true) const;
+    uint8_t get(uint16_t address, bool log=true);
     void    set(uint16_t address, uint8_t value, bool log=true);
 
-    inline uint16_t get16(uint16_t address, bool log=true) const
+    inline uint16_t get16(uint16_t address, bool log=true)
     {
         // Get 2 bytes and swap them (little endianess!)
         return get(address, log) | (get(address+1, log) << 8);
@@ -203,7 +208,7 @@ public:
     }
 
     // Gets a 24-bit value without endianess correction
-    inline uint32_t getOpcodeNoSwap(uint16_t address) const
+    inline uint32_t getOpcodeNoSwap(uint16_t address)
     {
         return
             (get(address+0, false) << 24) |
@@ -211,8 +216,8 @@ public:
             (get(address+2, false) <<  8);
     }
 
-    void printRom0() const;
-    void printWhole() const;
+    void printRom0();
+    void printWhole();
 };
 
 

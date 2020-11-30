@@ -5,14 +5,14 @@
 #include <iostream>
 #include "string_formatting.h"
 
-Memory::Memory(const CartridgeInfo *info, SerialViewer *serial)
-    : m_serial{serial}
+Memory::Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad)
+    : m_serial{serial}, m_joypadPtr{joypad}
 {
     m_romBanks.resize(std::max(1, (int)info->romBanks));
     m_ramBanks.resize(std::max(1, (int)info->ramBanks));
 }
 
-uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
+uint8_t Memory::get(uint16_t address, bool log/*=true*/)
 {
     if (log) Logger::info("Memory read at address: "+toHexStr(address));
 
@@ -37,6 +37,30 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/) const
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
+        case REGISTER_ADDR_JOYP:
+        {
+            m_joypadPtr->updateState();
+            if ((m_joypRegister & 0b00100000) == 0) // If buttons keys are selected
+            {
+                if (m_joypadPtr->isStartButtonPressed())  m_joypRegister &= 0b11110111;
+                if (m_joypadPtr->isSelectButtonPressed()) m_joypRegister &= 0b11111011;
+                if (m_joypadPtr->isBButtonPressed())      m_joypRegister &= 0b11111101;
+                if (m_joypadPtr->isAButtonPressed())      m_joypRegister &= 0b11111110;
+            }
+            if ((m_joypRegister & 0b00010000) == 0) // If direction keys are selected
+            {
+                if (m_joypadPtr->isDownButtonPressed())  m_joypRegister &= 0b11110111;
+                if (m_joypadPtr->isUpButtonPressed())    m_joypRegister &= 0b11111011;
+                if (m_joypadPtr->isLeftButtonPressed())  m_joypRegister &= 0b11111101;
+                if (m_joypadPtr->isRightButtonPressed()) m_joypRegister &= 0b11111110;
+            }
+
+            // If a button is pressed
+            if ((m_joypRegister & 0b00001111) != 0b00001111)
+                // Call the joypad interrupt
+                set(REGISTER_ADDR_IF, get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_JOYPAD, false);
+            return m_joypRegister;
+        }
         case REGISTER_ADDR_SB:
             return m_sb;
         case REGISTER_ADDR_SC:
@@ -167,6 +191,10 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
     else if (address <= 0xff7f) // I/O Registers
         switch (address)
         {
+        case REGISTER_ADDR_JOYP:
+            // Ignore the non-selector bits
+            m_joypRegister = value | 0b11001111;
+            break;
         case REGISTER_ADDR_SB:
             m_sb = value;
             break;
@@ -309,7 +337,7 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
         IMPOSSIBLE();
 }
 
-void Memory::printRom0() const
+void Memory::printRom0()
 {
     int memorySize{0x3fff+1};
     for (int i{}; i < memorySize; ++i)
@@ -329,7 +357,7 @@ void Memory::printRom0() const
     std::cout << '\n';
 }
 
-void Memory::printWhole() const
+void Memory::printWhole()
 {
     std::cout << "---------------- start of memory ----------------" << '\n';
 

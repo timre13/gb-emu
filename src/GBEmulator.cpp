@@ -117,7 +117,8 @@ void GBEmulator::initHardware()
 
     m_cartridgeInfo     = new CartridgeInfo{m_cartridgeReader->getCartridgeInfo()};
 
-    m_memory            = new Memory{m_cartridgeInfo, m_serialViewer};
+    m_joypad            = new Joypad;
+    m_memory            = new Memory{m_cartridgeInfo, m_serialViewer, m_joypad};
     m_cpu               = new CPU{m_memory}; // the CPU needs to know about the memory to do the memory operations
     m_ppu               = new PPU{m_renderer, m_memory};
 

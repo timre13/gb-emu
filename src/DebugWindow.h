@@ -47,7 +47,7 @@ public:
     void updateRegisterValues(const Registers *registers);
     void updateOpcodeValue(const CPU *cpu);
     // Update values in memory and memory-mapped registers
-    void updateMemoryValues(const Memory *memory);
+    void updateMemoryValues(Memory *memory);
 
     ~DebugWindow();
 };

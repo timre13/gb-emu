@@ -114,7 +114,7 @@ void DebugWindow::updateOpcodeValue(const CPU *cpu)
     renderText("=================", 10, 10+m_fontH*35);
 }
 
-void DebugWindow::updateMemoryValues(const Memory *memory)
+void DebugWindow::updateMemoryValues(Memory *memory)
 {
     // Disable this?
 
