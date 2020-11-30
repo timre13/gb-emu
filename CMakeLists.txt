@@ -46,4 +46,6 @@ add_executable(gb-emu
     src/PPU.h
     src/SerialViewer.cpp
     src/SerialViewer.h
+    src/Joypad.cpp
+    src/Joypad.h
 )
