@@ -5,6 +5,7 @@
 
 #include <SDL2/SDL_hints.h>
 
+//#define DEBUG_MODE
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
 //#define LOG_OPCODE
 //#define USE_MAX_TEXTURE_SCALING_QUALITY
@@ -20,6 +21,11 @@ GBEmulator::GBEmulator(const std::string &romFilename)
     initTileWindow();
     initSerialViewer();
 
+#ifdef DEBUG_MODE
+    toggleDebugWindow();
+    toggleTileWindow();
+    toggleSerialViewer();
+#endif // DEBUG_MODE
     
     // We show the main window after the debug and tile window, so it pops up.
     SDL_ShowWindow(m_window);
@@ -224,7 +230,7 @@ void GBEmulator::emulateCycle()
 
         m_cpu->fetchOpcode();
 
-#ifdef LOG_OPCODE
+#if defined(LOG_OPCODE) || defined(DEBUG_MODE)
         Logger::info("----- Cycle -----");
         Logger::info("PC: "+toHexStr(m_cpu->getRegisters()->getPC()));
         Logger::info("Opcode value: "+toHexStr(m_cpu->getCurrentOpcode()));
@@ -255,7 +261,9 @@ void GBEmulator::emulateCycle()
             m_serialViewer->updateRenderer();
         }
 
-        //waitForSpaceKey();
+#ifdef DEBUG_MODE
+        waitForSpaceKey();
+#endif // DEBUG_MODE
 
 #if DELAY_BETWEEN_CYCLES_MS
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);
