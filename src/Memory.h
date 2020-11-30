@@ -54,6 +54,13 @@ struct CartridgeInfo;
 #define REGISTER_ADDR_DMA     0xff46
 #define REGISTER_ADDR_IE      0xffff
 
+
+#define INTERRUPT_MASK_VBLANK   0b00000001
+#define INTERRUPT_MASK_LCDCSTAT 0b00000010
+#define INTERRUPT_MASK_TIMER    0b00000100
+#define INTERRUPT_MASK_SERIAL   0b00001000
+#define INTERRUPT_MASK_JOYPAD   0b00010000
+
 class Memory final
 {
 private:
