@@ -53,14 +53,14 @@ void CPU::handleInterrupts()
 
             m_registers->unsetIme();
 
-            // Call the handler
-            call(m_interruptHandlers[i]);
-
             // Reset the current bit
             ifValue &= ~(1 << i);
 
             // Feed back the new value of IF
             m_memoryPtr->set(REGISTER_ADDR_IF, ifValue, false);
+
+            // Call the handler
+            call(m_interruptHandlers[i]);
         }
     }
 }
