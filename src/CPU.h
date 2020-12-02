@@ -165,12 +165,12 @@ private:
     }
 
     // Z0HC
-    inline int addToRegister8F(r8 reg, u8 value)
+    inline int addToARegF(u8 value)
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(reg), value));
-        m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(reg), value));
-        m_registers->set8(reg, m_registers->get8(reg)+value);
-        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->getA(), value));
+        m_registers->setCarryFlag(wouldAddCarry8(m_registers->getA(), value));
+        m_registers->setA(m_registers->getA()+value);
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
 
         return 2;
@@ -193,32 +193,32 @@ private:
     }
 
     // Z1HC
-    inline int subFromRegister8F(r8 reg, u8 value)
+    inline int subFromARegF(u8 value)
     {
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(reg), value));
-        m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(reg), value));
-        m_registers->set8(reg, m_registers->get8(reg)-value);
-        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->getA(), value));
+        m_registers->setCarryFlag(wouldSubCarry8(m_registers->getA(), value));
+        m_registers->setA(m_registers->getA()-value);
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
 
         return 2;
     }
 
     // -0HC
-    inline int addRegister16ToRegister16F(r16 dest, r16 src)
+    inline int addRegister16ToHLRegF(r16 src)
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry16(m_registers->get16(dest), m_registers->get16(src)));
-        m_registers->setCarryFlag(wouldAddCarry16(m_registers->get16(dest), m_registers->get16(src)));
-        m_registers->set16(dest, m_registers->get16(dest)+m_registers->get16(src));
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry16(m_registers->getHL(), m_registers->get16(src)));
+        m_registers->setCarryFlag(wouldAddCarry16(m_registers->getHL(), m_registers->get16(src)));
+        m_registers->setHL(m_registers->getHL()+m_registers->get16(src));
         m_registers->unsetNegativeFlag();
 
         return 2;
     }
 
     // ----
-    inline int setValueAtAddressInRegister16(r16 reg, u8 value)
+    inline int setValueAtAddressInHLReg(u8 value)
     {
-        m_memoryPtr->set(m_registers->get16(reg), value);
+        m_memoryPtr->set(m_registers->getHL(), value);
 
         return 3;
     }
@@ -232,9 +232,9 @@ private:
     }
 
     // ----
-    inline int setValueAtAddressToRegister8(u16 addr, r8 val)
+    inline int setValueAtAddressToAReg(u16 addr)
     {
-        m_memoryPtr->set(addr, m_registers->get8(val));
+        m_memoryPtr->set(addr, m_registers->getA());
 
         return 4;
     }
@@ -256,92 +256,93 @@ private:
     }
 
     // Z0H-
-    inline int incrementValueAtAddressInRegister16F(r16 addr)
+    inline int incrementValueAtAddressInHLReg()
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_memoryPtr->get(m_registers->get16(addr)), 1));
-        m_memoryPtr->set(m_registers->get16(addr), m_memoryPtr->get(m_registers->get16(addr))+1);
-        m_registers->setZeroFlag(m_memoryPtr->get(m_registers->get16(addr)) == 0);
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_memoryPtr->get(m_registers->getHL()), 1));
+        m_memoryPtr->set(m_registers->getHL(), m_memoryPtr->get(m_registers->getHL())+1);
+        m_registers->setZeroFlag(m_memoryPtr->get(m_registers->getHL()) == 0);
         m_registers->unsetNegativeFlag();
 
         return 3;
     }
 
     // Z1H-
-    inline int decrementValueAtAddressInRegister16F(r16 addr)
+    inline int decrementValueAtAddressInHLReg()
     {
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_memoryPtr->get(m_registers->get16(addr)), 1));
-        m_memoryPtr->set(m_registers->get16(addr), m_memoryPtr->get(m_registers->get16(addr))-1);
-        m_registers->setZeroFlag(m_memoryPtr->get(m_registers->get16(addr)) == 0);
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_memoryPtr->get(m_registers->getHL()), 1));
+        m_memoryPtr->set(m_registers->getHL(), m_memoryPtr->get(m_registers->getHL())-1);
+        m_registers->setZeroFlag(m_memoryPtr->get(m_registers->getHL()) == 0);
         m_registers->setNegativeFlag();
 
         return 3;
     }
 
     // Z0HC
-    inline int addRegister8ToRegister8F(r8 dest, r8 src)
+    inline int addRegister8ToARegF(r8 src)
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(dest), m_registers->get8(src)));
-        m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(dest), m_registers->get8(src)));
-        m_registers->set8(dest, m_registers->get8(dest)+m_registers->get8(src));
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->getA(), m_registers->get8(src)));
+        m_registers->setCarryFlag(wouldAddCarry8(m_registers->getA(), m_registers->get8(src)));
+        m_registers->setA(m_registers->getA()+m_registers->get8(src));
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
 
         return 1;
     }
 
     // Z0HC
-    inline int addValueAtAddressInRegister16ToRegister8F(r8 dest, r16 src)
+    inline int addValueAtAddressInHLRegToARegF()
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(dest), m_memoryPtr->get(m_registers->get16(src))));
-        m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(dest), m_memoryPtr->get(m_registers->get16(src))));
-        m_registers->set8(dest, m_registers->get8(dest)+m_memoryPtr->get(m_registers->get16(src)));
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        auto value{m_memoryPtr->get(m_registers->getHL())};
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->getA(), value));
+        m_registers->setCarryFlag(wouldAddCarry8(m_registers->getA(), value));
+        m_registers->setA(m_registers->getA()+value);
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
 
         return 2;
     }
 
     // Z0HC
-    inline int addRegister8AndCarryFlagToRegister8F(r8 dest, r8 src)
+    inline int addRegister8AndCarryFlagToARegF(r8 src)
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(dest), m_registers->get8(src)+m_registers->getCarryFlag()));
-        m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(dest), m_registers->get8(src)+m_registers->getCarryFlag()));
-        m_registers->set8(dest, m_registers->get8(dest)+m_registers->get8(src)+m_registers->getCarryFlag());
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->getA(), m_registers->get8(src)+m_registers->getCarryFlag()));
+        m_registers->setCarryFlag(wouldAddCarry8(m_registers->getA(), m_registers->get8(src)+m_registers->getCarryFlag()));
+        m_registers->setA(m_registers->getA()+m_registers->get8(src)+m_registers->getCarryFlag());
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
 
         return 2;
     }
 
     // Z1HC
-    inline int subRegister8FromRegister8F(r8 dest, r8 src)
+    inline int subRegister8FromARegF(r8 src)
     {
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(dest), m_registers->get8(src)));
-        m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(dest), m_registers->get8(src)));
-        m_registers->set8(dest, m_registers->get8(dest)-m_registers->get8(src));
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->getA(), m_registers->get8(src)));
+        m_registers->setCarryFlag(wouldSubCarry8(m_registers->getA(), m_registers->get8(src)));
+        m_registers->setA(m_registers->getA()-m_registers->get8(src));
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->setNegativeFlag();
 
         return 1;
     }
 
     // Z1HC
-    inline int subRegister8AndCarryFlagFromRegister8F(r8 dest, r8 src)
+    inline int subRegister8AndCarryFlagFromARegF(r8 src)
     {
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(dest), m_registers->get8(src)+m_registers->getCarryFlag()));
-        m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(dest), m_registers->get8(src)+m_registers->getCarryFlag()));
-        m_registers->set8(dest, m_registers->get8(dest)-m_registers->get8(src)-m_registers->getCarryFlag());
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->getA(), m_registers->get8(src)+m_registers->getCarryFlag()));
+        m_registers->setCarryFlag(wouldSubCarry8(m_registers->getA(), m_registers->get8(src)+m_registers->getCarryFlag()));
+        m_registers->setA(m_registers->getA()-m_registers->get8(src)-m_registers->getCarryFlag());
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->setNegativeFlag();
 
         return 1;
     }
 
     // Z010
-    inline int andRegister8AndRegister8F(r8 dest, r8 src)
+    inline int andRegister8AndARegF(r8 src)
     {
-        m_registers->set8(dest, m_registers->get8(dest) & m_registers->get8(src));
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setA(m_registers->getA() & m_registers->get8(src));
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
         m_registers->setHalfCarryFlag();
         m_registers->unsetCarryFlag();
@@ -350,10 +351,10 @@ private:
     }
 
     // Z000
-    inline int xorRegister8AndRegister8F(r8 dest, r8 src)
+    inline int xorRegister8AndARegF(r8 src)
     {
-        m_registers->set8(dest, m_registers->get8(dest) ^ m_registers->get8(src));
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setA(m_registers->getA() ^ m_registers->get8(src));
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
         m_registers->unsetHalfCarryFlag();
         m_registers->unsetCarryFlag();
@@ -362,10 +363,10 @@ private:
     }
 
     // Z000
-    inline int orRegister8AndRegister8F(r8 dest, r8 src)
+    inline int orRegister8AndARegF(r8 src)
     {
-        m_registers->set8(dest, m_registers->get8(dest) | m_registers->get8(src));
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setA(m_registers->getA() | m_registers->get8(src));
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
         m_registers->unsetHalfCarryFlag();
         m_registers->unsetCarryFlag();
@@ -374,45 +375,45 @@ private:
     }
 
     // Z1HC
-    inline int cpRegister8AndRegister8F(r8 reg1, r8 reg2)
+    inline int cpARegAndRegister8F(r8 reg2)
     {
-        m_registers->setZeroFlag(m_registers->get8(reg1) == m_registers->get8(reg2));
+        m_registers->setZeroFlag(m_registers->getA() == m_registers->get8(reg2));
         m_registers->setNegativeFlag();
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(reg1), m_registers->get8(reg2)));
-        m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(reg1), m_registers->get8(reg2)));
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->getA(), m_registers->get8(reg2)));
+        m_registers->setCarryFlag(wouldSubCarry8(m_registers->getA(), m_registers->get8(reg2)));
 
         return 1;
     }
 
     // Z0HC
-    inline int addValueAndCarryFlagToRegister8F(r8 dest, u8 val)
+    inline int addValueAndCarryFlagToARegF(u8 val)
     {
-        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
-        m_registers->setCarryFlag(wouldAddCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
-        m_registers->set8(dest, m_registers->get8(dest)+val+m_registers->getCarryFlag());
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setHalfCarryFlag(wouldAddHalfCarry8(m_registers->getA(), val+m_registers->getCarryFlag()));
+        m_registers->setCarryFlag(wouldAddCarry8(m_registers->getA(), val+m_registers->getCarryFlag()));
+        m_registers->setA(m_registers->getA()+val+m_registers->getCarryFlag());
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
 
         return 2;
     }
 
     // Z1HC
-    inline int subValueAndCarryFlagFromRegister8F(r8 dest, u8 val)
+    inline int subValueAndCarryFlagFromARegF(u8 val)
     {
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
-        m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(dest), val+m_registers->getCarryFlag()));
-        m_registers->set8(dest, m_registers->get8(dest)-val-m_registers->getCarryFlag());
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->getA(), val+m_registers->getCarryFlag()));
+        m_registers->setCarryFlag(wouldSubCarry8(m_registers->getA(), val+m_registers->getCarryFlag()));
+        m_registers->setA(m_registers->getA()-val-m_registers->getCarryFlag());
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->setNegativeFlag();
 
         return 2;
     }
 
     // Z010
-    inline int andValueAndRegister8F(r8 dest, u8 val)
+    inline int andValueAndARegF(u8 val)
     {
-        m_registers->set8(dest, m_registers->get8(dest) & val);
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setA(m_registers->getA() & val);
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
         m_registers->setHalfCarryFlag();
         m_registers->unsetCarryFlag();
@@ -421,10 +422,10 @@ private:
     }
 
     // Z000
-    inline int xorValueAndRegister8F(r8 dest, u8 val)
+    inline int xorValueAndARegF(u8 val)
     {
-        m_registers->set8(dest, m_registers->get8(dest) ^ val);
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setA(m_registers->getA() ^ val);
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
         m_registers->unsetHalfCarryFlag();
         m_registers->unsetCarryFlag();
@@ -433,10 +434,10 @@ private:
     }
 
     // Z000
-    inline int orValueAndRegister8F(r8 dest, u8 val)
+    inline int orValueAndARegF(u8 val)
     {
-        m_registers->set8(dest, m_registers->get8(dest) | val);
-        m_registers->setZeroFlag(m_registers->get8(dest) == 0);
+        m_registers->setA(m_registers->getA() | val);
+        m_registers->setZeroFlag(m_registers->getA() == 0);
         m_registers->unsetNegativeFlag();
         m_registers->unsetHalfCarryFlag();
         m_registers->unsetCarryFlag();
@@ -444,29 +445,21 @@ private:
         return 2;
     }
 
-    // ----
-    inline int setRegister16ToRegister16(r16 dest, r16 src)
-    {
-        m_registers->set16(dest, m_registers->get16(src));
-
-        return 2;
-    }
-
     // Z1HC
-    inline int cpRegister8AndValue(r8 reg, u8 val)
+    inline int cpARegAndValue(u8 val)
     {
-        m_registers->setZeroFlag(m_registers->get8(reg) == val);
+        m_registers->setZeroFlag(m_registers->getA() == val);
         m_registers->setNegativeFlag();
-        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->get8(reg), val));
-        m_registers->setCarryFlag(wouldSubCarry8(m_registers->get8(reg), val));
+        m_registers->setHalfCarryFlag(wouldSubHalfCarry8(m_registers->getA(), val));
+        m_registers->setCarryFlag(wouldSubCarry8(m_registers->getA(), val));
 
         return 2;
     }
 
     // 000C
-    inline int rotateRegister8BitsLeftF(r8 reg)
+    inline int rotateARegBitsLeftF()
     {
-        m_registers->set8(reg,  (m_registers->get8(reg) << 1) | (m_registers->get8(reg) >> 7));
+        m_registers->setA((m_registers->getA() << 1) | (m_registers->getA() >> 7));
 
         m_registers->unsetZeroFlag();
         m_registers->unsetNegativeFlag();
@@ -528,10 +521,9 @@ private:
     }
 
     // -11-
-    inline int complementRegister8F(r8 reg)
+    inline int complementARegF()
     {
-        //                    VVV
-        m_registers->set8(reg, ~m_registers->get8(reg));
+        m_registers->setA(~m_registers->getA());
 
         m_registers->setNegativeFlag();
         m_registers->setHalfCarryFlag();
@@ -549,9 +541,9 @@ private:
     }
 
     // ----
-    inline int jpToAddressInRegister16(r16 reg)
+    inline int jpToAddressInHLReg()
     {
-        jpToAddress(m_registers->get16(reg));
+        jpToAddress(m_registers->getHL());
 
         return 1;
     }
@@ -746,9 +738,9 @@ private:
     inline int i_0x04()        { return incrementRegister8F(r8::B); }
     inline int i_0x05()        { return decrementRegister8F(r8::B); }
     inline int i_0x06(u8 x)    { return setRegister8(r8::B, x); }
-    inline int i_0x07()        { return rotateRegister8BitsLeftF(r8::A); }
+    inline int i_0x07()        { return rotateARegBitsLeftF(); }
     inline int i_0x08(u16 x)   { m_memoryPtr->set16(x, m_registers->getSP()); return 5; }
-    inline int i_0x09()        { return addRegister16ToRegister16F(r16::HL, r16::BC); }
+    inline int i_0x09()        { return addRegister16ToHLRegF(r16::BC); }
     inline int i_0x0a()        { return setRegister8ToValueAtAddressInRegister16(r8::A, r16::BC); }
     inline int i_0x0b()        { return decrementRegister16(r16::BC); }
     inline int i_0x0c()        { return incrementRegister8F(r8::C); }
@@ -764,7 +756,7 @@ private:
     inline int i_0x16(u8 x)    { return setRegister8(r8::D, x); }
     inline int i_0x17()        { return rotateARegBitsLeftThroughCarryFlagF(); }
     inline int i_0x18(i8 x)    { return relativeJump(x); }
-    inline int i_0x19()        { return addRegister16ToRegister16F(r16::HL, r16::DE); }
+    inline int i_0x19()        { return addRegister16ToHLRegF(r16::DE); }
     inline int i_0x1a()        { return setRegister8ToValueAtAddressInRegister16(r8::A, r16::DE); }
     inline int i_0x1b()        { return decrementRegister16(r16::DE); }
     inline int i_0x1c()        { return incrementRegister8F(r8::E); }
@@ -773,30 +765,30 @@ private:
     inline int i_0x1f()        { return rotateARegBitsRightThroughCarryFlagF(); }
     inline int i_0x20(i8 x)    { return relativeJumpIf(cc::NZ, x); }
     inline int i_0x21(u16 x)   { return setRegister16(r16::HL, x); }
-    inline int i_0x22()        { setValueAtAddressInRegister16(r16::HL, m_registers->getA()); incrementRegister16(r16::HL); return 2; }
+    inline int i_0x22()        { setValueAtAddressInHLReg(m_registers->getA()); incrementRegister16(r16::HL); return 2; }
     inline int i_0x23()        { return incrementRegister16(r16::HL); }
     inline int i_0x24()        { return incrementRegister8F(r8::H); }
     inline int i_0x25()        { return decrementRegister8F(r8::H); }
     inline int i_0x26(u8 x)    { return setRegister8(r8::H, x); }
     inline int i_0x27()        { return decimalAdjustAccumulator(); }
     inline int i_0x28(i8 x)    { return relativeJumpIf(cc::Z, x); }
-    inline int i_0x29()        { return addRegister16ToRegister16F(r16::HL, r16::HL); }
+    inline int i_0x29()        { return addRegister16ToHLRegF(r16::HL); }
     inline int i_0x2a()        { setRegister8ToValueAtAddressInRegister16(r8::A, r16::HL); incrementRegister16(r16::HL); return 2; }
     inline int i_0x2b()        { return decrementRegister16(r16::HL); }
     inline int i_0x2c()        { return incrementRegister8F(r8::L); }
     inline int i_0x2d()        { return decrementRegister8F(r8::L); }
     inline int i_0x2e(u8 x)    { return setRegister8(r8::L, x); }
-    inline int i_0x2f()        { return complementRegister8F(r8::A); }
+    inline int i_0x2f()        { return complementARegF(); }
     inline int i_0x30(i8 x)    { return relativeJumpIf(cc::NC, x); }
     inline int i_0x31(u16 x)   { return setRegister16(r16::SP, x); }
     inline int i_0x32()        { setValueAtAddressInRegister16ToRegister8(r16::HL, r8::A); decrementRegister16(r16::HL); return 2; }
     inline int i_0x33()        { return incrementRegister16(r16::SP); }
-    inline int i_0x34()        { return incrementValueAtAddressInRegister16F(r16::HL); }
-    inline int i_0x35()        { return decrementValueAtAddressInRegister16F(r16::HL); }
-    inline int i_0x36(u8 x)    { return setValueAtAddressInRegister16(r16::HL, x); }
+    inline int i_0x34()        { return incrementValueAtAddressInHLReg(); }
+    inline int i_0x35()        { return decrementValueAtAddressInHLReg(); }
+    inline int i_0x36(u8 x)    { return setValueAtAddressInHLReg(x); }
     inline int i_0x37()        { m_registers->unsetNegativeFlag(); m_registers->unsetHalfCarryFlag(); m_registers->setCarryFlag(); return 1; }
     inline int i_0x38(i8 x)    { return relativeJumpIf(cc::C, x); }
-    inline int i_0x39()        { return addRegister16ToRegister16F(r16::HL, r16::SP); }
+    inline int i_0x39()        { return addRegister16ToHLRegF(r16::SP); }
     inline int i_0x3a()        { setRegister8ToValueAtAddressInRegister16(r8::A, r16::HL); decrementRegister16(r16::HL); return 2; }
     inline int i_0x3b()        { return decrementRegister16(r16::SP); }
     inline int i_0x3c()        { return incrementRegister8F(r8::A); }
@@ -867,77 +859,77 @@ private:
     inline int i_0x7d()        { return setRegister8ToRegister8(r8::A, r8::L); }
     inline int i_0x7e()        { return setRegister8ToValueAtAddressInRegister16(r8::A, r16::HL); }
     inline int i_0x7f()        { return setRegister8ToRegister8(r8::A, r8::A); }
-    inline int i_0x80()        { return addRegister8ToRegister8F(r8::A, r8::B); }
-    inline int i_0x81()        { return addRegister8ToRegister8F(r8::A, r8::C); }
-    inline int i_0x82()        { return addRegister8ToRegister8F(r8::A, r8::D); }
-    inline int i_0x83()        { return addRegister8ToRegister8F(r8::A, r8::E); }
-    inline int i_0x84()        { return addRegister8ToRegister8F(r8::A, r8::H); }
-    inline int i_0x85()        { return addRegister8ToRegister8F(r8::A, r8::L); }
-    inline int i_0x86()        { return addValueAtAddressInRegister16ToRegister8F(r8::A, r16::HL); }
-    inline int i_0x87()        { return addRegister8ToRegister8F(r8::A, r8::A); }
-    inline int i_0x88()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::B); }
-    inline int i_0x89()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::C); }
-    inline int i_0x8a()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::D); }
-    inline int i_0x8b()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::E); }
-    inline int i_0x8c()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::H); }
-    inline int i_0x8d()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::L); }
-    inline int i_0x8e()        { return addValueAndCarryFlagToRegister8F(r8::A, m_memoryPtr->get(m_registers->getHL())); }
-    inline int i_0x8f()        { return addRegister8AndCarryFlagToRegister8F(r8::A, r8::A); }
-    inline int i_0x90()        { return subRegister8FromRegister8F(r8::A, r8::B); }
-    inline int i_0x91()        { return subRegister8FromRegister8F(r8::A, r8::C); }
-    inline int i_0x92()        { return subRegister8FromRegister8F(r8::A, r8::D); }
-    inline int i_0x93()        { return subRegister8FromRegister8F(r8::A, r8::E); }
-    inline int i_0x94()        { return subRegister8FromRegister8F(r8::A, r8::H); }
-    inline int i_0x95()        { return subRegister8FromRegister8F(r8::A, r8::L); }
-    inline int i_0x96()        { return subFromRegister8F(r8::A, m_memoryPtr->get(m_registers->getHL())); }
-    inline int i_0x97()        { return subRegister8FromRegister8F(r8::A, r8::A); }
-    inline int i_0x98()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::B); }
-    inline int i_0x99()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::C); }
-    inline int i_0x9a()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::D); }
-    inline int i_0x9b()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::E); }
-    inline int i_0x9c()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::H); }
-    inline int i_0x9d()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::L); }
-    inline int i_0x9e()        { return subValueAndCarryFlagFromRegister8F(r8::A, m_memoryPtr->get(m_registers->getHL())); }
-    inline int i_0x9f()        { return subRegister8AndCarryFlagFromRegister8F(r8::A, r8::A); }
-    inline int i_0xa0()        { return andRegister8AndRegister8F(r8::A, r8::B); }
-    inline int i_0xa1()        { return andRegister8AndRegister8F(r8::A, r8::C); }
-    inline int i_0xa2()        { return andRegister8AndRegister8F(r8::A, r8::D); }
-    inline int i_0xa3()        { return andRegister8AndRegister8F(r8::A, r8::E); }
-    inline int i_0xa4()        { return andRegister8AndRegister8F(r8::A, r8::H); }
-    inline int i_0xa5()        { return andRegister8AndRegister8F(r8::A, r8::L); }
-    inline int i_0xa6()        { return andValueAndRegister8F(r8::A, m_memoryPtr->get(m_registers->getHL())); }
-    inline int i_0xa7()        { return andRegister8AndRegister8F(r8::A, r8::A); }
-    inline int i_0xa8()        { return xorRegister8AndRegister8F(r8::A, r8::B); }
-    inline int i_0xa9()        { return xorRegister8AndRegister8F(r8::A, r8::C); }
-    inline int i_0xaa()        { return xorRegister8AndRegister8F(r8::A, r8::D); }
-    inline int i_0xab()        { return xorRegister8AndRegister8F(r8::A, r8::E); }
-    inline int i_0xac()        { return xorRegister8AndRegister8F(r8::A, r8::H); }
-    inline int i_0xad()        { return xorRegister8AndRegister8F(r8::A, r8::L); }
-    inline int i_0xae()        { return xorValueAndRegister8F(r8::A, m_memoryPtr->get(m_registers->getHL())); }
-    inline int i_0xaf()        { return xorRegister8AndRegister8F(r8::A, r8::A); }
-    inline int i_0xb0()        { return orRegister8AndRegister8F(r8::A, r8::B); }
-    inline int i_0xb1()        { return orRegister8AndRegister8F(r8::A, r8::C); }
-    inline int i_0xb2()        { return orRegister8AndRegister8F(r8::A, r8::D); }
-    inline int i_0xb3()        { return orRegister8AndRegister8F(r8::A, r8::E); }
-    inline int i_0xb4()        { return orRegister8AndRegister8F(r8::A, r8::H); }
-    inline int i_0xb5()        { return orRegister8AndRegister8F(r8::A, r8::L); }
-    inline int i_0xb6()        { return orValueAndRegister8F(r8::A, m_memoryPtr->get(m_registers->getHL()));}
-    inline int i_0xb7()        { return orRegister8AndRegister8F(r8::A, r8::A); }
-    inline int i_0xb8()        { return cpRegister8AndRegister8F(r8::A, r8::B); }
-    inline int i_0xb9()        { return cpRegister8AndRegister8F(r8::A, r8::C); }
-    inline int i_0xba()        { return cpRegister8AndRegister8F(r8::A, r8::D); }
-    inline int i_0xbb()        { return cpRegister8AndRegister8F(r8::A, r8::E); }
-    inline int i_0xbc()        { return cpRegister8AndRegister8F(r8::A, r8::H); }
-    inline int i_0xbd()        { return cpRegister8AndRegister8F(r8::A, r8::L); }
-    inline int i_0xbe()        { return cpRegister8AndValue(r8::A, m_memoryPtr->get(m_registers->getHL())); }
-    inline int i_0xbf()        { return cpRegister8AndRegister8F(r8::A, r8::A); }
+    inline int i_0x80()        { return addRegister8ToARegF(r8::B); }
+    inline int i_0x81()        { return addRegister8ToARegF(r8::C); }
+    inline int i_0x82()        { return addRegister8ToARegF(r8::D); }
+    inline int i_0x83()        { return addRegister8ToARegF(r8::E); }
+    inline int i_0x84()        { return addRegister8ToARegF(r8::H); }
+    inline int i_0x85()        { return addRegister8ToARegF(r8::L); }
+    inline int i_0x86()        { return addValueAtAddressInHLRegToARegF(); }
+    inline int i_0x87()        { return addRegister8ToARegF(r8::A); }
+    inline int i_0x88()        { return addRegister8AndCarryFlagToARegF(r8::B); }
+    inline int i_0x89()        { return addRegister8AndCarryFlagToARegF(r8::C); }
+    inline int i_0x8a()        { return addRegister8AndCarryFlagToARegF(r8::D); }
+    inline int i_0x8b()        { return addRegister8AndCarryFlagToARegF(r8::E); }
+    inline int i_0x8c()        { return addRegister8AndCarryFlagToARegF(r8::H); }
+    inline int i_0x8d()        { return addRegister8AndCarryFlagToARegF(r8::L); }
+    inline int i_0x8e()        { return addValueAndCarryFlagToARegF(m_memoryPtr->get(m_registers->getHL())); }
+    inline int i_0x8f()        { return addRegister8AndCarryFlagToARegF(r8::A); }
+    inline int i_0x90()        { return subRegister8FromARegF(r8::B); }
+    inline int i_0x91()        { return subRegister8FromARegF(r8::C); }
+    inline int i_0x92()        { return subRegister8FromARegF(r8::D); }
+    inline int i_0x93()        { return subRegister8FromARegF(r8::E); }
+    inline int i_0x94()        { return subRegister8FromARegF(r8::H); }
+    inline int i_0x95()        { return subRegister8FromARegF(r8::L); }
+    inline int i_0x96()        { return subFromARegF(m_memoryPtr->get(m_registers->getHL())); }
+    inline int i_0x97()        { return subRegister8FromARegF(r8::A); }
+    inline int i_0x98()        { return subRegister8AndCarryFlagFromARegF(r8::B); }
+    inline int i_0x99()        { return subRegister8AndCarryFlagFromARegF(r8::C); }
+    inline int i_0x9a()        { return subRegister8AndCarryFlagFromARegF(r8::D); }
+    inline int i_0x9b()        { return subRegister8AndCarryFlagFromARegF(r8::E); }
+    inline int i_0x9c()        { return subRegister8AndCarryFlagFromARegF(r8::H); }
+    inline int i_0x9d()        { return subRegister8AndCarryFlagFromARegF(r8::L); }
+    inline int i_0x9e()        { return subValueAndCarryFlagFromARegF(m_memoryPtr->get(m_registers->getHL())); }
+    inline int i_0x9f()        { return subRegister8AndCarryFlagFromARegF(r8::A); }
+    inline int i_0xa0()        { return andRegister8AndARegF(r8::B); }
+    inline int i_0xa1()        { return andRegister8AndARegF(r8::C); }
+    inline int i_0xa2()        { return andRegister8AndARegF(r8::D); }
+    inline int i_0xa3()        { return andRegister8AndARegF(r8::E); }
+    inline int i_0xa4()        { return andRegister8AndARegF(r8::H); }
+    inline int i_0xa5()        { return andRegister8AndARegF(r8::L); }
+    inline int i_0xa6()        { return andValueAndARegF(m_memoryPtr->get(m_registers->getHL())); }
+    inline int i_0xa7()        { return andRegister8AndARegF(r8::A); }
+    inline int i_0xa8()        { return xorRegister8AndARegF(r8::B); }
+    inline int i_0xa9()        { return xorRegister8AndARegF(r8::C); }
+    inline int i_0xaa()        { return xorRegister8AndARegF(r8::D); }
+    inline int i_0xab()        { return xorRegister8AndARegF(r8::E); }
+    inline int i_0xac()        { return xorRegister8AndARegF(r8::H); }
+    inline int i_0xad()        { return xorRegister8AndARegF(r8::L); }
+    inline int i_0xae()        { return xorValueAndARegF(m_memoryPtr->get(m_registers->getHL())); }
+    inline int i_0xaf()        { return xorRegister8AndARegF(r8::A); }
+    inline int i_0xb0()        { return orRegister8AndARegF(r8::B); }
+    inline int i_0xb1()        { return orRegister8AndARegF(r8::C); }
+    inline int i_0xb2()        { return orRegister8AndARegF(r8::D); }
+    inline int i_0xb3()        { return orRegister8AndARegF(r8::E); }
+    inline int i_0xb4()        { return orRegister8AndARegF(r8::H); }
+    inline int i_0xb5()        { return orRegister8AndARegF(r8::L); }
+    inline int i_0xb6()        { return orValueAndARegF(m_memoryPtr->get(m_registers->getHL()));}
+    inline int i_0xb7()        { return orRegister8AndARegF(r8::A); }
+    inline int i_0xb8()        { return cpARegAndRegister8F(r8::B); }
+    inline int i_0xb9()        { return cpARegAndRegister8F(r8::C); }
+    inline int i_0xba()        { return cpARegAndRegister8F(r8::D); }
+    inline int i_0xbb()        { return cpARegAndRegister8F(r8::E); }
+    inline int i_0xbc()        { return cpARegAndRegister8F(r8::H); }
+    inline int i_0xbd()        { return cpARegAndRegister8F(r8::L); }
+    inline int i_0xbe()        { return cpARegAndValue(m_memoryPtr->get(m_registers->getHL())); }
+    inline int i_0xbf()        { return cpARegAndRegister8F(r8::A); }
     inline int i_0xc0()        { return retIf(cc::NZ); }
     inline int i_0xc1()        { return pop(); }
     inline int i_0xc2(u16 x)   { return jpIf(cc::NZ, x); }
     inline int i_0xc3(u16 x)   { return jpToAddress(x); }
     inline int i_0xc4(u16 x)   { return callIf(cc::NZ, x); }
     inline int i_0xc5()        { return pushRegister16(r16::BC); }
-    inline int i_0xc6(u8 x)    { return addToRegister8F(r8::A, x); }
+    inline int i_0xc6(u8 x)    { return addToARegF(x); }
     inline int i_0xc7()        { return callVector(JUMP_VECTOR_00); }
     inline int i_0xc8()        { return retIf(cc::Z); }
     inline int i_0xc9()        { return ret(); }
@@ -945,7 +937,7 @@ private:
     inline int i_0xcb()        { UNIMPLEMENTED(); Logger::error("Found an CB prefix"); return 1; }
     inline int i_0xcc(u16 x)   { return callIf(cc::Z, x); }
     inline int i_0xcd(u16 x)   { return call(x); }
-    inline int i_0xce(u8 x)    { return addValueAndCarryFlagToRegister8F(r8::A, x); }
+    inline int i_0xce(u8 x)    { return addValueAndCarryFlagToARegF(x); }
     inline int i_0xcf()        { return callVector(JUMP_VECTOR_08); }
     inline int i_0xd0()        { return retIf(cc::NC); }
     inline int i_0xd1()        { m_registers->set16(r16::DE, pop16()); return 3; }
@@ -953,7 +945,7 @@ private:
     inline int i_0xd3()        { ILLEGAL_INSTRUCTION(0xd3); return 0; }
     inline int i_0xd4(u16 x)   { return callIf(cc::NC, x); }
     inline int i_0xd5()        { return pushRegister16(r16::DE); }
-    inline int i_0xd6(u8 x)    { return subFromRegister8F(r8::A, x); }
+    inline int i_0xd6(u8 x)    { return subFromARegF(x); }
     inline int i_0xd7()        { return callVector(JUMP_VECTOR_10); }
     inline int i_0xd8()        { return retIf(cc::C); }
     inline int i_0xd9()        { enableInterrupts(); ret(); return 4; }
@@ -961,23 +953,23 @@ private:
     inline int i_0xdb()        { ILLEGAL_INSTRUCTION(0xdb); return 0; }
     inline int i_0xdc(u16 x)   { return callIf(cc::C, x); }
     inline int i_0xdd()        { ILLEGAL_INSTRUCTION(0xdd); return 0; }
-    inline int i_0xde(u8 x)    { return subValueAndCarryFlagFromRegister8F(r8::A, x); }
+    inline int i_0xde(u8 x)    { return subValueAndCarryFlagFromARegF(x); }
     inline int i_0xdf()        { return callVector(JUMP_VECTOR_18); }
-    inline int i_0xe0(u8 x)    { setValueAtAddressToRegister8(0xff00+x, r8::A); return 3; }
+    inline int i_0xe0(u8 x)    { setValueAtAddressToAReg(0xff00+x); return 3; }
     inline int i_0xe1()        { m_registers->setHL(pop16()); return 3; }
-    inline int i_0xe2()        { setValueAtAddressToRegister8(0xff00+m_registers->getC(), r8::A); return 2; }
+    inline int i_0xe2()        { setValueAtAddressToAReg(0xff00+m_registers->getC()); return 2; }
     inline int i_0xe3()        { ILLEGAL_INSTRUCTION(0xe3); return 0; }
     inline int i_0xe4()        { ILLEGAL_INSTRUCTION(0xe4); return 0;}
     inline int i_0xe5()        { return pushRegister16(r16::HL); }
-    inline int i_0xe6(u8 x)    { return andValueAndRegister8F(r8::A, x); }
+    inline int i_0xe6(u8 x)    { return andValueAndARegF(x); }
     inline int i_0xe7()        { return callVector(JUMP_VECTOR_20); }
     inline int i_0xe8(i8 x)    { m_registers->incrementSP(x); return 4; }
-    inline int i_0xe9()        { return jpToAddressInRegister16(r16::HL); }
-    inline int i_0xea(u8 x)    { return setValueAtAddressToRegister8(x, r8::A); }
+    inline int i_0xe9()        { return jpToAddressInHLReg(); }
+    inline int i_0xea(u8 x)    { return setValueAtAddressToAReg(x); }
     inline int i_0xeb()        { ILLEGAL_INSTRUCTION(0xeb); return 0; }
     inline int i_0xec()        { ILLEGAL_INSTRUCTION(0xec); return 0; }
     inline int i_0xed()        { ILLEGAL_INSTRUCTION(0xed); return 0;}
-    inline int i_0xee(u8 x)    { return xorValueAndRegister8F(r8::A, x); }
+    inline int i_0xee(u8 x)    { return xorValueAndARegF(x); }
     inline int i_0xef()        { return callVector(JUMP_VECTOR_28); }
     inline int i_0xf0(u8 x)    { setRegister8(r8::A, m_memoryPtr->get(0xff00+x)); return 3; }
     inline int i_0xf1()        { m_registers->setAF(pop16()); return 3; }
@@ -985,15 +977,15 @@ private:
     inline int i_0xf3()        { return disableInterrupts(); }
     inline int i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); return 0; }
     inline int i_0xf5()        { return pushRegister16(r16::AF); }
-    inline int i_0xf6(u8 x)    { return orValueAndRegister8F(r8::A, x); }
+    inline int i_0xf6(u8 x)    { return orValueAndARegF(x); }
     inline int i_0xf7()        { return callVector(JUMP_VECTOR_30); }
     inline int i_0xf8(i8 x)    { setRegister16(r16::HL, m_registers->getSP()+x); return 3; } // TODO: Set flags
-    inline int i_0xf9()        { return setRegister16ToRegister16(r16::SP, r16::HL); }
+    inline int i_0xf9()        { m_registers->setSP(m_registers->getHL()); return 2; }
     inline int i_0xfa(u8 x)    { return setRegister8(r8::A, x); }
     inline int i_0xfb()        { m_wasEiInstruction = true; return 1; }
     inline int i_0xfc()        { ILLEGAL_INSTRUCTION(0xfc); return 0; }
     inline int i_0xfd()        { ILLEGAL_INSTRUCTION(0xfd); return 0; }
-    inline int i_0xfe(u8 x)    { return cpRegister8AndValue(r8::A, x); }
+    inline int i_0xfe(u8 x)    { return cpARegAndValue(x); }
     inline int i_0xff()        { return callVector(JUMP_VECTOR_38); }
 };
 
