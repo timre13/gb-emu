@@ -12,7 +12,12 @@ CPU::CPU(Memory *memory)
 void CPU::fetchOpcode()
 {
     uint32_t bytesAtPc{m_memoryPtr->getOpcodeNoSwap(m_registers->getPC())};
-    int opcodeSize{opcodeSizes[bytesAtPc >> 24]};
+
+    int opcodeSize{};
+    if (m_isPrefixedOpcode)
+        opcodeSize = prefixedOpcodeSizes[bytesAtPc >> 24];
+    else
+        opcodeSize = opcodeSizes[bytesAtPc >> 24];
 
     switch (opcodeSize)
     {

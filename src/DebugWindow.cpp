@@ -9,7 +9,7 @@
 //#define DEBUG_TEXT_USE_COLORS
 
 #define DEBUG_WINDOW_WIDTH  420
-#define DEBUG_WINDOW_HEIGHT 920
+#define DEBUG_WINDOW_HEIGHT 930
 
 DebugWindow::DebugWindow(int x, int y)
 {
@@ -109,9 +109,10 @@ void DebugWindow::updateOpcodeValue(const CPU *cpu)
 {
     renderText("===== Opcode ====", 10, 10+m_fontH*31);
     renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 10, 10+m_fontH*32);
-    renderText("Name:  "+OpcodeNames::get(cpu->getCurrentOpcode() >> 24), 10, 10+m_fontH*33);
+    renderText("Name:  "+OpcodeNames::get(cpu->getCurrentOpcode() >> 24, cpu->isPrefixedOpcode()), 10, 10+m_fontH*33);
     renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*34);
-    renderText("=================", 10, 10+m_fontH*35);
+    renderText("Pref.: "+std::string(cpu->isPrefixedOpcode() ? "yes" : "no"), 10, 10+m_fontH*35);
+    renderText("=================", 10, 10+m_fontH*36);
 }
 
 void DebugWindow::updateMemoryValues(Memory *memory)
@@ -121,13 +122,13 @@ void DebugWindow::updateMemoryValues(Memory *memory)
     //for (uint32_t i{}; i <= 0xffff; ++i)
     //    renderText(toHexStr(memory->get(i, false), 2, false), 500+m_fontW*(i%0x100), 10+m_fontH*(i/0x100));
 
-    renderText("= Memory-mapped Registers =", 10, 10+m_fontH*37);
+    renderText("= Memory-mapped Registers =", 10, 10+m_fontH*38);
 
     auto regIF{memory->get(REGISTER_ADDR_IF, false)};
-    renderText("IF: "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*38);
+    renderText("IF: "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*39);
     auto regIE{memory->get(REGISTER_ADDR_IE, false)};
-    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*39);
-    renderText("===========================", 10, 10+m_fontH*40);
+    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*40);
+    renderText("===========================", 10, 10+m_fontH*41);
 }
 
 DebugWindow::~DebugWindow()
