@@ -269,7 +269,13 @@ void GBEmulator::emulateCycle()
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);
 #endif
 
-        m_cpu->emulateCurrentOpcode();
+        // TODO: Cycle accuracy
+        int elapsedMCycles{};
+        if (m_cpu->isPrefixedOpcode())
+            elapsedMCycles = m_cpu->emulateCurrentPrefixedOpcode();
+        else
+            elapsedMCycles = m_cpu->emulateCurrentOpcode();
+        (void)elapsedMCycles;
 
         // TODO: Cycle accuracy
         --m_clockCyclesUntilPPUActivity;

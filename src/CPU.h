@@ -45,6 +45,8 @@ private:
     // The IMA has to be set after the instruction following EI
     bool            m_wasEiInstruction{};
 
+    bool            m_isPrefixedOpcode{};
+
     static constexpr uint16_t m_interruptHandlers[]{
         INTERRUPT_HANDLER_VBLANK,
         INTERRUPT_HANDLER_LCDCSTAT,
@@ -70,6 +72,10 @@ public:
      * 1 M-cycle is 4 T-cycles!
      */
     int emulateCurrentOpcode();
+    int emulateCurrentPrefixedOpcode();
+
+    inline bool isPrefixedOpcode() const { return m_isPrefixedOpcode; }
+
     void enableImaIfNeeded()
     {
         // If there was an EI instruction and it is not the current one,
@@ -698,6 +704,13 @@ private:
 
         return 1;
     }
+
+    inline int handlePrefix()
+    {
+        m_isPrefixedOpcode = true;
+
+        return 1;
+    }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
@@ -934,7 +947,7 @@ private:
     inline int i_0xc8()        { return retIf(cc::Z); }
     inline int i_0xc9()        { return ret(); }
     inline int i_0xca(u16 x)   { return jpIf(cc::Z, x); }
-    inline int i_0xcb()        { UNIMPLEMENTED(); Logger::error("Found an CB prefix"); return 1; }
+    inline int i_0xcb()        { return handlePrefix(); }
     inline int i_0xcc(u16 x)   { return callIf(cc::Z, x); }
     inline int i_0xcd(u16 x)   { return call(x); }
     inline int i_0xce(u8 x)    { return addValueAndCarryFlagToARegF(x); }
@@ -987,6 +1000,265 @@ private:
     inline int i_0xfd()        { ILLEGAL_INSTRUCTION(0xfd); return 0; }
     inline int i_0xfe(u8 x)    { return cpARegAndValue(x); }
     inline int i_0xff()        { return callVector(JUMP_VECTOR_38); }
+
+    // -----------------------  PREFIXED OPCODES -------------------------------
+
+    int i_pref_0x00() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x01() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x02() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x03() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x04() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x05() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x06() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x07() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x08() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x09() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x10() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x11() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x12() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x13() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x14() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x15() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x16() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x17() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x18() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x19() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x20() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x21() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x22() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x23() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x24() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x25() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x26() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x27() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x28() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x29() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x30() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x31() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x32() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x33() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x34() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x35() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x36() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x37() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x38() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x39() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x40() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x41() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x42() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x43() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x44() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x45() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x46() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x47() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x48() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x49() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x50() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x51() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x52() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x53() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x54() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x55() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x56() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x57() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x58() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x59() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x60() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x61() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x62() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x63() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x64() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x65() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x66() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x67() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x68() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x69() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x70() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x71() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x72() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x73() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x74() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x75() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x76() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x77() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x78() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x79() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x80() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x81() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x82() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x83() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x84() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x85() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x86() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x87() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x88() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x89() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x90() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x91() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x92() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x93() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x94() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x95() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x96() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x97() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x98() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x99() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9a() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9b() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9c() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9e() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9f() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa0() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa1() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa2() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa3() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa4() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa6() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa7() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa8() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa9() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xaa() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xab() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xac() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xad() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xae() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xaf() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb0() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb1() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb2() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb3() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb4() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb6() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb7() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb8() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb9() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xba() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xbb() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xbc() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xbd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xbe() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xbf() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc0() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc1() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc2() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc3() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc4() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc6() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc7() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc8() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc9() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xca() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xcb() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xcc() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xcd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xce() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xcf() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd0() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd1() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd2() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd3() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd4() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd6() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd7() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd8() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd9() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xda() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xdb() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xdc() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xdd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xde() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xdf() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe0() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe1() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe2() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe3() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe4() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe6() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe7() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe8() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe9() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xea() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xeb() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xec() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xed() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xee() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xef() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf0() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf1() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf2() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf3() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf4() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf6() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf7() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf8() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf9() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xfa() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xfb() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xfc() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xfd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xfe() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xff() { UNIMPLEMENTED(); return -1; }
 };
 
 
