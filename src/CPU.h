@@ -711,6 +711,143 @@ private:
 
         return 1;
     }
+
+    // ------------------ prefixed ----------------
+
+    // Z00C
+    inline int rotateRegisterBitsLeftF(r8 reg)
+    {
+        m_registers->set8(reg, m_registers->get8(reg) << 1 | m_registers->get8(reg) >> 7);
+        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+        m_registers->setCarryFlag(m_registers->get8(reg) & 1);
+
+        return 2;
+    }
+
+    // Z00C
+    inline int rotateRegisterBitsRightF(r8 reg)
+    {
+        m_registers->set8(reg, m_registers->get8(reg) >> 1 | m_registers->get8(reg) << 7);
+        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+        m_registers->setCarryFlag(m_registers->get8(reg) & (1 << 7));
+
+        return 2;
+    }
+
+    // Z00C
+    inline int rotateRegisterBitsLeftThroughCarryF(r8 reg)
+    {
+        auto regVal{m_registers->get8(reg)};
+
+        m_registers->set8(reg, (regVal << 1) | m_registers->getCarryFlag());
+        m_registers->setCarryFlag(regVal >> 7);
+        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+
+        return 2;
+    }
+
+    // Z00C
+    inline int rotateRegisterBitsRightThroughCarryF(r8 reg)
+    {
+        auto regVal{m_registers->get8(reg)};
+
+        m_registers->set8(reg, regVal >> 1 | (m_registers->getCarryFlag() << 7));
+        m_registers->setCarryFlag(regVal & 1);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+
+        return 2;
+    }
+
+    // Z00C
+    inline int shiftRegisterBitsLeftToCarryF(r8 reg)
+    {
+        auto origVal{m_registers->get8(reg)};
+
+        m_registers->setCarryFlag(origVal & (1 << 7));
+        m_registers->set8(reg, origVal << 1);
+        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+
+        return 2;
+    }
+
+    // Z00C
+    inline int shiftRegisterBitsRightToCarryF(r8 reg)
+    {
+        auto origVal{m_registers->get8(reg)};
+
+        // Note: MSB remains unchanged
+        m_registers->set8(reg, (origVal >> 1) | (origVal & (1 << 7)));
+        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+        m_registers->setCarryFlag(origVal & 1);
+
+        return 2;
+    }
+
+    // Z000
+    inline int swapRegisterNibblesF(r8 reg)
+    {
+        auto origVal{m_registers->get8(reg)};
+
+        m_registers->set8(reg, (origVal << 4) | (origVal >> 4));
+        m_registers->setZeroFlag(origVal == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+        m_registers->unsetCarryFlag();
+
+        return 2;
+    }
+
+    // Z00C
+    inline int shiftRightLogicRegisterF(r8 reg)
+    {
+        auto origVal{m_registers->get8(reg)};
+
+        m_registers->set8(reg, origVal >> 1);
+        m_registers->setZeroFlag(m_registers->get8(reg) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->unsetHalfCarryFlag();
+        m_registers->setCarryFlag(origVal & 1);
+
+        return 2;
+    }
+
+    // Z01-
+    inline int checkBitOfRegisterF(u3 bit, r8 reg)
+    {
+        // Is bit unset?
+        m_registers->setZeroFlag((m_registers->get8(reg) & (1 << bit)) == 0);
+        m_registers->unsetNegativeFlag();
+        m_registers->setHalfCarryFlag();
+
+        return 2;
+    }
+
+    // ----
+    inline int resetBitOfRegister(u3 bit, r8 reg)
+    {
+        m_registers->set8(reg, m_registers->get8(reg) & ~(1 << bit));
+
+        return 2;
+    }
+
+    // ----
+    inline int setBitOfRegister(u3 bit, r8 reg)
+    {
+        m_registers->set8(reg, m_registers->get8(reg) | (1 << bit));
+
+        return 2;
+    }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
@@ -1003,262 +1140,262 @@ private:
 
     // -----------------------  PREFIXED OPCODES -------------------------------
 
-    int i_pref_0x00() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x01() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x02() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x03() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x04() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x05() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x00() { return rotateRegisterBitsLeftF(r8::B); }
+    int i_pref_0x01() { return rotateRegisterBitsLeftF(r8::C); }
+    int i_pref_0x02() { return rotateRegisterBitsLeftF(r8::D); }
+    int i_pref_0x03() { return rotateRegisterBitsLeftF(r8::E); }
+    int i_pref_0x04() { return rotateRegisterBitsLeftF(r8::H); }
+    int i_pref_0x05() { return rotateRegisterBitsLeftF(r8::L); }
     int i_pref_0x06() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x07() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x08() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x09() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x0a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x0b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x0c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x0d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x07() { return rotateRegisterBitsLeftF(r8::A); }
+    int i_pref_0x08() { return rotateRegisterBitsRightF(r8::B); }
+    int i_pref_0x09() { return rotateRegisterBitsRightF(r8::C); }
+    int i_pref_0x0a() { return rotateRegisterBitsRightF(r8::D); }
+    int i_pref_0x0b() { return rotateRegisterBitsRightF(r8::E); }
+    int i_pref_0x0c() { return rotateRegisterBitsRightF(r8::H); }
+    int i_pref_0x0d() { return rotateRegisterBitsRightF(r8::L); }
     int i_pref_0x0e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x0f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x10() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x11() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x12() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x13() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x14() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x15() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x0f() { return rotateRegisterBitsRightF(r8::L); }
+    int i_pref_0x10() { return rotateRegisterBitsLeftThroughCarryF(r8::B); }
+    int i_pref_0x11() { return rotateRegisterBitsLeftThroughCarryF(r8::C); }
+    int i_pref_0x12() { return rotateRegisterBitsLeftThroughCarryF(r8::D); }
+    int i_pref_0x13() { return rotateRegisterBitsLeftThroughCarryF(r8::E); }
+    int i_pref_0x14() { return rotateRegisterBitsLeftThroughCarryF(r8::H); }
+    int i_pref_0x15() { return rotateRegisterBitsLeftThroughCarryF(r8::L); }
     int i_pref_0x16() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x17() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x18() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x19() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x1a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x1b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x1c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x1d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x17() { return rotateRegisterBitsLeftThroughCarryF(r8::A); }
+    int i_pref_0x18() { return rotateRegisterBitsRightThroughCarryF(r8::B); }
+    int i_pref_0x19() { return rotateRegisterBitsRightThroughCarryF(r8::C); }
+    int i_pref_0x1a() { return rotateRegisterBitsRightThroughCarryF(r8::D); }
+    int i_pref_0x1b() { return rotateRegisterBitsRightThroughCarryF(r8::E); }
+    int i_pref_0x1c() { return rotateRegisterBitsRightThroughCarryF(r8::H); }
+    int i_pref_0x1d() { return rotateRegisterBitsRightThroughCarryF(r8::L); }
     int i_pref_0x1e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x1f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x20() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x21() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x22() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x23() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x24() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x25() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x1f() { return rotateRegisterBitsRightThroughCarryF(r8::A); }
+    int i_pref_0x20() { return shiftRegisterBitsLeftToCarryF(r8::B); }
+    int i_pref_0x21() { return shiftRegisterBitsLeftToCarryF(r8::C); }
+    int i_pref_0x22() { return shiftRegisterBitsLeftToCarryF(r8::D); }
+    int i_pref_0x23() { return shiftRegisterBitsLeftToCarryF(r8::E); }
+    int i_pref_0x24() { return shiftRegisterBitsLeftToCarryF(r8::H); }
+    int i_pref_0x25() { return shiftRegisterBitsLeftToCarryF(r8::L); }
     int i_pref_0x26() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x27() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x28() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x29() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x2a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x2b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x2c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x2d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x27() { return shiftRegisterBitsLeftToCarryF(r8::A); }
+    int i_pref_0x28() { return shiftRegisterBitsRightToCarryF(r8::B); }
+    int i_pref_0x29() { return shiftRegisterBitsRightToCarryF(r8::C); }
+    int i_pref_0x2a() { return shiftRegisterBitsRightToCarryF(r8::D); }
+    int i_pref_0x2b() { return shiftRegisterBitsRightToCarryF(r8::E); }
+    int i_pref_0x2c() { return shiftRegisterBitsRightToCarryF(r8::H); }
+    int i_pref_0x2d() { return shiftRegisterBitsRightToCarryF(r8::L); }
     int i_pref_0x2e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x2f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x30() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x31() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x32() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x33() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x34() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x35() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x2f() { return shiftRegisterBitsRightToCarryF(r8::A); }
+    int i_pref_0x30() { return swapRegisterNibblesF(r8::B); }
+    int i_pref_0x31() { return swapRegisterNibblesF(r8::C); }
+    int i_pref_0x32() { return swapRegisterNibblesF(r8::D); }
+    int i_pref_0x33() { return swapRegisterNibblesF(r8::E); }
+    int i_pref_0x34() { return swapRegisterNibblesF(r8::H); }
+    int i_pref_0x35() { return swapRegisterNibblesF(r8::L); }
     int i_pref_0x36() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x37() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x38() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x39() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x3a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x3b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x3c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x3d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x37() { return swapRegisterNibblesF(r8::A); }
+    int i_pref_0x38() { return shiftRightLogicRegisterF(r8::B); }
+    int i_pref_0x39() { return shiftRightLogicRegisterF(r8::C); }
+    int i_pref_0x3a() { return shiftRightLogicRegisterF(r8::D); }
+    int i_pref_0x3b() { return shiftRightLogicRegisterF(r8::E); }
+    int i_pref_0x3c() { return shiftRightLogicRegisterF(r8::H); }
+    int i_pref_0x3d() { return shiftRightLogicRegisterF(r8::L); }
     int i_pref_0x3e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x3f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x40() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x41() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x42() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x43() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x44() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x45() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x3f() { return shiftRightLogicRegisterF(r8::A); }
+    int i_pref_0x40() { return checkBitOfRegisterF(0, r8::B); }
+    int i_pref_0x41() { return checkBitOfRegisterF(0, r8::C); }
+    int i_pref_0x42() { return checkBitOfRegisterF(0, r8::D); }
+    int i_pref_0x43() { return checkBitOfRegisterF(0, r8::E); }
+    int i_pref_0x44() { return checkBitOfRegisterF(0, r8::H); }
+    int i_pref_0x45() { return checkBitOfRegisterF(0, r8::L); }
     int i_pref_0x46() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x47() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x48() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x49() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x4a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x4b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x4c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x4d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x47() { return checkBitOfRegisterF(0, r8::A); }
+    int i_pref_0x48() { return checkBitOfRegisterF(1, r8::B); }
+    int i_pref_0x49() { return checkBitOfRegisterF(1, r8::C); }
+    int i_pref_0x4a() { return checkBitOfRegisterF(1, r8::D); }
+    int i_pref_0x4b() { return checkBitOfRegisterF(1, r8::E); }
+    int i_pref_0x4c() { return checkBitOfRegisterF(1, r8::H); }
+    int i_pref_0x4d() { return checkBitOfRegisterF(1, r8::L); }
     int i_pref_0x4e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x4f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x50() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x51() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x52() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x53() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x54() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x55() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x4f() { return checkBitOfRegisterF(1, r8::A); }
+    int i_pref_0x50() { return checkBitOfRegisterF(2, r8::B); }
+    int i_pref_0x51() { return checkBitOfRegisterF(2, r8::C); }
+    int i_pref_0x52() { return checkBitOfRegisterF(2, r8::D); }
+    int i_pref_0x53() { return checkBitOfRegisterF(2, r8::E); }
+    int i_pref_0x54() { return checkBitOfRegisterF(2, r8::H); }
+    int i_pref_0x55() { return checkBitOfRegisterF(2, r8::L); }
     int i_pref_0x56() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x57() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x58() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x59() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x5a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x5b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x5c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x5d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x57() { return checkBitOfRegisterF(2, r8::A); }
+    int i_pref_0x58() { return checkBitOfRegisterF(3, r8::B); }
+    int i_pref_0x59() { return checkBitOfRegisterF(3, r8::C); }
+    int i_pref_0x5a() { return checkBitOfRegisterF(3, r8::D); }
+    int i_pref_0x5b() { return checkBitOfRegisterF(3, r8::E); }
+    int i_pref_0x5c() { return checkBitOfRegisterF(3, r8::H); }
+    int i_pref_0x5d() { return checkBitOfRegisterF(3, r8::L); }
     int i_pref_0x5e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x5f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x60() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x61() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x62() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x63() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x64() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x65() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x5f() { return checkBitOfRegisterF(3, r8::A); }
+    int i_pref_0x60() { return checkBitOfRegisterF(4, r8::B); }
+    int i_pref_0x61() { return checkBitOfRegisterF(4, r8::C); }
+    int i_pref_0x62() { return checkBitOfRegisterF(4, r8::D); }
+    int i_pref_0x63() { return checkBitOfRegisterF(4, r8::E); }
+    int i_pref_0x64() { return checkBitOfRegisterF(4, r8::H); }
+    int i_pref_0x65() { return checkBitOfRegisterF(4, r8::L); }
     int i_pref_0x66() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x67() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x68() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x69() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x6a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x6b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x6c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x6d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x67() { return checkBitOfRegisterF(4, r8::A); }
+    int i_pref_0x68() { return checkBitOfRegisterF(5, r8::B); }
+    int i_pref_0x69() { return checkBitOfRegisterF(5, r8::C); }
+    int i_pref_0x6a() { return checkBitOfRegisterF(5, r8::D); }
+    int i_pref_0x6b() { return checkBitOfRegisterF(5, r8::E); }
+    int i_pref_0x6c() { return checkBitOfRegisterF(5, r8::H); }
+    int i_pref_0x6d() { return checkBitOfRegisterF(5, r8::L); }
     int i_pref_0x6e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x6f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x70() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x71() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x72() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x73() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x74() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x75() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x6f() { return checkBitOfRegisterF(5, r8::A); }
+    int i_pref_0x70() { return checkBitOfRegisterF(6, r8::B); }
+    int i_pref_0x71() { return checkBitOfRegisterF(6, r8::C); }
+    int i_pref_0x72() { return checkBitOfRegisterF(6, r8::D); }
+    int i_pref_0x73() { return checkBitOfRegisterF(6, r8::E); }
+    int i_pref_0x74() { return checkBitOfRegisterF(6, r8::H); }
+    int i_pref_0x75() { return checkBitOfRegisterF(6, r8::L); }
     int i_pref_0x76() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x77() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x78() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x79() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x7a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x7b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x7c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x7d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x77() { return checkBitOfRegisterF(6, r8::A); }
+    int i_pref_0x78() { return checkBitOfRegisterF(7, r8::B); }
+    int i_pref_0x79() { return checkBitOfRegisterF(7, r8::C); }
+    int i_pref_0x7a() { return checkBitOfRegisterF(7, r8::D); }
+    int i_pref_0x7b() { return checkBitOfRegisterF(7, r8::E); }
+    int i_pref_0x7c() { return checkBitOfRegisterF(7, r8::H); }
+    int i_pref_0x7d() { return checkBitOfRegisterF(7, r8::L); }
     int i_pref_0x7e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x7f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x80() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x81() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x82() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x83() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x84() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x85() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x7f() { return checkBitOfRegisterF(7, r8::A); }
+    int i_pref_0x80() { return resetBitOfRegister(0, r8::B); }
+    int i_pref_0x81() { return resetBitOfRegister(0, r8::C); }
+    int i_pref_0x82() { return resetBitOfRegister(0, r8::D); }
+    int i_pref_0x83() { return resetBitOfRegister(0, r8::E); }
+    int i_pref_0x84() { return resetBitOfRegister(0, r8::H); }
+    int i_pref_0x85() { return resetBitOfRegister(0, r8::L); }
     int i_pref_0x86() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x87() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x88() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x89() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x8a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x8b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x8c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x8d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x87() { return resetBitOfRegister(0, r8::A); }
+    int i_pref_0x88() { return resetBitOfRegister(1, r8::B); }
+    int i_pref_0x89() { return resetBitOfRegister(1, r8::C); }
+    int i_pref_0x8a() { return resetBitOfRegister(1, r8::D); }
+    int i_pref_0x8b() { return resetBitOfRegister(1, r8::E); }
+    int i_pref_0x8c() { return resetBitOfRegister(1, r8::H); }
+    int i_pref_0x8d() { return resetBitOfRegister(1, r8::L); }
     int i_pref_0x8e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x8f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x90() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x91() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x92() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x93() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x94() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x95() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x8f() { return resetBitOfRegister(1, r8::A); }
+    int i_pref_0x90() { return resetBitOfRegister(2, r8::B); }
+    int i_pref_0x91() { return resetBitOfRegister(2, r8::C); }
+    int i_pref_0x92() { return resetBitOfRegister(2, r8::D); }
+    int i_pref_0x93() { return resetBitOfRegister(2, r8::E); }
+    int i_pref_0x94() { return resetBitOfRegister(2, r8::H); }
+    int i_pref_0x95() { return resetBitOfRegister(2, r8::L); }
     int i_pref_0x96() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x97() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x98() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x99() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x9a() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x9b() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x9c() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x9d() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x97() { return resetBitOfRegister(2, r8::A); }
+    int i_pref_0x98() { return resetBitOfRegister(3, r8::B); }
+    int i_pref_0x99() { return resetBitOfRegister(3, r8::C); }
+    int i_pref_0x9a() { return resetBitOfRegister(3, r8::D); }
+    int i_pref_0x9b() { return resetBitOfRegister(3, r8::E); }
+    int i_pref_0x9c() { return resetBitOfRegister(3, r8::H); }
+    int i_pref_0x9d() { return resetBitOfRegister(3, r8::L); }
     int i_pref_0x9e() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0x9f() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa0() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa1() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa2() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa3() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa4() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0x9f() { return resetBitOfRegister(3, r8::A); }
+    int i_pref_0xa0() { return resetBitOfRegister(4, r8::B); }
+    int i_pref_0xa1() { return resetBitOfRegister(4, r8::C); }
+    int i_pref_0xa2() { return resetBitOfRegister(4, r8::D); }
+    int i_pref_0xa3() { return resetBitOfRegister(4, r8::E); }
+    int i_pref_0xa4() { return resetBitOfRegister(4, r8::H); }
+    int i_pref_0xa5() { return resetBitOfRegister(4, r8::L); }
     int i_pref_0xa6() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa7() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa8() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xa9() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xaa() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xab() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xac() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xad() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xa7() { return resetBitOfRegister(4, r8::A); }
+    int i_pref_0xa8() { return resetBitOfRegister(5, r8::B); }
+    int i_pref_0xa9() { return resetBitOfRegister(5, r8::C); }
+    int i_pref_0xaa() { return resetBitOfRegister(5, r8::D); }
+    int i_pref_0xab() { return resetBitOfRegister(5, r8::E); }
+    int i_pref_0xac() { return resetBitOfRegister(5, r8::H); }
+    int i_pref_0xad() { return resetBitOfRegister(5, r8::L); }
     int i_pref_0xae() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xaf() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb0() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb1() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb2() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb3() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb4() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xaf() { return resetBitOfRegister(5, r8::A); }
+    int i_pref_0xb0() { return resetBitOfRegister(6, r8::B); }
+    int i_pref_0xb1() { return resetBitOfRegister(6, r8::C); }
+    int i_pref_0xb2() { return resetBitOfRegister(6, r8::D); }
+    int i_pref_0xb3() { return resetBitOfRegister(6, r8::E); }
+    int i_pref_0xb4() { return resetBitOfRegister(6, r8::H); }
+    int i_pref_0xb5() { return resetBitOfRegister(6, r8::L); }
     int i_pref_0xb6() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb7() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb8() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xb9() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xba() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xbb() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xbc() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xbd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xb7() { return resetBitOfRegister(6, r8::A); }
+    int i_pref_0xb8() { return resetBitOfRegister(7, r8::B); }
+    int i_pref_0xb9() { return resetBitOfRegister(7, r8::C); }
+    int i_pref_0xba() { return resetBitOfRegister(7, r8::D); }
+    int i_pref_0xbb() { return resetBitOfRegister(7, r8::E); }
+    int i_pref_0xbc() { return resetBitOfRegister(7, r8::H); }
+    int i_pref_0xbd() { return resetBitOfRegister(7, r8::L); }
     int i_pref_0xbe() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xbf() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc0() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc1() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc2() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc3() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc4() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xbf() { return resetBitOfRegister(7, r8::A); }
+    int i_pref_0xc0() { return setBitOfRegister(0, r8::B); }
+    int i_pref_0xc1() { return setBitOfRegister(0, r8::C); }
+    int i_pref_0xc2() { return setBitOfRegister(0, r8::D); }
+    int i_pref_0xc3() { return setBitOfRegister(0, r8::E); }
+    int i_pref_0xc4() { return setBitOfRegister(0, r8::H); }
+    int i_pref_0xc5() { return setBitOfRegister(0, r8::L); }
     int i_pref_0xc6() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc7() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc8() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xc9() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xca() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xcb() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xcc() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xcd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xc7() { return setBitOfRegister(0, r8::A); }
+    int i_pref_0xc8() { return setBitOfRegister(1, r8::B); }
+    int i_pref_0xc9() { return setBitOfRegister(1, r8::C); }
+    int i_pref_0xca() { return setBitOfRegister(1, r8::D); }
+    int i_pref_0xcb() { return setBitOfRegister(1, r8::E); }
+    int i_pref_0xcc() { return setBitOfRegister(1, r8::H); }
+    int i_pref_0xcd() { return setBitOfRegister(1, r8::L); }
     int i_pref_0xce() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xcf() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd0() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd1() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd2() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd3() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd4() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xcf() { return setBitOfRegister(1, r8::A); }
+    int i_pref_0xd0() { return setBitOfRegister(2, r8::B); }
+    int i_pref_0xd1() { return setBitOfRegister(2, r8::C); }
+    int i_pref_0xd2() { return setBitOfRegister(2, r8::D); }
+    int i_pref_0xd3() { return setBitOfRegister(2, r8::E); }
+    int i_pref_0xd4() { return setBitOfRegister(2, r8::H); }
+    int i_pref_0xd5() { return setBitOfRegister(2, r8::L); }
     int i_pref_0xd6() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd7() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd8() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xd9() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xda() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xdb() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xdc() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xdd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xd7() { return setBitOfRegister(2, r8::A); }
+    int i_pref_0xd8() { return setBitOfRegister(3, r8::B); }
+    int i_pref_0xd9() { return setBitOfRegister(3, r8::C); }
+    int i_pref_0xda() { return setBitOfRegister(3, r8::D); }
+    int i_pref_0xdb() { return setBitOfRegister(3, r8::E); }
+    int i_pref_0xdc() { return setBitOfRegister(3, r8::H); }
+    int i_pref_0xdd() { return setBitOfRegister(3, r8::L); }
     int i_pref_0xde() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xdf() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe0() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe1() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe2() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe3() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe4() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xdf() { return setBitOfRegister(3, r8::A); }
+    int i_pref_0xe0() { return setBitOfRegister(4, r8::B); }
+    int i_pref_0xe1() { return setBitOfRegister(4, r8::C); }
+    int i_pref_0xe2() { return setBitOfRegister(4, r8::D); }
+    int i_pref_0xe3() { return setBitOfRegister(4, r8::E); }
+    int i_pref_0xe4() { return setBitOfRegister(4, r8::H); }
+    int i_pref_0xe5() { return setBitOfRegister(4, r8::L); }
     int i_pref_0xe6() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe7() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe8() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xe9() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xea() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xeb() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xec() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xed() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xe7() { return setBitOfRegister(4, r8::A); }
+    int i_pref_0xe8() { return setBitOfRegister(5, r8::B); }
+    int i_pref_0xe9() { return setBitOfRegister(5, r8::C); }
+    int i_pref_0xea() { return setBitOfRegister(5, r8::D); }
+    int i_pref_0xeb() { return setBitOfRegister(5, r8::E); }
+    int i_pref_0xec() { return setBitOfRegister(5, r8::H); }
+    int i_pref_0xed() { return setBitOfRegister(5, r8::L); }
     int i_pref_0xee() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xef() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf0() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf1() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf2() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf3() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf4() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf5() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xef() { return setBitOfRegister(5, r8::A); }
+    int i_pref_0xf0() { return setBitOfRegister(6, r8::B); }
+    int i_pref_0xf1() { return setBitOfRegister(6, r8::C); }
+    int i_pref_0xf2() { return setBitOfRegister(6, r8::D); }
+    int i_pref_0xf3() { return setBitOfRegister(6, r8::E); }
+    int i_pref_0xf4() { return setBitOfRegister(6, r8::H); }
+    int i_pref_0xf5() { return setBitOfRegister(6, r8::L); }
     int i_pref_0xf6() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf7() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf8() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xf9() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xfa() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xfb() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xfc() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xfd() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xf7() { return setBitOfRegister(6, r8::A); }
+    int i_pref_0xf8() { return setBitOfRegister(7, r8::B); }
+    int i_pref_0xf9() { return setBitOfRegister(7, r8::C); }
+    int i_pref_0xfa() { return setBitOfRegister(7, r8::D); }
+    int i_pref_0xfb() { return setBitOfRegister(7, r8::E); }
+    int i_pref_0xfc() { return setBitOfRegister(7, r8::H); }
+    int i_pref_0xfd() { return setBitOfRegister(7, r8::L); }
     int i_pref_0xfe() { UNIMPLEMENTED(); return -1; }
-    int i_pref_0xff() { UNIMPLEMENTED(); return -1; }
+    int i_pref_0xff() { return setBitOfRegister(7, r8::A); }
 };
 
 
