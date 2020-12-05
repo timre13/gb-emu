@@ -87,7 +87,7 @@ void PPU::updateBackground()
 
                 //const uint8_t colorI{getPixelColorIndex(lyRegValue/8*TILE_MAP_TILES_PER_ROW+rowTileI, lyRegValue%TILE_MAP_TILES_PER_ROW*8+tileRowPixelI%8, tileDataSelector)};
                 const uint8_t colorI{getPixelColorIndex(
-                        m_memoryPtr->get((bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI), false), // Tile index
+                        m_memoryPtr->get(bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI, false), // Tile index
                         lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
                         tileDataSelector)}; // Tile data selector
                 //const uint8_t colorI{rowPixelI%4};
