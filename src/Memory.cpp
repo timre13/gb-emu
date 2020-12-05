@@ -204,7 +204,7 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
             {
                 m_serial->write(m_sb);  // Write the data in SB to the serial port
                 value &= 0b01111111; // Unset bit 7
-                // TODO: Call the serial interrupt handler (0x58)
+                m_ifRegister |= INTERRUPT_MASK_SERIAL; // Call the serial interrupt
             }
             break;
         case REGISTER_ADDR_IF:
