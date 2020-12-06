@@ -286,7 +286,9 @@ void GBEmulator::emulateCycle()
             // = 456
             m_clockCyclesUntilPPUActivity = 456;
             updateGraphics();
-            SDL_RenderPresent(m_renderer);
+
+            if (m_memory->get(REGISTER_ADDR_LY) == 144) // Start of v-blank
+                SDL_RenderPresent(m_renderer);
         }
 
         m_cpu->enableImaIfNeeded();

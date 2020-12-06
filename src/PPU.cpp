@@ -5,14 +5,22 @@
 
 #include <iostream>
 
-// Draw a grid between pixels
-//#define PPU_DRAW_GRID
 // Ignore Background Palette Register
 //#define PPU_IGNORE_BPR
 
 PPU::PPU(SDL_Renderer *renderer, Memory *memory)
-    : m_rendererPtr{renderer}, m_memoryPtr{memory}
+    :
+    m_rendererPtr{renderer},
+    m_memoryPtr{memory},
+    m_texture{SDL_CreateTexture(
+            m_rendererPtr,
+            SDL_PIXELFORMAT_RGB888,
+            SDL_TEXTUREACCESS_TARGET,
+            TILE_MAP_TILES_PER_ROW*TILE_SIZE,
+            TILE_MAP_TILES_PER_COL*TILE_SIZE
+            )}
 {
+    if (!m_texture) Logger::fatal("Failed to create texture for PPU: " + std::string(SDL_GetError()));
 }
 
 uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI, TileDataSelector bgDataSelector) const
@@ -60,6 +68,17 @@ void PPU::updateBackground()
     {
         // Call the V-blank interrupt
         m_memoryPtr->set(REGISTER_ADDR_IF, m_memoryPtr->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_VBLANK, false);
+
+        // The cleared color will be overwritten, but we should clear the
+        // renderer before modifying it as the SDL2 documentation says.
+        SDL_RenderClear(m_rendererPtr);
+
+        // Copy the texture to the renderer
+        SDL_Rect winRect{
+                0, 0,
+                TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE, TILE_MAP_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE};
+        if (SDL_RenderCopy(m_rendererPtr, m_texture, nullptr, &winRect))
+            Logger::fatal("Failed to copy PPU texture: " + std::string(SDL_GetError()));
     }
 
     if (lyRegValue > 153) // End of V-BLANK
@@ -72,25 +91,30 @@ void PPU::updateBackground()
         const TileDataSelector tileDataSelector{(lcdcRegValue & 0b00010000) ? TileDataSelector::Lower : TileDataSelector::Higher};
         const uint16_t bgTileMapStart{(lcdcRegValue & 0b00001000) ? (uint16_t)TILE_MAP_H_START : (uint16_t)TILE_MAP_L_START};
 
-        /*
-        const TileDataSelector tileDataSelector{TileDataSelector::Lower};
-        const int bgTileMapStart{TILE_MAP_L_START};
-         */
+        //if (tileDataSelector == TileDataSelector::Higher)
+        //    Logger::warning("Unsigned tile data addressing is buggy (?)");
 
-        // Index of tile in current row
-        for (int rowTileI{}; rowTileI < TILE_MAP_TILES_PER_ROW; ++rowTileI)
+        int8_t scrollX{(int8_t)m_memoryPtr->get(REGISTER_ADDR_SCX, false)};
+        int8_t scrollY{(int8_t)m_memoryPtr->get(REGISTER_ADDR_SCY, false)};
+
+        // Only render if visible (does this work well?)
+        if (lyRegValue > scrollY + TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE)
+            return;
+
+        SDL_SetRenderTarget(m_rendererPtr, m_texture);
+
+        // Index of tile in current row (only render the visible part)
+        for (int rowTileI{scrollX/TILE_SIZE}; rowTileI < TILE_MAP_DISPLAYED_TILES_PER_ROW+scrollX/TILE_SIZE; ++rowTileI)
         {
             // Index of pixel in the current row of the current tile
             for (int tileRowPixelI{}; tileRowPixelI < TILE_SIZE; ++tileRowPixelI)
             {
                 uint8_t r, g, b;
 
-                //const uint8_t colorI{getPixelColorIndex(lyRegValue/8*TILE_MAP_TILES_PER_ROW+rowTileI, lyRegValue%TILE_MAP_TILES_PER_ROW*8+tileRowPixelI%8, tileDataSelector)};
                 const uint8_t colorI{getPixelColorIndex(
                         m_memoryPtr->get(bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI, false), // Tile index
                         lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
                         tileDataSelector)}; // Tile data selector
-                //const uint8_t colorI{rowPixelI%4};
 
 #ifdef PPU_IGNORE_BPR
                 static constexpr uint8_t shades[]{
@@ -107,26 +131,18 @@ void PPU::updateBackground()
 
                 SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
 
-                uint8_t scrollX{m_memoryPtr->get(REGISTER_ADDR_SCX, false)};
-                uint8_t scrollY{m_memoryPtr->get(REGISTER_ADDR_SCY, false)};
-                SDL_Rect pixelRect{
-                    //m_currentBgMapByteI%TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI%TILE_SIZE*PIXEL_SCALE,
-                    //m_currentBgMapByteI/TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE+pixelI/TILE_SIZE*PIXEL_SCALE,
-                    (rowTileI*TILE_SIZE+tileRowPixelI-scrollX)*PIXEL_SCALE,
-                    (lyRegValue-scrollY)*PIXEL_SCALE,
-                    PIXEL_SCALE,
-                    PIXEL_SCALE};
-                if (pixelRect.x > -PIXEL_SCALE && pixelRect.x < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE &&
-                    pixelRect.y > -PIXEL_SCALE && pixelRect.y < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE)
-                    SDL_RenderFillRect(m_rendererPtr, &pixelRect);
-
-#ifdef PPU_DRAW_GRID
-                SDL_SetRenderDrawColor(m_rendererPtr, 255, 0, 0, 255);
-                SDL_RenderDrawRect(m_rendererPtr, &pixelRect);
-#endif
+                int pixelX{rowTileI*TILE_SIZE+tileRowPixelI-scrollX};
+                int pixelY{lyRegValue-scrollY};
+                if (pixelX >= 0 && pixelX < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE &&
+                    pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE)
+                    SDL_RenderDrawPoint(m_rendererPtr,
+                        pixelX,
+                        pixelY);
             }
         }
     }
+
+    SDL_SetRenderTarget(m_rendererPtr, nullptr);
 
     m_memoryPtr->set(REGISTER_ADDR_LY, lyRegValue+1, false);
 }

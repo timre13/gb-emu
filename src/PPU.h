@@ -8,7 +8,7 @@
 
 #include <SDL2/SDL.h>
 
-#define PIXEL_SCALE 7
+#define PIXEL_SCALE 5
 #define TILE_DATA_L_START 0x8000
 #define TILE_DATA_H_START 0x8800
 #define TILE_SIZE 8
@@ -27,6 +27,8 @@ class PPU final
 private:
     SDL_Renderer    *m_rendererPtr{nullptr};
     Memory          *m_memoryPtr{nullptr};
+
+    SDL_Texture     *m_texture{};
 
 public:
     enum class TileDataSelector
