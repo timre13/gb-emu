@@ -10,6 +10,7 @@
 #include "CartridgeReader.h"
 #include "Memory.h"
 #include "Joypad.h"
+#include "Timer.h"
 
 #include "DebugWindow.h"
 #include "TileWindow.h"
@@ -36,6 +37,7 @@ private:
     Memory          *m_memory{nullptr};
     CartridgeReader *m_cartridgeReader{nullptr};
     Joypad          *m_joypad{nullptr};
+    Timer           *m_timer{nullptr};
 
 
     CartridgeInfo   *m_cartridgeInfo{nullptr};

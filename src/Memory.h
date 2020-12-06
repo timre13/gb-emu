@@ -9,6 +9,7 @@ struct CartridgeInfo;
 #include "CartridgeReader.h"
 #include "SerialViewer.h"
 #include "Joypad.h"
+#include "Timer.h"
 
 #include <stdint.h>
 #include <vector>
@@ -18,6 +19,10 @@ struct CartridgeInfo;
 #define REGISTER_ADDR_JOYP    0xff00
 #define REGISTER_ADDR_SB      0xff01
 #define REGISTER_ADDR_SC      0xff02
+#define REGISTER_ADDR_DIV     0xff04
+#define REGISTER_ADDR_TIMA    0xff05
+#define REGISTER_ADDR_TMA     0xff06
+#define REGISTER_ADDR_TAC     0xff07
 #define REGISTER_ADDR_IF      0xff0f
 #define REGISTER_ADDR_NR10    0xff10
 #define REGISTER_ADDR_NR11    0xff11
@@ -106,6 +111,14 @@ private:
     uint8_t                                         m_sb{};
     // SC (Serial transfer control) - 0xff02
     // ---
+    // DIV (Divider register) - 0xff04
+    // ---
+    // TIMA (Timer counter) - 0xff05
+    // ---
+    // TMA (Timer modulo) - 0xff06
+    // ---
+    // TAC (Timer control) - 0xff07
+    // ---
     // IF (Interrupt Flag) - 0xff0f
     uint8_t                                         m_ifRegister{};
     // NR10 - 0xff10
@@ -187,9 +200,10 @@ private:
 
     SerialViewer                                    *m_serial{nullptr};
     Joypad                                          *m_joypadPtr{nullptr};
+    Timer                                           *m_timerPtr{nullptr};
 
 public:
-    Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad);
+    Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad, Timer *timer);
 
     uint8_t get(uint16_t address, bool log=true);
     void    set(uint16_t address, uint8_t value, bool log=true);

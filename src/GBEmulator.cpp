@@ -124,7 +124,8 @@ void GBEmulator::initHardware()
     m_cartridgeInfo     = new CartridgeInfo{m_cartridgeReader->getCartridgeInfo()};
 
     m_joypad            = new Joypad;
-    m_memory            = new Memory{m_cartridgeInfo, m_serialViewer, m_joypad};
+    m_timer             = new Timer;
+    m_memory            = new Memory{m_cartridgeInfo, m_serialViewer, m_joypad, m_timer};
     m_cpu               = new CPU{m_memory}; // the CPU needs to know about the memory to do the memory operations
     m_ppu               = new PPU{m_renderer, m_memory};
 
@@ -278,8 +279,18 @@ void GBEmulator::emulateCycle()
         (void)elapsedMCycles;
 
         // TODO: Cycle accuracy
-        --m_clockCyclesUntilPPUActivity;
+        m_timer->tick();
 
+        // If the timer interrupt is requested
+        if (m_timer->isInterruptRequested())
+        {
+            // Set the bit in IF
+            m_memory->set(REGISTER_ADDR_IF, m_memory->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_TIMER, false);
+            m_timer->resetInterrupt();
+        }
+
+        // TODO: Cycle accuracy
+        --m_clockCyclesUntilPPUActivity;
         if (m_clockCyclesUntilPPUActivity <= 1)
         {
             // 70224 (V-blank happens every 70224 clocks) / 154 (LY reg max value + 1)

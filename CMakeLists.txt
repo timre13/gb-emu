@@ -48,4 +48,6 @@ add_executable(gb-emu
     src/SerialViewer.h
     src/Joypad.cpp
     src/Joypad.h
+    src/Timer.cpp
+    src/Timer.h
 )

@@ -5,8 +5,8 @@
 #include <iostream>
 #include "string_formatting.h"
 
-Memory::Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad)
-    : m_serial{serial}, m_joypadPtr{joypad}
+Memory::Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad, Timer *timer)
+    : m_serial{serial}, m_joypadPtr{joypad}, m_timerPtr{timer}
 {
     m_romBanks.resize(std::max(1, (int)info->romBanks));
     m_ramBanks.resize(std::max(1, (int)info->ramBanks));
@@ -65,6 +65,14 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
             return m_sb;
         case REGISTER_ADDR_SC:
             return 0; // TODO: What should we return?
+        case REGISTER_ADDR_DIV:
+            return m_timerPtr->getDivRegister();
+        case REGISTER_ADDR_TIMA:
+            return m_timerPtr->getTimaRegister();
+        case REGISTER_ADDR_TMA:
+            return m_timerPtr->getTmaRegister();
+        case REGISTER_ADDR_TAC:
+            return m_timerPtr->getTacRegister();
         case REGISTER_ADDR_IF:
             return m_ifRegister | 0b11100000; // The upper 3 bits are always 1
         case REGISTER_ADDR_NR10:
@@ -206,6 +214,19 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
                 value &= 0b01111111; // Unset bit 7
                 m_ifRegister |= INTERRUPT_MASK_SERIAL; // Call the serial interrupt
             }
+            break;
+        case REGISTER_ADDR_DIV:
+            // Writing anything to DIV resets it
+            m_timerPtr->resetDivRegister();
+            break;
+        case REGISTER_ADDR_TIMA:
+            m_timerPtr->setTimaRegister(value);
+            break;
+        case REGISTER_ADDR_TMA:
+            m_timerPtr->setTmaRegister(value);
+            break;
+        case REGISTER_ADDR_TAC:
+            m_timerPtr->setTacRegister(value);
             break;
         case REGISTER_ADDR_IF:
             m_ifRegister = value;
