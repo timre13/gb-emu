@@ -109,6 +109,12 @@ void PPU::updateBackground()
             // Index of pixel in the current row of the current tile
             for (int tileRowPixelI{}; tileRowPixelI < TILE_SIZE; ++tileRowPixelI)
             {
+                int pixelX{rowTileI*TILE_SIZE+tileRowPixelI-scrollX};
+                int pixelY{lyRegValue-scrollY};
+                if (!(pixelX >= 0 && pixelX < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE &&
+                    pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE))
+                        continue;
+
                 uint8_t r, g, b;
 
                 const uint8_t colorI{getPixelColorIndex(
@@ -131,10 +137,6 @@ void PPU::updateBackground()
 
                 SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
 
-                int pixelX{rowTileI*TILE_SIZE+tileRowPixelI-scrollX};
-                int pixelY{lyRegValue-scrollY};
-                if (pixelX >= 0 && pixelX < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE &&
-                    pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE)
                     SDL_RenderDrawPoint(m_rendererPtr,
                         pixelX,
                         pixelY);
