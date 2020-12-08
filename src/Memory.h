@@ -182,7 +182,7 @@ private:
     // WX   - 0xff4b
     uint8_t                                         m_wxRegister{};
     // BGP  - 0xff47
-    uint8_t                                         m_bgpRegister{};
+    uint8_t                                         m_bgpRegister{0xfc};
     // OBP0 - 0xff48
     uint8_t                                         m_obp0Register{};
     // OBP1 - 0xff49
