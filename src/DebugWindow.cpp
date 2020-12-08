@@ -27,7 +27,7 @@ DebugWindow::DebugWindow(int x, int y)
     Logger::info("Debug window created");
 }
 
-void DebugWindow::renderText(const std::string &string, int x, int y, uint8_t colorR/*=0*/, uint8_t colorG/*=0*/, uint8_t colorB/*=0*/)
+void DebugWindow::renderText(const std::string &string, int rowI, uint8_t colorR/*=0*/, uint8_t colorG/*=0*/, uint8_t colorB/*=0*/)
 {
     for (size_t i{}; i < string.length(); ++i)
     {
@@ -40,73 +40,72 @@ void DebugWindow::renderText(const std::string &string, int x, int y, uint8_t co
     (void) colorB;
 #endif
 
-        SDL_Rect destRect{x+(int)i*m_fontW, y, m_fontW, m_fontH};
-
+        SDL_Rect destRect{10+(int)i*m_fontW, rowI*m_fontH, m_fontW, m_fontH};
         SDL_RenderCopy(m_renderer, charTexture, nullptr, &destRect);
     }
 }
 
 void DebugWindow::updateRegisterValues(const Registers *registers)
 {
-    renderText("===== 8-bit registers ====", 10, 10);
+    renderText("===== 8-bit registers ====", 0);
     auto regA{registers->getA()};
-    renderText("A: "+toHexStr(regA, 2)+" | "+alignRight(std::to_string(regA), ' ', 3)+" | "+toBinStr(regA, 8), 10, 10+m_fontH*1);
+    renderText("A: "+toHexStr(regA, 2)+" | "+alignRight(std::to_string(regA), ' ', 3)+" | "+toBinStr(regA, 8), 1);
     auto regB{registers->getB()};
-    renderText("B: "+toHexStr(regB, 2)+" | "+alignRight(std::to_string(regB), ' ', 3)+" | "+toBinStr(regB, 8), 10, 10+m_fontH*2);
+    renderText("B: "+toHexStr(regB, 2)+" | "+alignRight(std::to_string(regB), ' ', 3)+" | "+toBinStr(regB, 8), 2);
     auto regC{registers->getC()};
-    renderText("C: "+toHexStr(regC, 2)+" | "+alignRight(std::to_string(regC), ' ', 3)+" | "+toBinStr(regC, 8), 10, 10+m_fontH*3);
+    renderText("C: "+toHexStr(regC, 2)+" | "+alignRight(std::to_string(regC), ' ', 3)+" | "+toBinStr(regC, 8), 3);
     auto regD{registers->getD()};
-    renderText("D: "+toHexStr(regD, 2)+" | "+alignRight(std::to_string(regD), ' ', 3)+" | "+toBinStr(regD, 8), 10, 10+m_fontH*4);
+    renderText("D: "+toHexStr(regD, 2)+" | "+alignRight(std::to_string(regD), ' ', 3)+" | "+toBinStr(regD, 8), 4);
     auto regE{registers->getE()};
-    renderText("E: "+toHexStr(regE, 2)+" | "+alignRight(std::to_string(regE), ' ', 3)+" | "+toBinStr(regE, 8), 10, 10+m_fontH*5);
+    renderText("E: "+toHexStr(regE, 2)+" | "+alignRight(std::to_string(regE), ' ', 3)+" | "+toBinStr(regE, 8), 5);
     auto regF{registers->getF()};
-    renderText("F: "+toHexStr(regF, 2)+" | "+alignRight(std::to_string(regF), ' ', 3)+" | "+toBinStr(regF, 8), 10, 10+m_fontH*6);
+    renderText("F: "+toHexStr(regF, 2)+" | "+alignRight(std::to_string(regF), ' ', 3)+" | "+toBinStr(regF, 8), 6);
     auto regH{registers->getH()};
-    renderText("H: "+toHexStr(regH, 2)+" | "+alignRight(std::to_string(regH), ' ', 3)+" | "+toBinStr(regH, 8), 10, 10+m_fontH*7);
+    renderText("H: "+toHexStr(regH, 2)+" | "+alignRight(std::to_string(regH), ' ', 3)+" | "+toBinStr(regH, 8), 7);
     auto regL{registers->getL()};
-    renderText("L: "+toHexStr(regL, 2)+" | "+alignRight(std::to_string(regL), ' ', 3)+" | "+toBinStr(regL, 8), 10, 10+m_fontH*8);
-    renderText("==========================", 10, 10+m_fontH*9);
+    renderText("L: "+toHexStr(regL, 2)+" | "+alignRight(std::to_string(regL), ' ', 3)+" | "+toBinStr(regL, 8), 8);
+    renderText("==========================", 9);
 
-    renderText("=========== 16-bit registers ==========", 10, 10+m_fontH*11);
+    renderText("=========== 16-bit registers ==========", 11);
     auto regAF{registers->getAF()};
-    renderText("AF: "+toHexStr(regAF, 4)+" | "+alignRight(std::to_string(regAF), ' ', 5)+" | "+toBinStr(regAF, 16), 10, 10+m_fontH*12);
+    renderText("AF: "+toHexStr(regAF, 4)+" | "+alignRight(std::to_string(regAF), ' ', 5)+" | "+toBinStr(regAF, 16), 12);
     auto regBC{registers->getBC()};
-    renderText("BC: "+toHexStr(regBC, 4)+" | "+alignRight(std::to_string(regBC), ' ', 5)+" | "+toBinStr(regBC, 16), 10, 10+m_fontH*13);
+    renderText("BC: "+toHexStr(regBC, 4)+" | "+alignRight(std::to_string(regBC), ' ', 5)+" | "+toBinStr(regBC, 16), 13);
     auto regDE{registers->getDE()};
-    renderText("DE: "+toHexStr(regDE, 4)+" | "+alignRight(std::to_string(regDE), ' ', 5)+" | "+toBinStr(regDE, 16), 10, 10+m_fontH*14);
+    renderText("DE: "+toHexStr(regDE, 4)+" | "+alignRight(std::to_string(regDE), ' ', 5)+" | "+toBinStr(regDE, 16), 14);
     auto regHL{registers->getHL()};
-    renderText("HL: "+toHexStr(regHL, 4)+" | "+alignRight(std::to_string(regHL), ' ', 5)+" | "+toBinStr(regHL, 16), 10, 10+m_fontH*15);
+    renderText("HL: "+toHexStr(regHL, 4)+" | "+alignRight(std::to_string(regHL), ' ', 5)+" | "+toBinStr(regHL, 16), 15);
     auto regSP{registers->getSP()};
-    renderText("SP: "+toHexStr(regSP, 4)+" | "+alignRight(std::to_string(regSP), ' ', 5)+" | "+toBinStr(regSP, 16), 10, 10+m_fontH*16);
+    renderText("SP: "+toHexStr(regSP, 4)+" | "+alignRight(std::to_string(regSP), ' ', 5)+" | "+toBinStr(regSP, 16), 16);
     auto regPC{registers->getPC()};
-    renderText("PC: "+toHexStr(regPC, 4)+" | "+alignRight(std::to_string(regPC), ' ', 5)+" | "+toBinStr(regPC, 16), 10, 10+m_fontH*17);
-    renderText("=======================================", 10, 10+m_fontH*18);
+    renderText("PC: "+toHexStr(regPC, 4)+" | "+alignRight(std::to_string(regPC), ' ', 5)+" | "+toBinStr(regPC, 16), 17);
+    renderText("=======================================", 18);
 
-    renderText("====== Flags ======", 10, 10+m_fontH*20);
+    renderText("====== Flags ======", 20);
     auto flagZ{registers->getZeroFlag()};
-    renderText("Zero:       "+std::to_string(flagZ)+" | "+(flagZ ? "on" : "off"), 10, 10+m_fontH*21);
+    renderText("Zero:       "+std::to_string(flagZ)+" | "+(flagZ ? "on" : "off"), 21);
     auto flagN{registers->getNegativeFlag()};
-    renderText("Negative:   "+std::to_string(flagN)+" | "+(flagN ? "on" : "off"), 10, 10+m_fontH*22);
+    renderText("Negative:   "+std::to_string(flagN)+" | "+(flagN ? "on" : "off"), 22);
     auto flagH{registers->getHalfCarryFlag()};
-    renderText("Half Carry: "+std::to_string(flagH)+" | "+(flagH ? "on" : "off"), 10, 10+m_fontH*23);
+    renderText("Half Carry: "+std::to_string(flagH)+" | "+(flagH ? "on" : "off"), 23);
     auto flagC{registers->getCarryFlag()};
-    renderText("Carry:      "+std::to_string(flagC)+" | "+(flagC ? "on" : "off"), 10, 10+m_fontH*24);
-    renderText("===================", 10, 10+m_fontH*25);
+    renderText("Carry:      "+std::to_string(flagC)+" | "+(flagC ? "on" : "off"), 24);
+    renderText("===================", 25);
     
-    renderText("=== Misc. ==", 10, 10+m_fontH*27);
+    renderText("=== Misc. ==", 27);
     auto regIME{registers->getIme()};
-    renderText("IME: "+std::to_string(regIME)+" | "+(regIME ? "on" : "off"), 10, 10+m_fontH*28);
-    renderText("============", 10, 10+m_fontH*29);
+    renderText("IME: "+std::to_string(regIME)+" | "+(regIME ? "on" : "off"), 28);
+    renderText("============", 29);
 }
 
 void DebugWindow::updateOpcodeValue(const CPU *cpu)
 {
-    renderText("===== Opcode ====", 10, 10+m_fontH*31);
-    renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 10, 10+m_fontH*32);
-    renderText("Name:  "+OpcodeNames::get(cpu->getCurrentOpcode() >> 24, cpu->isPrefixedOpcode()), 10, 10+m_fontH*33);
-    renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 10, 10+m_fontH*34);
-    renderText("Pref.: "+std::string(cpu->isPrefixedOpcode() ? "yes" : "no"), 10, 10+m_fontH*35);
-    renderText("=================", 10, 10+m_fontH*36);
+    renderText("===== Opcode ====", 31);
+    renderText("Value: "+toHexStr(cpu->getCurrentOpcode()), 32);
+    renderText("Name:  "+OpcodeNames::get(cpu->getCurrentOpcode() >> 24, cpu->isPrefixedOpcode()), 33);
+    renderText("Size:  "+std::to_string(cpu->getCurrentOpcodeSize()), 34);
+    renderText("Pref.: "+std::string(cpu->isPrefixedOpcode() ? "yes" : "no"), 35);
+    renderText("=================", 36);
 }
 
 void DebugWindow::updateMemoryValues(Memory *memory)
@@ -116,23 +115,22 @@ void DebugWindow::updateMemoryValues(Memory *memory)
     //for (uint32_t i{}; i <= 0xffff; ++i)
     //    renderText(toHexStr(memory->get(i, false), 2, false), 500+m_fontW*(i%0x100), 10+m_fontH*(i/0x100));
 
-    renderText("= Memory-mapped Registers =", 10, 10+m_fontH*38);
-
+    renderText("= Memory-mapped Registers =", 38);
     auto regIE{memory->get(REGISTER_ADDR_IE, false)};
-    renderText("IE:   "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*39);
+    renderText("IE:   "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 39);
     auto regIF{memory->get(REGISTER_ADDR_IF, false)};
-    renderText("IF:   "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*40);
+    renderText("IF:   "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 40);
     auto regLY{memory->get(REGISTER_ADDR_LY, false)};
-    renderText("LY:   "+toHexStr(regLY, 2)+" | "+alignRight(std::to_string(regLY), ' ', 3)+" | "+toBinStr(regLY, 8), 10, 10+m_fontH*41);
+    renderText("LY:   "+toHexStr(regLY, 2)+" | "+alignRight(std::to_string(regLY), ' ', 3)+" | "+toBinStr(regLY, 8), 41);
     auto regDIV{memory->get(REGISTER_ADDR_DIV, false)};
-    renderText("DIV:  "+toHexStr(regDIV, 2)+" | "+alignRight(std::to_string(regDIV), ' ', 3)+" | "+toBinStr(regDIV, 8), 10, 10+m_fontH*42);
+    renderText("DIV:  "+toHexStr(regDIV, 2)+" | "+alignRight(std::to_string(regDIV), ' ', 3)+" | "+toBinStr(regDIV, 8), 42);
     auto regTIMA{memory->get(REGISTER_ADDR_TIMA, false)};
-    renderText("TIMA: "+toHexStr(regTIMA, 2)+" | "+alignRight(std::to_string(regTIMA), ' ', 3)+" | "+toBinStr(regTIMA, 8), 10, 10+m_fontH*43);
+    renderText("TIMA: "+toHexStr(regTIMA, 2)+" | "+alignRight(std::to_string(regTIMA), ' ', 3)+" | "+toBinStr(regTIMA, 8), 43);
     auto regTMA{memory->get(REGISTER_ADDR_TMA, false)};
-    renderText("TMA:  "+toHexStr(regTMA, 2)+" | "+alignRight(std::to_string(regTMA), ' ', 3)+" | "+toBinStr(regTMA, 8), 10, 10+m_fontH*44);
+    renderText("TMA:  "+toHexStr(regTMA, 2)+" | "+alignRight(std::to_string(regTMA), ' ', 3)+" | "+toBinStr(regTMA, 8), 44);
     auto regTAC{memory->get(REGISTER_ADDR_TAC, false)};
-    renderText("TAC:  "+toHexStr(regTAC, 2)+" | "+alignRight(std::to_string(regTAC), ' ', 3)+" | "+toBinStr(regTAC, 8), 10, 10+m_fontH*45);
-    renderText("===========================", 10, 10+m_fontH*46);
+    renderText("TAC:  "+toHexStr(regTAC, 2)+" | "+alignRight(std::to_string(regTAC), ' ', 3)+" | "+toBinStr(regTAC, 8), 45);
+    renderText("===========================", 46);
 }
 
 DebugWindow::~DebugWindow()
