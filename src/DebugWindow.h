@@ -20,11 +20,6 @@ private:
     SDL_Renderer    *m_renderer;
     FontManager     *m_fontManager;
 
-    int m_x{};
-    int m_y{};
-    int m_w{};
-    int m_h{};
-
     int m_fontW{};
     int m_fontH{};
 

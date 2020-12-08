@@ -8,17 +8,9 @@
 
 //#define DEBUG_TEXT_USE_COLORS
 
-#define DEBUG_WINDOW_WIDTH  420
-#define DEBUG_WINDOW_HEIGHT 930
-
 DebugWindow::DebugWindow(int x, int y)
 {
-    m_x = x;
-    m_y = y;
-    m_w = DEBUG_WINDOW_WIDTH;
-    m_h = DEBUG_WINDOW_HEIGHT;
-
-    m_window = SDL_CreateWindow("Debugger", m_x, m_y, m_w, m_h, SDL_WINDOW_HIDDEN);
+    m_window = SDL_CreateWindow("Debugger", x, y, 0, 0, SDL_WINDOW_HIDDEN);
 
     if (!m_window)
         Logger::fatal("Failed to create debugger window");
@@ -29,6 +21,8 @@ DebugWindow::DebugWindow(int x, int y)
         Logger::fatal("Failed to create renderer for debugger");
 
     m_fontManager = new FontManager{m_window, &m_fontW, &m_fontH};
+
+    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*42);
 
     Logger::info("Debug window created");
 }
