@@ -22,7 +22,7 @@ DebugWindow::DebugWindow(int x, int y)
 
     m_fontManager = new FontManager{m_window, &m_fontW, &m_fontH};
 
-    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*46);
+    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*46*0.75);
 
     Logger::info("Debug window created");
 }
@@ -40,7 +40,7 @@ void DebugWindow::renderText(const std::string &string, int rowI, uint8_t colorR
     (void) colorB;
 #endif
 
-        SDL_Rect destRect{10+(int)i*m_fontW, rowI*m_fontH, m_fontW, m_fontH};
+        SDL_Rect destRect{10+(int)i*m_fontW, (int)(rowI*m_fontH*0.75), m_fontW, m_fontH};
         SDL_RenderCopy(m_renderer, charTexture, nullptr, &destRect);
     }
 }
