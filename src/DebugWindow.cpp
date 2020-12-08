@@ -22,7 +22,7 @@ DebugWindow::DebugWindow(int x, int y)
 
     m_fontManager = new FontManager{m_window, &m_fontW, &m_fontH};
 
-    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*42);
+    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*46);
 
     Logger::info("Debug window created");
 }
@@ -119,10 +119,20 @@ void DebugWindow::updateMemoryValues(Memory *memory)
     renderText("= Memory-mapped Registers =", 10, 10+m_fontH*38);
 
     auto regIE{memory->get(REGISTER_ADDR_IE, false)};
-    renderText("IE: "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*39);
+    renderText("IE:   "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 10, 10+m_fontH*39);
     auto regIF{memory->get(REGISTER_ADDR_IF, false)};
-    renderText("IF: "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*40);
-    renderText("===========================", 10, 10+m_fontH*41);
+    renderText("IF:   "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 10, 10+m_fontH*40);
+    auto regLY{memory->get(REGISTER_ADDR_LY, false)};
+    renderText("LY:   "+toHexStr(regLY, 2)+" | "+alignRight(std::to_string(regLY), ' ', 3)+" | "+toBinStr(regLY, 8), 10, 10+m_fontH*41);
+    auto regDIV{memory->get(REGISTER_ADDR_DIV, false)};
+    renderText("DIV:  "+toHexStr(regDIV, 2)+" | "+alignRight(std::to_string(regDIV), ' ', 3)+" | "+toBinStr(regDIV, 8), 10, 10+m_fontH*42);
+    auto regTIMA{memory->get(REGISTER_ADDR_TIMA, false)};
+    renderText("TIMA: "+toHexStr(regTIMA, 2)+" | "+alignRight(std::to_string(regTIMA), ' ', 3)+" | "+toBinStr(regTIMA, 8), 10, 10+m_fontH*43);
+    auto regTMA{memory->get(REGISTER_ADDR_TMA, false)};
+    renderText("TMA:  "+toHexStr(regTMA, 2)+" | "+alignRight(std::to_string(regTMA), ' ', 3)+" | "+toBinStr(regTMA, 8), 10, 10+m_fontH*44);
+    auto regTAC{memory->get(REGISTER_ADDR_TAC, false)};
+    renderText("TAC:  "+toHexStr(regTAC, 2)+" | "+alignRight(std::to_string(regTAC), ' ', 3)+" | "+toBinStr(regTAC, 8), 10, 10+m_fontH*45);
+    renderText("===========================", 10, 10+m_fontH*46);
 }
 
 DebugWindow::~DebugWindow()
