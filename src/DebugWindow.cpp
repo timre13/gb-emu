@@ -22,7 +22,7 @@ DebugWindow::DebugWindow(int x, int y)
 
     m_fontManager = new FontManager{m_window, &m_fontW, &m_fontH};
 
-    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*46*0.75);
+    SDL_SetWindowSize(m_window, 10+m_fontW*40, 10+m_fontH*49*0.75);
 
     Logger::info("Debug window created");
 }
@@ -115,22 +115,26 @@ void DebugWindow::updateMemoryValues(Memory *memory)
     //for (uint32_t i{}; i <= 0xffff; ++i)
     //    renderText(toHexStr(memory->get(i, false), 2, false), 500+m_fontW*(i%0x100), 10+m_fontH*(i/0x100));
 
-    renderText("= Memory-mapped Registers =", 38);
+    renderText("== Memory-mapped Registers ==", 38);
     auto regIE{memory->get(REGISTER_ADDR_IE, false)};
     renderText("IE:   "+toHexStr(regIE, 2)+" | "+alignRight(std::to_string(regIE), ' ', 3)+" | "+toBinStr(regIE, 8), 39);
     auto regIF{memory->get(REGISTER_ADDR_IF, false)};
     renderText("IF:   "+toHexStr(regIF, 2)+" | "+alignRight(std::to_string(regIF), ' ', 3)+" | "+toBinStr(regIF, 8), 40);
+    auto regLCDC{memory->get(REGISTER_ADDR_LCDC)};
+    renderText("LCDC: "+toHexStr(regLCDC, 2)+" | "+alignRight(std::to_string(regLCDC), ' ', 3)+" | "+toBinStr(regLCDC, 8), 41);
+    auto regSTAT{memory->get(REGISTER_ADDR_LCDSTAT)};
+    renderText("STAT: "+toHexStr(regSTAT, 2)+" | "+alignRight(std::to_string(regSTAT), ' ', 3)+" | "+toBinStr(regSTAT, 8), 42);
     auto regLY{memory->get(REGISTER_ADDR_LY, false)};
-    renderText("LY:   "+toHexStr(regLY, 2)+" | "+alignRight(std::to_string(regLY), ' ', 3)+" | "+toBinStr(regLY, 8), 41);
+    renderText("LY:   "+toHexStr(regLY, 2)+" | "+alignRight(std::to_string(regLY), ' ', 3)+" | "+toBinStr(regLY, 8), 43);
     auto regDIV{memory->get(REGISTER_ADDR_DIV, false)};
-    renderText("DIV:  "+toHexStr(regDIV, 2)+" | "+alignRight(std::to_string(regDIV), ' ', 3)+" | "+toBinStr(regDIV, 8), 42);
+    renderText("DIV:  "+toHexStr(regDIV, 2)+" | "+alignRight(std::to_string(regDIV), ' ', 3)+" | "+toBinStr(regDIV, 8), 44);
     auto regTIMA{memory->get(REGISTER_ADDR_TIMA, false)};
-    renderText("TIMA: "+toHexStr(regTIMA, 2)+" | "+alignRight(std::to_string(regTIMA), ' ', 3)+" | "+toBinStr(regTIMA, 8), 43);
+    renderText("TIMA: "+toHexStr(regTIMA, 2)+" | "+alignRight(std::to_string(regTIMA), ' ', 3)+" | "+toBinStr(regTIMA, 8), 45);
     auto regTMA{memory->get(REGISTER_ADDR_TMA, false)};
-    renderText("TMA:  "+toHexStr(regTMA, 2)+" | "+alignRight(std::to_string(regTMA), ' ', 3)+" | "+toBinStr(regTMA, 8), 44);
+    renderText("TMA:  "+toHexStr(regTMA, 2)+" | "+alignRight(std::to_string(regTMA), ' ', 3)+" | "+toBinStr(regTMA, 8), 46);
     auto regTAC{memory->get(REGISTER_ADDR_TAC, false)};
-    renderText("TAC:  "+toHexStr(regTAC, 2)+" | "+alignRight(std::to_string(regTAC), ' ', 3)+" | "+toBinStr(regTAC, 8), 45);
-    renderText("===========================", 46);
+    renderText("TAC:  "+toHexStr(regTAC, 2)+" | "+alignRight(std::to_string(regTAC), ' ', 3)+" | "+toBinStr(regTAC, 8), 47);
+    renderText("=============================", 48);
 }
 
 DebugWindow::~DebugWindow()
