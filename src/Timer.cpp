@@ -43,16 +43,16 @@ void Timer::tick()
         switch (m_tacRegister & 0b00000011)
         {
         case 0:
-            m_cyclesUntilDivIncrement = 1024;
+            m_cyclesUntilTimaIncrement = 1024;
             break;
         case 1:
-            m_cyclesUntilDivIncrement = 16;
+            m_cyclesUntilTimaIncrement = 16;
             break;
         case 2:
-            m_cyclesUntilDivIncrement = 64;
+            m_cyclesUntilTimaIncrement = 64;
             break;
         case 3:
-            m_cyclesUntilDivIncrement = 256;
+            m_cyclesUntilTimaIncrement = 256;
             break;
         }
     }
