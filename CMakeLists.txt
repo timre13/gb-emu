@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "\
  -Wextra\
  -Wpedantic\
  -O3\
+ -g\
 ")
 
 project(GBEmu VERSION 1.0)

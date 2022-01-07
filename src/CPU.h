@@ -465,12 +465,12 @@ private:
     // 000C
     inline int rotateARegBitsLeftF()
     {
+        m_registers->setCarryFlag(m_registers->getA() & 1);
         m_registers->setA((m_registers->getA() << 1) | (m_registers->getA() >> 7));
 
         m_registers->unsetZeroFlag();
         m_registers->unsetNegativeFlag();
         m_registers->unsetHalfCarryFlag();
-        // FIXME: Set the carry flag according to the result
 
         return 1;
     }
@@ -478,12 +478,12 @@ private:
     // 000C
     inline int rotateARegBitsRightF()
     {
+        m_registers->setCarryFlag(m_registers->getA() & 1);
         m_registers->setA((m_registers->getA() >> 1) | (m_registers->getA() << 7));
 
         m_registers->unsetZeroFlag();
         m_registers->unsetNegativeFlag();
         m_registers->unsetHalfCarryFlag();
-        // FIXME: Set the carry flag according to the result
 
         return 1;
     }
@@ -521,6 +521,7 @@ private:
     // ----
     inline int relativeJump(i8 offset)
     {
+        // FIXME: Add 2?
         jpToAddress(m_registers->getPC()+offset+2);
 
         return 3;
