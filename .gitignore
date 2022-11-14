@@ -2,3 +2,4 @@ roms/
 codegens/
 build/
 game_boy_emulator.project
+.ccls-cache/

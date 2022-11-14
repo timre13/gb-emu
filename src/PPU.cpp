@@ -8,6 +8,15 @@
 // Ignore Background Palette Register
 //#define PPU_IGNORE_BPR
 
+#define LCDC_BIT_BG_WIN_ENABLE         (1 << 0)
+#define LCDC_BIT_OBJ_ENABLE            (1 << 1)
+#define LCDC_BIT_OBJ_SIZE              (1 << 2)
+#define LCDC_BIT_BG_TILE_MAP_AREA      (1 << 3)
+#define LCDC_BIT_BG_WIN_TILE_DATA_AREA (1 << 4)
+#define LCDC_BIT_WIN_ENABLE            (1 << 5)
+#define LCDC_BIT_WIN_TILE_MAP_AREA     (1 << 6)
+#define LCDC_BIT_LCD_PPU_ENABLE        (1 << 7)
+
 PPU::PPU(SDL_Renderer *renderer, Memory *memory)
     :
     m_rendererPtr{renderer},
@@ -59,7 +68,7 @@ void PPU::updateBackground()
     const uint8_t lcdcRegValue{m_memoryPtr->get(REGISTER_ADDR_LCDC, false)};
 
     // If the LCD and PPU are disabled
-    if ((lcdcRegValue & 0b10000000) == 0)
+    if ((lcdcRegValue & LCDC_BIT_LCD_PPU_ENABLE) == 0)
         return;
 
     const uint8_t lyRegValue{m_memoryPtr->get(REGISTER_ADDR_LY, false)};
@@ -88,8 +97,8 @@ void PPU::updateBackground()
 
     if (lyRegValue < 144) // Not V-BLANK
     {
-        const TileDataSelector tileDataSelector{(lcdcRegValue & 0b00010000) ? TileDataSelector::Lower : TileDataSelector::Higher};
-        const uint16_t bgTileMapStart{(lcdcRegValue & 0b00001000) ? (uint16_t)TILE_MAP_H_START : (uint16_t)TILE_MAP_L_START};
+        const TileDataSelector tileDataSelector{(lcdcRegValue & LCDC_BIT_BG_WIN_TILE_DATA_AREA) ? TileDataSelector::Lower : TileDataSelector::Higher};
+        const uint16_t bgTileMapStart{(lcdcRegValue & LCDC_BIT_BG_TILE_MAP_AREA) ? (uint16_t)TILE_MAP_H_START : (uint16_t)TILE_MAP_L_START};
 
         //if (tileDataSelector == TileDataSelector::Higher)
         //    Logger::warning("Unsigned tile data addressing is buggy (?)");
