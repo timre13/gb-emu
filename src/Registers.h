@@ -9,6 +9,20 @@
 
 #include <stdint.h>
 
+#define CPU_FLAG_SHIFT_ZERO   (7)
+#define CPU_FLAG_SHIFT_NEG    (6)
+#define CPU_FLAG_SHIFT_HCARRY (5)
+#define CPU_FLAG_SHIFT_CARRY  (4)
+
+// Zero [Z] - Set if a result is zero
+#define CPU_FLAG_BIT_ZERO   (1 << CPU_FLAG_SHIFT_ZERO)
+// Substract/Negative [N] (BCD)
+#define CPU_FLAG_BIT_NEG    (1 << CPU_FLAG_SHIFT_NEG)
+// Half carry [H] (BCD)
+#define CPU_FLAG_BIT_HCARRY (1 << CPU_FLAG_SHIFT_HCARRY)
+// Carry [C]
+#define CPU_FLAG_BIT_CARRY  (1 << CPU_FLAG_SHIFT_CARRY)
+
 class Registers final
 {
 private:
@@ -160,16 +174,16 @@ public:
     inline void resetFlagRegisterLowerBits() { m_F &= 0xf0; }
 
     // -- get --
-    inline uint8_t getZeroFlag()        const { return (m_F & 0b10000000) >>  7; }
-    inline uint8_t getNegativeFlag()    const { return (m_F & 0b01000000) >>  6; }
-    inline uint8_t getHalfCarryFlag()   const { return (m_F & 0b00100000) >>  5; }
-    inline uint8_t getCarryFlag()       const { return (m_F & 0b00010000) >>  4; }
+    inline uint8_t getZeroFlag()      const { return (m_F & CPU_FLAG_BIT_ZERO)   >> CPU_FLAG_SHIFT_ZERO;   }
+    inline uint8_t getNegativeFlag()  const { return (m_F & CPU_FLAG_BIT_NEG)    >> CPU_FLAG_SHIFT_NEG;    }
+    inline uint8_t getHalfCarryFlag() const { return (m_F & CPU_FLAG_BIT_HCARRY) >> CPU_FLAG_SHIFT_HCARRY; }
+    inline uint8_t getCarryFlag()     const { return (m_F & CPU_FLAG_BIT_CARRY)  >> CPU_FLAG_SHIFT_CARRY;  }
 
     inline uint8_t getCondition(cond c)
     {
         switch (c)
         {
-            case cond::Z: return getZeroFlag();;
+            case cond::Z: return getZeroFlag();
             case cond::NZ: return !getZeroFlag();
             case cond::C: return getCarryFlag();
             case cond::NC: return !getCarryFlag();
@@ -178,22 +192,22 @@ public:
     }
 
     // -- set --
-    inline void setZeroFlag()       { m_F |=  0b10000000; }
-    inline void setNegativeFlag()   { m_F |=  0b01000000; }
-    inline void setHalfCarryFlag()  { m_F |=  0b00100000; }
-    inline void setCarryFlag()      { m_F |=  0b00010000; }
+    inline void setZeroFlag()      { m_F |= CPU_FLAG_BIT_ZERO;   }
+    inline void setNegativeFlag()  { m_F |= CPU_FLAG_BIT_NEG;    }
+    inline void setHalfCarryFlag() { m_F |= CPU_FLAG_BIT_HCARRY; }
+    inline void setCarryFlag()     { m_F |= CPU_FLAG_BIT_CARRY;  }
 
     // unset
-    inline void unsetZeroFlag()         { m_F &= ~0b10000000; }
-    inline void unsetNegativeFlag()     { m_F &= ~0b01000000; }
-    inline void unsetHalfCarryFlag()    { m_F &= ~0b00100000; }
-    inline void unsetCarryFlag()        { m_F &= ~0b00010000; }
+    inline void unsetZeroFlag()      { m_F &= ~CPU_FLAG_BIT_ZERO;   }
+    inline void unsetNegativeFlag()  { m_F &= ~CPU_FLAG_BIT_NEG;    }
+    inline void unsetHalfCarryFlag() { m_F &= ~CPU_FLAG_BIT_HCARRY; }
+    inline void unsetCarryFlag()     { m_F &= ~CPU_FLAG_BIT_CARRY;  }
 
     // set depending on the argument
-    inline void setZeroFlag(uint8_t value)       { value ? setZeroFlag()        : unsetZeroFlag();          }
-    inline void setNegativeFlag(uint8_t value)   { value ? setNegativeFlag()    : unsetNegativeFlag();      }
-    inline void setHalfCarryFlag(uint8_t value)  { value ? setHalfCarryFlag()   : unsetHalfCarryFlag();     }
-    inline void setCarryFlag(uint8_t value)      { value ? setCarryFlag()       : unsetCarryFlag();         }
+    inline void setZeroFlag(uint8_t value)       { value ? setZeroFlag()      : unsetZeroFlag();      }
+    inline void setNegativeFlag(uint8_t value)   { value ? setNegativeFlag()  : unsetNegativeFlag();  }
+    inline void setHalfCarryFlag(uint8_t value)  { value ? setHalfCarryFlag() : unsetHalfCarryFlag(); }
+    inline void setCarryFlag(uint8_t value)      { value ? setCarryFlag()     : unsetCarryFlag();     }
 
 
     // --- misc. registers ---
