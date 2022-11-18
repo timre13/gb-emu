@@ -199,6 +199,7 @@ void GBEmulator::emulateCycle()
             break;
 
         case SDL_KEYDOWN:
+            m_joypad->onKeyPress(event.key.keysym.sym);
             switch (event.key.keysym.sym)
             {
             case SDLK_ESCAPE:
@@ -219,8 +220,11 @@ void GBEmulator::emulateCycle()
                 if (event.window.windowID == m_windowId)
                     toggleSerialViewer();
                 return;
-
             }
+            break;
+
+        case SDL_KEYUP:
+            m_joypad->onKeyRelease(event.key.keysym.sym);
             break;
         }
     }
@@ -292,11 +296,17 @@ void GBEmulator::emulateCycle()
         // TODO: Cycle accuracy
         --m_clockCyclesUntilPPUActivity;
         if (m_clockCyclesUntilPPUActivity <= 1)
+        if (m_joypad->isInterruptRequested())
         {
             // 70224 (V-blank happens every 70224 clocks) / 154 (LY reg max value + 1)
             // = 456
             m_clockCyclesUntilPPUActivity = 456;
             updateGraphics();
+            Logger::info("Setting joypad bit in IF");
+            // Set the bit in IF
+            m_memory->set(REGISTER_ADDR_IF, m_memory->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_JOYPAD, false);
+            m_joypad->clearInterruptRequestedFlag();
+        }
 
             if (m_memory->get(REGISTER_ADDR_LY) == 144) // Start of v-blank
                 SDL_RenderPresent(m_renderer);

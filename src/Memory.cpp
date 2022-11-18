@@ -47,26 +47,20 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
         {
         case REGISTER_ADDR_JOYP:
         {
-            m_joypadPtr->updateState();
             if ((m_joypRegister & JOYP_BIT_SELECT_ACT_BTNS) == 0) // If button (action) keys are selected
             {
-                if (m_joypadPtr->isStartButtonPressed())  m_joypRegister &= ~JOYP_BIT_DOWN_OR_START;
-                if (m_joypadPtr->isSelectButtonPressed()) m_joypRegister &= ~JOYP_BIT_UP_OR_SELECT;
-                if (m_joypadPtr->isBButtonPressed())      m_joypRegister &= ~JOYP_BIT_LEFT_OR_BTN_B;
-                if (m_joypadPtr->isAButtonPressed())      m_joypRegister &= ~JOYP_BIT_RIGHT_OR_BTN_A;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::Start))  m_joypRegister &= ~JOYP_BIT_DOWN_OR_START;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::Select)) m_joypRegister &= ~JOYP_BIT_UP_OR_SELECT;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::B))      m_joypRegister &= ~JOYP_BIT_LEFT_OR_BTN_B;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::A))      m_joypRegister &= ~JOYP_BIT_RIGHT_OR_BTN_A;
             }
             if ((m_joypRegister & JOYP_BIT_SELECT_DIR_BTNS) == 0) // If direction keys are selected
             {
-                if (m_joypadPtr->isDownButtonPressed())  m_joypRegister &= ~JOYP_BIT_DOWN_OR_START;
-                if (m_joypadPtr->isUpButtonPressed())    m_joypRegister &= ~JOYP_BIT_UP_OR_SELECT;
-                if (m_joypadPtr->isLeftButtonPressed())  m_joypRegister &= ~JOYP_BIT_LEFT_OR_BTN_B;
-                if (m_joypadPtr->isRightButtonPressed()) m_joypRegister &= ~JOYP_BIT_RIGHT_OR_BTN_A;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::Down))  m_joypRegister &= ~JOYP_BIT_DOWN_OR_START;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::Up))    m_joypRegister &= ~JOYP_BIT_UP_OR_SELECT;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::Left))  m_joypRegister &= ~JOYP_BIT_LEFT_OR_BTN_B;
+                if (m_joypadPtr->isButtonPressed(Joypad::Button::Right)) m_joypRegister &= ~JOYP_BIT_RIGHT_OR_BTN_A;
             }
-
-            // If a button is pressed
-            if ((m_joypRegister & JOYP_MASK_ALL_BTNS) != JOYP_MASK_ALL_BTNS)
-                // Call the joypad interrupt
-                set(REGISTER_ADDR_IF, get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_JOYPAD, false);
             return m_joypRegister;
         }
         case REGISTER_ADDR_SB:
