@@ -8,15 +8,6 @@
 // Ignore Background Palette Register
 //#define PPU_IGNORE_BPR
 
-#define LCDC_BIT_BG_WIN_ENABLE         (1 << 0)
-#define LCDC_BIT_OBJ_ENABLE            (1 << 1)
-#define LCDC_BIT_OBJ_SIZE              (1 << 2)
-#define LCDC_BIT_BG_TILE_MAP_AREA      (1 << 3)
-#define LCDC_BIT_BG_WIN_TILE_DATA_AREA (1 << 4)
-#define LCDC_BIT_WIN_ENABLE            (1 << 5)
-#define LCDC_BIT_WIN_TILE_MAP_AREA     (1 << 6)
-#define LCDC_BIT_LCD_PPU_ENABLE        (1 << 7)
-
 PPU::PPU(SDL_Renderer *renderer, Memory *memory)
     :
     m_rendererPtr{renderer},
@@ -32,9 +23,13 @@ PPU::PPU(SDL_Renderer *renderer, Memory *memory)
     if (!m_texture) Logger::fatal("Failed to create texture for PPU: " + std::string(SDL_GetError()));
 }
 
-uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI, TileDataSelector bgDataSelector) const
+uint8_t PPU::getPixelColorIndex(uint8_t tileI, int tilePixelI, TileDataSelector bgDataSelector) const
 {
-    uint16_t pixelDataAddress{(uint16_t)((bgDataSelector == TileDataSelector::Lower ? TILE_DATA_L_START : TILE_DATA_H_START)+tileI*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
+    const uint16_t dataAddrBase = uint16_t((bgDataSelector == TileDataSelector::Unsigned
+                ? TILE_DATA_UNSIGNED_START : TILE_DATA_SIGNED_START));
+    // This should be ok
+    const int tileI_ = (bgDataSelector == TileDataSelector::Unsigned ? tileI : (int8_t)tileI);
+    const uint16_t pixelDataAddress{(uint16_t)(dataAddrBase+tileI_*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
     uint8_t colorI{
             (uint8_t)
             (((m_memoryPtr->get(pixelDataAddress+0, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE-1))) ? 2 : 0) |
@@ -44,23 +39,22 @@ uint8_t PPU::getPixelColorIndex(int tileI, int tilePixelI, TileDataSelector bgDa
 }
 
 void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t *bOut)
+SDL_Color PPU::mapIndexToColor(uint8_t index)
 {
     // Get the value of the Background Palette Register
     const uint8_t bgpValue{m_memoryPtr->get(REGISTER_ADDR_BGP, false)};
 
-    static constexpr uint8_t palette[][3]{
-            {0x82, 0x78, 0x0d},
-            {0x3a, 0x53, 0x36},
-            {0x5c, 0x71, 0x22},
-            {0x1c, 0x36, 0x28}
+    static constexpr SDL_Color palette[]{
+            SDL_Color{0x82, 0x78, 0x0d, 0xff},
+            SDL_Color{0x3a, 0x53, 0x36, 0xff},
+            SDL_Color{0x5c, 0x71, 0x22, 0xff},
+            SDL_Color{0x1c, 0x36, 0x28, 0xff},
     };
 
     // Get which color is mapped to the color index
-    auto paletteEntryI{(bgpValue & (3 << index*2)) >> index*2};
+    const int paletteEntryI{(bgpValue & (3 << index*2)) >> index*2};
 
-    *rOut = palette[paletteEntryI][0];
-    *gOut = palette[paletteEntryI][1];
-    *bOut = palette[paletteEntryI][2];
+    return palette[paletteEntryI];
 }
 
 void PPU::updateBackground()
@@ -97,7 +91,8 @@ void PPU::updateBackground()
 
     if (lyRegValue < 144) // Not V-BLANK
     {
-        const TileDataSelector tileDataSelector{(lcdcRegValue & LCDC_BIT_BG_WIN_TILE_DATA_AREA) ? TileDataSelector::Lower : TileDataSelector::Higher};
+        const TileDataSelector tileDataSelector{(lcdcRegValue & LCDC_BIT_BG_WIN_TILE_DATA_AREA)
+            ? TileDataSelector::Unsigned : TileDataSelector::Signed};
         const uint16_t bgTileMapStart{(lcdcRegValue & LCDC_BIT_BG_TILE_MAP_AREA) ? (uint16_t)TILE_MAP_H_START : (uint16_t)TILE_MAP_L_START};
 
         //if (tileDataSelector == TileDataSelector::Higher)
@@ -124,14 +119,12 @@ void PPU::updateBackground()
                     pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE))
                         continue;
 
-                uint8_t r, g, b;
-
                 const uint8_t colorI{getPixelColorIndex(
                         m_memoryPtr->get(bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI, false), // Tile index
                         lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
                         tileDataSelector)}; // Tile data selector
 
-#ifdef PPU_IGNORE_BPR
+#ifdef PPU_IGNORE_BPR // FIXME
                 static constexpr uint8_t shades[]{
                     255, // 0 - white
                     200, // 1 - light gray
@@ -141,14 +134,10 @@ void PPU::updateBackground()
 
                 r = shades[colorI]; g = shades[colorI]; b = shades[colorI];
 #else
-                getColorFromIndex(colorI, &r, &g, &b);
+                SDL_Color color = mapIndexToColor(colorI);
 #endif
-
-                SDL_SetRenderDrawColor(m_rendererPtr, r, g, b, 255);
-
-                    SDL_RenderDrawPoint(m_rendererPtr,
-                        pixelX,
-                        pixelY);
+                SDL_SetRenderDrawColor(m_rendererPtr, color.r, color.g, color.b, color.a);
+                SDL_RenderDrawPoint(m_rendererPtr, pixelX, pixelY);
             }
         }
     }
