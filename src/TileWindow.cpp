@@ -80,6 +80,14 @@ void TileWindow::updateTiles(PPU *ppu, uint8_t lcdc)
     if ((lcdc & LCDC_BIT_BG_WIN_TILE_DATA_AREA) == 0)
         activeAreaRect.y = 128/TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE;
     SDL_RenderFillRect(m_renderer, &activeAreaRect);
+
+#ifdef TILE_WIN_DRAW_TILE_SEP
+    SDL_SetRenderDrawColor(m_renderer, 255, 0, 255, 80);
+    for (int x{}; x < TILE_WIN_TILES_PER_ROW; ++x)
+        SDL_RenderDrawLine(m_renderer, x*TILE_SIZE*TILE_WIN_SCALE, 0, x*TILE_SIZE*TILE_WIN_SCALE, TILE_WIN_H);
+    for (int y{}; y < 128*3; ++y)
+        SDL_RenderDrawLine(m_renderer, 0, y*TILE_SIZE*TILE_WIN_SCALE, TILE_WIN_H, y*TILE_SIZE*TILE_WIN_SCALE);
+#endif // TILE_WIN_DRAW_TILE_SEP
 }
 
 TileWindow::~TileWindow()
