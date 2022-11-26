@@ -65,29 +65,14 @@ private:
 
     void waitForSpaceKey();
 
-    inline void toggleDebugWindow()
-    {
-        m_isDebugWindowShown = !m_isDebugWindowShown;
+    void updateDebugWindow();
+    void toggleDebugWindow();
 
-        if (m_isDebugWindowShown) m_debugWindow->show();
-        else m_debugWindow->hide();
-    }
+    void updateTileWindow();
+    void toggleTileWindow();
 
-    inline void toggleTileWindow()
-    {
-        m_isTileWindowShown = !m_isTileWindowShown;
-
-        if (m_isTileWindowShown) m_tileWindow->show();
-        else m_tileWindow->hide();
-    }
-
-    inline void toggleSerialViewer()
-    {
-        m_isSerialViewerShown = !m_isSerialViewerShown;
-
-        if (m_isSerialViewerShown) m_serialViewer->show();
-        else m_serialViewer->hide();
-    }
+    void updateSerialViewer();
+    void toggleSerialViewer();
 
 public:
     GBEmulator(const std::string &romFilename);

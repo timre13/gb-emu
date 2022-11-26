@@ -244,28 +244,6 @@ void GBEmulator::emulateCycle()
 #endif
 
 
-        if (m_isDebugWindowShown)
-        {
-            m_debugWindow->clearRenderer();
-            m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
-            m_debugWindow->updateOpcodeValue(m_cpu);
-            m_debugWindow->updateMemoryValues(m_memory);
-            m_debugWindow->updateRenderer();
-        }
-
-        if (m_isTileWindowShown)
-        {
-            m_tileWindow->updateTiles(m_ppu);
-            m_tileWindow->updateRenderer();
-        }
-
-        if (m_isSerialViewerShown)
-        {
-            m_serialViewer->clearRenderer();
-            m_serialViewer->updateText();
-            m_serialViewer->updateRenderer();
-        }
-
 #ifdef DEBUG_MODE
         waitForSpaceKey();
 #endif // DEBUG_MODE
@@ -310,6 +288,10 @@ void GBEmulator::emulateCycle()
 
             if (m_memory->get(REGISTER_ADDR_LY) == 144) // Start of v-blank
                 SDL_RenderPresent(m_renderer);
+
+                updateDebugWindow();
+                updateTileWindow();
+                updateSerialViewer();
         }
 
         m_cpu->enableImaIfNeeded();
@@ -334,6 +316,73 @@ void GBEmulator::waitForSpaceKey()
 
         SDL_Delay(16);
     }
+}
+
+void GBEmulator::updateDebugWindow()
+{
+    if (m_isDebugWindowShown)
+    {
+        m_debugWindow->clearRenderer();
+        m_debugWindow->updateRegisterValues(m_cpu->getRegisters());
+        m_debugWindow->updateOpcodeValue(m_cpu);
+        m_debugWindow->updateMemoryValues(m_memory);
+        m_debugWindow->updateRenderer();
+    }
+}
+
+void GBEmulator::toggleDebugWindow()
+{
+    m_isDebugWindowShown = !m_isDebugWindowShown;
+
+    if (m_isDebugWindowShown) m_debugWindow->show();
+    else m_debugWindow->hide();
+
+    updateDebugWindow();
+
+    SDL_RaiseWindow(m_window);
+}
+
+void GBEmulator::updateTileWindow()
+{
+    if (m_isTileWindowShown)
+    {
+        m_tileWindow->updateTiles(m_ppu, m_memory->get(REGISTER_ADDR_LCDC, false));
+        m_tileWindow->updateRenderer();
+    }
+}
+
+void GBEmulator::toggleTileWindow()
+{
+    m_isTileWindowShown = !m_isTileWindowShown;
+
+    if (m_isTileWindowShown) m_tileWindow->show();
+    else m_tileWindow->hide();
+
+    updateTileWindow();
+
+    SDL_RaiseWindow(m_window);
+}
+
+void GBEmulator::updateSerialViewer()
+{
+    if (m_isSerialViewerShown)
+    {
+        m_serialViewer->clearRenderer();
+        m_serialViewer->updateText();
+        m_serialViewer->updateRenderer();
+    }
+}
+
+void GBEmulator::toggleSerialViewer()
+{
+    m_isSerialViewerShown = !m_isSerialViewerShown;
+
+    if (m_isSerialViewerShown) m_serialViewer->show();
+    else m_serialViewer->hide();
+
+    updateSerialViewer();
+
+    SDL_RaiseWindow(m_window);
 }
 
 void GBEmulator::deinit()
