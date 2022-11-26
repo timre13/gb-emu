@@ -51,6 +51,7 @@ public:
     PPU(SDL_Renderer *renderer, Memory *memory);
 
     uint8_t getPixelColorIndex(uint8_t tileI, int tilePixelI, TileDataSelector bgDataSelector) const;
+    uint8_t getPixelColorIndexFlat(uint tileI, int tilePixelI) const;
     SDL_Color mapIndexToColor(uint8_t index);
 
     void updateBackground();

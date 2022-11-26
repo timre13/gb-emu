@@ -38,7 +38,17 @@ uint8_t PPU::getPixelColorIndex(uint8_t tileI, int tilePixelI, TileDataSelector 
     return colorI;
 }
 
-void PPU::getColorFromIndex(uint8_t index, uint8_t *rOut, uint8_t *gOut, uint8_t *bOut)
+uint8_t PPU::getPixelColorIndexFlat(uint tileI, int tilePixelI) const
+{
+    const uint16_t pixelDataAddress{(uint16_t)(TILE_DATA_UNSIGNED_START+tileI*TILE_SIZE*2+tilePixelI/TILE_SIZE*2)};
+    uint8_t colorI{
+            (uint8_t)
+            (((m_memoryPtr->get(pixelDataAddress+0, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE-1))) ? 2 : 0) |
+             ((m_memoryPtr->get(pixelDataAddress+1, false) & (1 << (TILE_SIZE-tilePixelI%TILE_SIZE-1))) ? 1 : 0))};
+
+    return colorI;
+}
+
 SDL_Color PPU::mapIndexToColor(uint8_t index)
 {
     // Get the value of the Background Palette Register
