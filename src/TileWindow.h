@@ -31,7 +31,7 @@ public:
         SDL_RenderPresent(m_renderer);
     }
 
-    void updateTiles(PPU *ppu);
+    void updateTiles(PPU *ppu, uint8_t lcdc);
 
     ~TileWindow();
 };

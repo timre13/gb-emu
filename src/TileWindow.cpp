@@ -20,11 +20,13 @@ TileWindow::TileWindow(int x, int y)
 
     m_renderer = SDL_CreateRenderer(m_window, -1, 0);
     if (!m_renderer) Logger::fatal("Failed to create renderer for Tile Window");
+    SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 
     SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
     SDL_RenderClear(m_renderer);
 }
 
+void TileWindow::updateTiles(PPU *ppu, uint8_t lcdc)
 {
 #ifndef TILE_WIN_USE_PALETTE
     static constexpr uint8_t shades[]{
@@ -71,6 +73,13 @@ TileWindow::TileWindow(int x, int y)
                           TILE_WIN_W, (128/TILE_WIN_TILES_PER_ROW)*TILE_SIZE*TILE_WIN_SCALE);
     SDL_RenderDrawLine(m_renderer, 0, (128/TILE_WIN_TILES_PER_ROW)*TILE_SIZE*TILE_WIN_SCALE*2,
                           TILE_WIN_W, (128/TILE_WIN_TILES_PER_ROW)*TILE_SIZE*TILE_WIN_SCALE*2);
+
+    // Highlight the active blocks
+    SDL_SetRenderDrawColor(m_renderer, 0, 255, 0, 30);
+    SDL_Rect activeAreaRect{0, 0, TILE_WIN_W, 128*2/TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE};
+    if ((lcdc & LCDC_BIT_BG_WIN_TILE_DATA_AREA) == 0)
+        activeAreaRect.y = 128/TILE_WIN_TILES_PER_ROW*TILE_SIZE*TILE_WIN_SCALE;
+    SDL_RenderFillRect(m_renderer, &activeAreaRect);
 }
 
 TileWindow::~TileWindow()
