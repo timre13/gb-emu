@@ -340,6 +340,7 @@ int CPU::emulateCurrentOpcode()
 
 int CPU::emulateCurrentPrefixedOpcode()
 {
+    m_wasJump = false;
     m_isPrefixedOpcode = false;
 
     switch (m_currentOpcode >> 24)
