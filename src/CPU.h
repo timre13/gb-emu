@@ -584,7 +584,7 @@ private:
     // ----
     inline int ret()
     {
-        jpToAddress(pop16());
+        jpToAddress(_pop16());
 
         return 4;
     }
@@ -602,43 +602,39 @@ private:
         return 2;
     }
 
-    // ----
-    inline u8 pop()
+    inline u16 _pop16()
     {
-        auto ret{m_memoryPtr->get(m_registers->getSP())};
-        m_registers->incrementSP();
-        return ret;
-    }
-
-    // ----
-    inline u16 pop16()
-    {
-        auto ret{m_memoryPtr->get16(m_registers->getSP())};
+        const u16 val = m_memoryPtr->get16(m_registers->getSP());
         m_registers->incrementSP(2);
-        return ret;
+        return val;
     }
 
     // ----
-    inline int push16(u16 val)
+    inline int popIntoReg16(r16 reg)
+    {
+        m_registers->set16(reg, _pop16());
+        return 3;
+    }
+
+    // ----
+    inline void _push16(u16 val)
     {
         m_registers->decrementSP(2);
         m_memoryPtr->set16(m_registers->getSP(), val);
-
-        return -1;
     }
 
     // ----
     inline int pushRegister16(r16 reg)
     {
-        push16(m_registers->get16(reg));
+        _push16(m_registers->get16(reg));
 
-        return -1;
+        return 4;
     }
 
     // ----
     inline int call(u16 addr)
     {
-        push16(m_registers->getPC()+m_opcodeSize);
+        _push16(m_registers->getPC()+m_opcodeSize);
         jpToAddress(addr);
 
         return 6;
@@ -1075,7 +1071,7 @@ private:
     inline int i_0xbe()        { return cpARegAndValue(m_memoryPtr->get(m_registers->getHL())); }
     inline int i_0xbf()        { return cpARegAndRegister8F(r8::A); }
     inline int i_0xc0()        { return retIf(cc::NZ); }
-    inline int i_0xc1()        { return pop(); }
+    inline int i_0xc1()        { return popIntoReg16(r16::BC); }
     inline int i_0xc2(u16 x)   { return jpIf(cc::NZ, x); }
     inline int i_0xc3(u16 x)   { return jpToAddress(x); }
     inline int i_0xc4(u16 x)   { return callIf(cc::NZ, x); }
@@ -1091,7 +1087,7 @@ private:
     inline int i_0xce(u8 x)    { return addValueAndCarryFlagToARegF(x); }
     inline int i_0xcf()        { return callVector(JUMP_VECTOR_08); }
     inline int i_0xd0()        { return retIf(cc::NC); }
-    inline int i_0xd1()        { m_registers->set16(r16::DE, pop16()); return 3; }
+    inline int i_0xd1()        { return popIntoReg16(r16::DE); }
     inline int i_0xd2(u16 x)   { return jpIf(cc::NC, x); }
     inline int i_0xd3()        { ILLEGAL_INSTRUCTION(0xd3); return 0; }
     inline int i_0xd4(u16 x)   { return callIf(cc::NC, x); }
@@ -1107,7 +1103,7 @@ private:
     inline int i_0xde(u8 x)    { return subValueAndCarryFlagFromARegF(x); }
     inline int i_0xdf()        { return callVector(JUMP_VECTOR_18); }
     inline int i_0xe0(u8 x)    { setValueAtAddressToAReg(0xff00+x); return 3; }
-    inline int i_0xe1()        { m_registers->setHL(pop16()); return 3; }
+    inline int i_0xe1()        { return popIntoReg16(r16::HL); }
     inline int i_0xe2()        { setValueAtAddressToAReg(0xff00+m_registers->getC()); return 2; }
     inline int i_0xe3()        { ILLEGAL_INSTRUCTION(0xe3); return 0; }
     inline int i_0xe4()        { ILLEGAL_INSTRUCTION(0xe4); return 0;}
@@ -1123,7 +1119,7 @@ private:
     inline int i_0xee(u8 x)    { return xorValueAndARegF(x); }
     inline int i_0xef()        { return callVector(JUMP_VECTOR_28); }
     inline int i_0xf0(u8 x)    { setRegister8(r8::A, m_memoryPtr->get(0xff00+x)); return 3; }
-    inline int i_0xf1()        { m_registers->setAF(pop16()); return 3; }
+    inline int i_0xf1()        { return popIntoReg16(r16::AF); }
     inline int i_0xf2()        { setRegister8(r8::A, m_memoryPtr->get(0xff00+m_registers->getC())); return 2; }
     inline int i_0xf3()        { return disableInterrupts(); }
     inline int i_0xf4()        { ILLEGAL_INSTRUCTION(0xf4); return 0; }
