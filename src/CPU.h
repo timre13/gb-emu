@@ -13,12 +13,6 @@
 
 using opcode_t = uint32_t;
 
-#define INTERRUPT_HANDLER_VBLANK   0x40
-#define INTERRUPT_HANDLER_LCDCSTAT 0x48
-#define INTERRUPT_HANDLER_TIMER    0x50
-#define INTERRUPT_HANDLER_SERIAL   0x58
-#define INTERRUPT_HANDLER_JOYPAD   0x60
-
 #define JUMP_VECTOR_00 0x00
 #define JUMP_VECTOR_08 0x08
 #define JUMP_VECTOR_10 0x10
@@ -46,14 +40,6 @@ private:
     bool            m_wasEiInstruction{};
 
     bool            m_isPrefixedOpcode{};
-
-    static constexpr uint16_t m_interruptHandlers[]{
-        INTERRUPT_HANDLER_VBLANK,
-        INTERRUPT_HANDLER_LCDCSTAT,
-        INTERRUPT_HANDLER_TIMER,
-        INTERRUPT_HANDLER_SERIAL,
-        INTERRUPT_HANDLER_JOYPAD,
-    };
 
 public:
     CPU(Memory *memory);
@@ -87,7 +73,7 @@ public:
         }
     }
 
-    void handleInterrupts();
+    bool handleInterrupts();
 
 private:
     //--------- instructions --------------

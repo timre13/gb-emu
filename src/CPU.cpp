@@ -39,7 +39,7 @@ void CPU::fetchOpcode()
     m_opcodeSize = opcodeSize;
 }
 
-void CPU::handleInterrupts()
+bool CPU::handleInterrupts()
 {
     for (int i{}; i < 5; ++i)
     {
@@ -52,9 +52,9 @@ void CPU::handleInterrupts()
         uint8_t ifValue{m_memoryPtr->get(REGISTER_ADDR_IF, false)};
 
         // If the interrupt is enabled and is requested
-        if (ieValue & (1 << i) && ifValue & (1 << i))
+        if (ieValue & ifValue & (1 << i))
         {
-            Logger::info("Handling interrupt: "+toHexStr(m_interruptHandlers[i]));
+            //Logger::info("Handling interrupt: "+toHexStr(m_interruptHandlers[i]));
 
             m_registers->unsetIme();
 
@@ -65,9 +65,11 @@ void CPU::handleInterrupts()
             m_memoryPtr->set(REGISTER_ADDR_IF, ifValue, false);
 
             // Call the handler
-            call(m_interruptHandlers[i]);
+            call(0x40 + i*8);
+            return true;
         }
     }
+    return false;
 }
 
 int CPU::emulateCurrentOpcode()
