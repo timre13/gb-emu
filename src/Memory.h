@@ -68,6 +68,21 @@ struct CartridgeInfo;
 #define INTERRUPT_MASK_SERIAL   0b00001000
 #define INTERRUPT_MASK_JOYPAD   0b00010000
 
+#define STAT_MASK_PPU_MODE          (3)
+// H-Blank
+#define STAT_PPU_MODE_0_VAL         (0)
+// V-Blank
+#define STAT_PPU_MODE_1_VAL         (1)
+// OAM Scan
+#define STAT_PPU_MODE_2_VAL         (2)
+// Drawing
+#define STAT_PPU_MODE_3_VAL         (3)
+#define STAT_BIT_COINCIDENCE        (1 << 2)
+#define STAT_BIT_MODE_0_INT_EN      (1 << 3)
+#define STAT_BIT_MODE_1_INT_EN      (1 << 4)
+#define STAT_BIT_MODE_2_INT_EN      (1 << 5)
+#define STAT_BIT_LYC_EQ_LY_INT_EN   (1 << 6)
+
 class Memory final
 {
 private:

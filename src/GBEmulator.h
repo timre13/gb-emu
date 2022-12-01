@@ -28,6 +28,8 @@ private:
     bool            m_isTileWindowShown{};
     bool            m_isSerialViewerShown{};
 
+    unsigned long   m_cyclesDone{};
+
     SDL_Window      *m_window{nullptr};
     uint32_t        m_windowId{};
     SDL_Renderer    *m_renderer{nullptr};
@@ -47,8 +49,6 @@ private:
     SerialViewer    *m_serialViewer{nullptr};
 
     std::string     m_romFilename;
-
-    int             m_clockCyclesUntilPPUActivity{456};
 
     void initGUI();
     void initDebugWindow();

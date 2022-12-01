@@ -123,7 +123,7 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
         case REGISTER_ADDR_LCDC:
             return m_lcdControlRegister;
         case REGISTER_ADDR_LCDSTAT:
-            return m_lcdStatusRegister;
+            return m_lcdStatusRegister | (1 << 7);
         case REGISTER_ADDR_SCY:
             return m_scyRegister;
         case REGISTER_ADDR_SCX:

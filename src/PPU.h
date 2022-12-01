@@ -17,7 +17,7 @@
 
 #define TILE_MAP_L_START 0x9800
 #define TILE_MAP_H_START 0x9c00
-#define TILE_MAP_TILES_PER_ROW 64
+#define TILE_MAP_TILES_PER_ROW 32
 #define TILE_MAP_TILES_PER_COL 64
 #define TILE_MAP_DISPLAYED_TILES_PER_ROW 20
 #define TILE_MAP_DISPLAYED_TILES_PER_COL 18
@@ -39,6 +39,9 @@ private:
 
     SDL_Texture     *m_texture{};
 
+    int m_xPos{};
+    int m_scanlineElapsed{};
+
 public:
     enum class TileDataSelector
     {
@@ -53,6 +56,8 @@ public:
     uint8_t getPixelColorIndex(uint8_t tileI, int tilePixelI, TileDataSelector bgDataSelector) const;
     uint8_t getPixelColorIndexFlat(uint tileI, int tilePixelI) const;
     SDL_Color mapIndexToColor(uint8_t index);
+
+    inline bool isScanlineStart() const { return m_scanlineElapsed == 0; }
 
     void updateBackground();
 };

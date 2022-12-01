@@ -252,16 +252,14 @@ void GBEmulator::emulateCycle()
         SDL_Delay(DELAY_BETWEEN_CYCLES_MS);
 #endif
 
-        // TODO: Cycle accuracy
         int elapsedMCycles{};
         if (m_cpu->isPrefixedOpcode())
             elapsedMCycles = m_cpu->emulateCurrentPrefixedOpcode();
         else
             elapsedMCycles = m_cpu->emulateCurrentOpcode();
-        (void)elapsedMCycles;
 
-        // TODO: Cycle accuracy
-        m_timer->tick();
+        for (int i{}; i < elapsedMCycles*4; ++i)
+            m_timer->tick();
 
         // If the timer interrupt is requested
         if (m_timer->isInterruptRequested())
@@ -271,31 +269,42 @@ void GBEmulator::emulateCycle()
             m_timer->resetInterrupt();
         }
 
-        // TODO: Cycle accuracy
-        --m_clockCyclesUntilPPUActivity;
-        if (m_clockCyclesUntilPPUActivity <= 1)
         if (m_joypad->isInterruptRequested())
         {
-            // 70224 (V-blank happens every 70224 clocks) / 154 (LY reg max value + 1)
-            // = 456
-            m_clockCyclesUntilPPUActivity = 456;
-            updateGraphics();
             Logger::info("Setting joypad bit in IF");
             // Set the bit in IF
             m_memory->set(REGISTER_ADDR_IF, m_memory->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_JOYPAD, false);
             m_joypad->clearInterruptRequestedFlag();
         }
 
-            if (m_memory->get(REGISTER_ADDR_LY) == 144) // Start of v-blank
-                SDL_RenderPresent(m_renderer);
+        for (int i{}; i < elapsedMCycles*4; ++i)
+        {
+            updateGraphics();
 
-                updateDebugWindow();
+            if (m_memory->get(REGISTER_ADDR_LY) == 144 && m_ppu->isScanlineStart()) // Start of v-blank
+            {
+                SDL_SetWindowTitle(m_window, (std::string("Game Boy Emulator - ")
+                            +m_cartridgeInfo->title+" - cycle "+std::to_string(m_cyclesDone)).c_str());
+                SDL_RenderPresent(m_renderer);
                 updateTileWindow();
                 updateSerialViewer();
+            }
         }
+
+        if (m_joypad->isInterruptRequested())
+        {
+            Logger::info("Setting joypad bit in IF");
+            // Set the bit in IF
+            m_memory->set(REGISTER_ADDR_IF, m_memory->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_JOYPAD, false);
+            m_joypad->clearInterruptRequestedFlag();
+        }
+
+        updateDebugWindow();
 
         m_cpu->enableImaIfNeeded();
         m_cpu->stepPC();
+
+        ++m_cyclesDone;
     }
 }
 

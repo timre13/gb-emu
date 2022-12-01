@@ -8,6 +8,20 @@
 // Ignore Background Palette Register
 //#define PPU_IGNORE_BPR
 
+#define PPU_SCANLINE_TCYCLES (456)
+// OAM Scan mode
+#define PPU_MODE_2_TCYCLES (80)
+// Drawing mode
+// This can vary, but let's not care about that for now
+#define PPU_MODE_3_TCYCLES (175)
+// H-Blank mode
+// This depends on the length of mode 3.
+// Tries to padd the duration of the scanline to 456 T-Cycles
+#define PPU_MODE_0_TCYCLES (PPU_SCANLINE_TCYCLES-PPU_MODE_3_TCYCLES)
+// V-Blank mode
+// There are 10 pseudo-scanlines at the end of a frame
+#define PPU_MODE_1_TCYCLES (10*PPU_SCANLINE_TCYCLES)
+
 PPU::PPU(SDL_Renderer *renderer, Memory *memory)
     :
     m_rendererPtr{renderer},
@@ -77,29 +91,7 @@ void PPU::updateBackground()
 
     const uint8_t lyRegValue{m_memoryPtr->get(REGISTER_ADDR_LY, false)};
 
-    if (lyRegValue == 144) // Start of V-BLANK
-    {
-        // Call the V-blank interrupt
-        m_memoryPtr->set(REGISTER_ADDR_IF, m_memoryPtr->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_VBLANK, false);
-
-        // The cleared color will be overwritten, but we should clear the
-        // renderer before modifying it as the SDL2 documentation says.
-        SDL_RenderClear(m_rendererPtr);
-
-        // Copy the texture to the renderer
-        SDL_Rect winRect{
-                0, 0,
-                TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE, TILE_MAP_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE};
-        if (SDL_RenderCopy(m_rendererPtr, m_texture, nullptr, &winRect))
-            Logger::fatal("Failed to copy PPU texture: " + std::string(SDL_GetError()));
-    }
-
-    if (lyRegValue > 153) // End of V-BLANK
-    {
-        m_memoryPtr->set(REGISTER_ADDR_LY, 0, false);
-    }
-
-    if (lyRegValue < 144) // Not V-BLANK
+    if (lyRegValue < 144) // A normal scanline
     {
         const TileDataSelector tileDataSelector{(lcdcRegValue & LCDC_BIT_BG_WIN_TILE_DATA_AREA)
             ? TileDataSelector::Unsigned : TileDataSelector::Signed};
@@ -108,51 +100,118 @@ void PPU::updateBackground()
         //if (tileDataSelector == TileDataSelector::Higher)
         //    Logger::warning("Unsigned tile data addressing is buggy (?)");
 
-        int8_t scrollX{(int8_t)m_memoryPtr->get(REGISTER_ADDR_SCX, false)};
-        int8_t scrollY{(int8_t)m_memoryPtr->get(REGISTER_ADDR_SCY, false)};
+        // TODO: Signed?
+        const uint8_t scrollX = /*(int8_t)*/m_memoryPtr->get(REGISTER_ADDR_SCX, false);
+        const uint8_t scrollY = /*(int8_t)*/m_memoryPtr->get(REGISTER_ADDR_SCY, false);
 
         // Only render if visible (does this work well?)
-        if (lyRegValue > scrollY + TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE)
-            return;
+        //if (lyRegValue > scrollY + TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE)
+        //    return;
 
         SDL_SetRenderTarget(m_rendererPtr, m_texture);
 
-        // Index of tile in current row (only render the visible part)
-        for (int rowTileI{scrollX/TILE_SIZE}; rowTileI < TILE_MAP_DISPLAYED_TILES_PER_ROW+scrollX/TILE_SIZE; ++rowTileI)
+        if (m_scanlineElapsed < PPU_MODE_2_TCYCLES) // The PPU is in mode 2
         {
-            // Index of pixel in the current row of the current tile
-            for (int tileRowPixelI{}; tileRowPixelI < TILE_SIZE; ++tileRowPixelI)
+            // Set the mode in STAT to 2
+            m_memoryPtr->set(REGISTER_ADDR_LCDSTAT,
+                    (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_2_VAL,
+                    false);
+
+            // TODO: OAM scan, sprites are not supported yet
+        }
+        else if (m_scanlineElapsed < PPU_MODE_2_TCYCLES+PPU_MODE_3_TCYCLES) // The PPU is in mode 3
+        {
+            // Set the mode in STAT to 3
+            m_memoryPtr->set(REGISTER_ADDR_LCDSTAT,
+                    (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_3_VAL,
+                    false);
+
+            // TODO: Drawing
+
+#if 0
+            // Index of tile in current row (only render the visible part)
+            for (int rowTileI{scrollX/TILE_SIZE}; rowTileI < TILE_MAP_DISPLAYED_TILES_PER_ROW+scrollX/TILE_SIZE; ++rowTileI)
             {
-                int pixelX{rowTileI*TILE_SIZE+tileRowPixelI-scrollX};
-                int pixelY{lyRegValue-scrollY};
-                if (!(pixelX >= 0 && pixelX < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE &&
-                    pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE))
-                        continue;
+                // Index of pixel in the current row of the current tile
+                for (int tileRowPixelI{}; tileRowPixelI < TILE_SIZE; ++tileRowPixelI)
+                {
+                    int pixelX{rowTileI*TILE_SIZE+tileRowPixelI-scrollX};
+                    int pixelY{lyRegValue-scrollY};
+                    if (!(pixelX >= 0 && pixelX < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE &&
+                        pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE))
+                            continue;
 
-                const uint8_t colorI{getPixelColorIndex(
-                        m_memoryPtr->get(bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI, false), // Tile index
-                        lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
-                        tileDataSelector)}; // Tile data selector
+                    const uint8_t colorI{getPixelColorIndex(
+                            m_memoryPtr->get(bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI, false), // Tile index
+                            lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
+                            tileDataSelector)}; // Tile data selector
 
-#ifdef PPU_IGNORE_BPR // FIXME
-                static constexpr uint8_t shades[]{
-                    255, // 0 - white
-                    200, // 1 - light gray
-                    100, // 2 - dark gray
-                    0    // 3 - black
-                };
-
-                r = shades[colorI]; g = shades[colorI]; b = shades[colorI];
-#else
-                SDL_Color color = mapIndexToColor(colorI);
+                    const SDL_Color color = mapIndexToColor(colorI);
+                    SDL_SetRenderDrawColor(m_rendererPtr, color.r, color.g, color.b, color.a);
+                    SDL_RenderDrawPoint(m_rendererPtr, pixelX, pixelY);
+                }
+            }
 #endif
-                SDL_SetRenderDrawColor(m_rendererPtr, color.r, color.g, color.b, color.a);
-                SDL_RenderDrawPoint(m_rendererPtr, pixelX, pixelY);
+
+            for (int i{}; i < 8 && m_xPos < 160; ++i)
+            {
+                const int screenx = m_xPos-scrollX;
+                const int screeny = lyRegValue-scrollY;
+
+                if (screenx >= 0 && screenx < 160 && screeny >= 0 && screeny < 144) // Only render if visible
+                {
+                    const uint8_t tileI = m_memoryPtr->get(
+                            bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+m_xPos/8,
+                            false);
+                    const uint8_t colorI = getPixelColorIndex(tileI, m_xPos%8+lyRegValue%8*8, tileDataSelector);
+                    const SDL_Color color = mapIndexToColor(colorI);
+                    SDL_SetRenderDrawColor(m_rendererPtr, color.r, color.g, color.b, color.a);
+                    SDL_RenderDrawPoint(m_rendererPtr, screenx, screeny);
+                }
+
+                ++m_xPos;
             }
         }
+        else if (m_scanlineElapsed
+                < PPU_MODE_2_TCYCLES+PPU_MODE_3_TCYCLES+PPU_MODE_0_TCYCLES) // The PPU is in mode 0
+        {
+            // Set the mode in STAT to 0
+            m_memoryPtr->set(REGISTER_ADDR_LCDSTAT,
+                    (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_0_VAL,
+                    false);
+
+            // Do nothing
+        }
+
+        SDL_SetRenderTarget(m_rendererPtr, nullptr);
+    }
+    else if (lyRegValue == 144 && m_scanlineElapsed == 0) // First scanline of of V-BLANK
+    {
+        // Call the V-blank interrupt
+        m_memoryPtr->set(REGISTER_ADDR_IF, m_memoryPtr->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_VBLANK, false);
+
+        // Set the mode in STAT to 1
+        m_memoryPtr->set(REGISTER_ADDR_LCDSTAT,
+                (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_1_VAL, false);
+
+        // Copy the texture to the renderer
+        SDL_Rect winRect{
+                0, 0,
+                TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE, TILE_MAP_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE};
+        if (SDL_RenderCopy(m_rendererPtr, m_texture, nullptr, &winRect))
+            Logger::fatal("Failed to copy PPU texture: " + std::string(SDL_GetError()));
+    }
+    else if (lyRegValue > 153 && m_scanlineElapsed == 0) // End of V-BLANK
+    {
+        m_memoryPtr->set(REGISTER_ADDR_LY, 0, false);
+        //Logger::info("V-Blank");
     }
 
-    SDL_SetRenderTarget(m_rendererPtr, nullptr);
-
-    m_memoryPtr->set(REGISTER_ADDR_LY, lyRegValue+1, false);
+    ++m_scanlineElapsed;
+    if (m_scanlineElapsed == PPU_SCANLINE_TCYCLES) // If this is the end of a scanline
+    {
+        m_scanlineElapsed = 0;
+        m_memoryPtr->set(REGISTER_ADDR_LY, lyRegValue+1, false);
+        m_xPos = 0;
+    }
 }
