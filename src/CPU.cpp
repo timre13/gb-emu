@@ -340,7 +340,7 @@ int CPU::emulateCurrentPrefixedOpcode()
 {
     m_isPrefixedOpcode = false;
 
-    switch (m_currentOpcode)
+    switch (m_currentOpcode >> 24)
     {
     case 0x00: return i_pref_0x00();
     case 0x01: return i_pref_0x01();
