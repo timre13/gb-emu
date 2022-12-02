@@ -126,33 +126,6 @@ void PPU::updateBackground()
                     (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_3_VAL,
                     false);
 
-            // TODO: Drawing
-
-#if 0
-            // Index of tile in current row (only render the visible part)
-            for (int rowTileI{scrollX/TILE_SIZE}; rowTileI < TILE_MAP_DISPLAYED_TILES_PER_ROW+scrollX/TILE_SIZE; ++rowTileI)
-            {
-                // Index of pixel in the current row of the current tile
-                for (int tileRowPixelI{}; tileRowPixelI < TILE_SIZE; ++tileRowPixelI)
-                {
-                    int pixelX{rowTileI*TILE_SIZE+tileRowPixelI-scrollX};
-                    int pixelY{lyRegValue-scrollY};
-                    if (!(pixelX >= 0 && pixelX < TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE &&
-                        pixelY >= 0 && pixelY < TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE))
-                            continue;
-
-                    const uint8_t colorI{getPixelColorIndex(
-                            m_memoryPtr->get(bgTileMapStart+lyRegValue/TILE_SIZE*TILE_MAP_TILES_PER_ROW+rowTileI, false), // Tile index
-                            lyRegValue%TILE_SIZE*TILE_SIZE+tileRowPixelI, // Pixel index
-                            tileDataSelector)}; // Tile data selector
-
-                    const SDL_Color color = mapIndexToColor(colorI);
-                    SDL_SetRenderDrawColor(m_rendererPtr, color.r, color.g, color.b, color.a);
-                    SDL_RenderDrawPoint(m_rendererPtr, pixelX, pixelY);
-                }
-            }
-#endif
-
             for (int i{}; i < 8 && m_xPos < 160; ++i)
             {
                 const int screenx = m_xPos-scrollX;
