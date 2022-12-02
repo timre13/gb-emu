@@ -207,6 +207,23 @@ void PPU::updateBackground()
         //Logger::info("V-Blank");
     }
 
+    // TODO: Interrupts
+
+    {
+        const uint8_t lycVal = m_memoryPtr->get(REGISTER_ADDR_LYC, false);
+        const uint8_t statVal = m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false);
+        if (lycVal == lyRegValue)
+        {
+            // Set the coincidence flag
+            m_memoryPtr->set(REGISTER_ADDR_LCDSTAT, statVal | STAT_BIT_COINCIDENCE, false);
+        }
+        else
+        {
+            // Unset the coincidence flag
+            m_memoryPtr->set(REGISTER_ADDR_LCDSTAT, statVal & ~STAT_BIT_COINCIDENCE, false);
+        }
+    }
+
     ++m_scanlineElapsed;
     if (m_scanlineElapsed == PPU_SCANLINE_TCYCLES) // If this is the end of a scanline
     {
