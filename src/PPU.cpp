@@ -75,6 +75,7 @@ SDL_Color PPU::mapIndexToColor(uint8_t index)
             SDL_Color{0x1c, 0x36, 0x28, 0xff},
     };
 
+
     // Get which color is mapped to the color index
     const int paletteEntryI{(bgpValue & (3 << index*2)) >> index*2};
 
@@ -90,6 +91,15 @@ void PPU::updateBackground()
         return;
 
     const uint8_t lyRegValue{m_memoryPtr->get(REGISTER_ADDR_LY, false)};
+
+    /*
+     * Request STAT interrupt.
+     * This sets the STAT bit in IF.
+     */
+    auto reqStatInterrupt = [this](){
+        const uint8_t ifVal = m_memoryPtr->get(REGISTER_ADDR_IF, false);
+        m_memoryPtr->set(REGISTER_ADDR_IF, ifVal | INTERRUPT_MASK_LCDCSTAT, false);
+    };
 
     if (lyRegValue < 144) // A normal scanline
     {
@@ -116,6 +126,10 @@ void PPU::updateBackground()
             m_memoryPtr->set(REGISTER_ADDR_LCDSTAT,
                     (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_2_VAL,
                     false);
+
+            // If the mode 2 STAT interrupt is enabled, request it
+            if (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & STAT_BIT_MODE_2_INT_EN)
+                reqStatInterrupt();
 
             // TODO: OAM scan, sprites are not supported yet
         }
@@ -153,6 +167,10 @@ void PPU::updateBackground()
                     (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_0_VAL,
                     false);
 
+            // If the mode 0 STAT interrupt is enabled, request it
+            if (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & STAT_BIT_MODE_0_INT_EN)
+                reqStatInterrupt();
+
             // Do nothing
         }
 
@@ -160,12 +178,16 @@ void PPU::updateBackground()
     }
     else if (lyRegValue == 144 && m_scanlineElapsed == 0) // First scanline of of V-BLANK
     {
-        // Call the V-blank interrupt
-        m_memoryPtr->set(REGISTER_ADDR_IF, m_memoryPtr->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_VBLANK, false);
-
         // Set the mode in STAT to 1
         m_memoryPtr->set(REGISTER_ADDR_LCDSTAT,
                 (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~STAT_MASK_PPU_MODE) | STAT_PPU_MODE_1_VAL, false);
+
+        // Call the V-blank interrupt
+        m_memoryPtr->set(REGISTER_ADDR_IF, m_memoryPtr->get(REGISTER_ADDR_IF, false) | INTERRUPT_MASK_VBLANK, false);
+
+        // If the mode 1 STAT interrupt is enabled, request it
+        if (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & STAT_BIT_MODE_1_INT_EN)
+            reqStatInterrupt();
 
         // Copy the texture to the renderer
         SDL_Rect winRect{
@@ -189,6 +211,10 @@ void PPU::updateBackground()
         {
             // Set the coincidence flag
             m_memoryPtr->set(REGISTER_ADDR_LCDSTAT, statVal | STAT_BIT_COINCIDENCE, false);
+            if (statVal & STAT_BIT_LYC_EQ_LY_INT_EN) // If the LYC=LY STAT interrupt is enabled
+            {
+                reqStatInterrupt();
+            }
         }
         else
         {
