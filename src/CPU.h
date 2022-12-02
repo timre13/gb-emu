@@ -831,6 +831,23 @@ private:
 
         return 2;
     }
+
+    // 00HC
+    inline int setHlToValInMemRelToSp(i8 offs)
+    {
+        setRegister16(r16::HL, m_registers->getSP()+offs);
+        m_registers->unsetZeroFlag();
+        m_registers->unsetNegativeFlag();
+        if (wouldAddCarry16(m_registers->getSP(), offs))
+            m_registers->setCarryFlag();
+        else
+            m_registers->unsetCarryFlag();
+        if (wouldAddHalfCarry16(m_registers->getSP(), offs))
+            m_registers->setHalfCarryFlag();
+        else
+            m_registers->unsetHalfCarryFlag();
+        return 3;
+    }
     
     inline void ILLEGAL_INSTRUCTION(opcode_t opcode)
     {
@@ -1112,7 +1129,7 @@ private:
     inline int i_0xf5()        { return pushRegister16(r16::AF); }
     inline int i_0xf6(u8 x)    { return orValueAndARegF(x); }
     inline int i_0xf7()        { return callVector(JUMP_VECTOR_30); }
-    inline int i_0xf8(i8 x)    { setRegister16(r16::HL, m_registers->getSP()+x); return 3; } // TODO: Set flags
+    inline int i_0xf8(i8 x)    { return setHlToValInMemRelToSp(x); }
     inline int i_0xf9()        { m_registers->setSP(m_registers->getHL()); return 2; }
     inline int i_0xfa(u8 x)    { return setRegister8(r8::A, x); }
     inline int i_0xfb()        { m_wasEiInstruction = true; return 1; }
