@@ -38,6 +38,9 @@ private:
     Memory          *m_memoryPtr{nullptr};
 
     SDL_Texture     *m_texture{};
+    int             m_texPitch{};
+    Uint32          *m_texDataPtr{};
+    SDL_PixelFormat *m_texForm{};
 
     int m_xPos{};
     int m_scanlineElapsed{};

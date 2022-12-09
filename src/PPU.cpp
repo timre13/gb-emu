@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#define PPU_TEX_PIX_FORM SDL_PIXELFORMAT_RGBA32
+
 // Ignore Background Palette Register
 //#define PPU_IGNORE_BPR
 
@@ -28,13 +30,16 @@ PPU::PPU(SDL_Renderer *renderer, Memory *memory)
     m_memoryPtr{memory},
     m_texture{SDL_CreateTexture(
             m_rendererPtr,
-            SDL_PIXELFORMAT_RGB888,
-            SDL_TEXTUREACCESS_TARGET,
-            TILE_MAP_TILES_PER_ROW*TILE_SIZE,
-            TILE_MAP_TILES_PER_COL*TILE_SIZE
+            PPU_TEX_PIX_FORM,
+            SDL_TEXTUREACCESS_STREAMING,
+            TILE_MAP_DISPLAYED_TILES_PER_ROW*TILE_SIZE,
+            TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE
             )}
 {
     if (!m_texture) Logger::fatal("Failed to create texture for PPU: " + std::string(SDL_GetError()));
+    SDL_LockTexture(m_texture, nullptr, (void**)&m_texDataPtr, &m_texPitch);
+    m_texForm = SDL_AllocFormat(PPU_TEX_PIX_FORM);
+    // TODO: Deallocate
 }
 
 uint8_t PPU::getPixelColorIndex(uint8_t tileI, int tilePixelI, TileDataSelector bgDataSelector) const
@@ -75,6 +80,14 @@ SDL_Color PPU::mapIndexToColor(uint8_t index)
             SDL_Color{0x1c, 0x36, 0x28, 0xff},
     };
 
+    /*
+    static constexpr SDL_Color palette[]{
+            SDL_Color{255, 255, 255, 0xff},
+            SDL_Color{200, 200, 200, 0xff},
+            SDL_Color{100, 100, 100, 0xff},
+            SDL_Color{  0,   0,   0, 0xff},
+    };
+    */
 
     // Get which color is mapped to the color index
     const int paletteEntryI{(bgpValue & (3 << index*2)) >> index*2};
@@ -118,8 +131,6 @@ void PPU::updateBackground()
         //if (lyRegValue > scrollY + TILE_MAP_DISPLAYED_TILES_PER_COL*TILE_SIZE)
         //    return;
 
-        SDL_SetRenderTarget(m_rendererPtr, m_texture);
-
         if (m_scanlineElapsed < PPU_MODE_2_TCYCLES) // The PPU is in mode 2
         {
             // Set the mode in STAT to 2
@@ -152,8 +163,10 @@ void PPU::updateBackground()
                             false);
                     const uint8_t colorI = getPixelColorIndex(tileI, m_xPos%8+lyRegValue%8*8, tileDataSelector);
                     const SDL_Color color = mapIndexToColor(colorI);
-                    SDL_SetRenderDrawColor(m_rendererPtr, color.r, color.g, color.b, color.a);
-                    SDL_RenderDrawPoint(m_rendererPtr, screenx, screeny);
+                    assert(m_texDataPtr);
+                    
+                    const Uint32 mappedColor = SDL_MapRGBA(m_texForm, color.r, color.g, color.b, 255);
+                    m_texDataPtr[screeny*m_texPitch/m_texForm->BytesPerPixel+screenx] = mappedColor;
                 }
 
                 ++m_xPos;
@@ -173,8 +186,6 @@ void PPU::updateBackground()
 
             // Do nothing
         }
-
-        SDL_SetRenderTarget(m_rendererPtr, nullptr);
     }
     else if (lyRegValue == 144 && m_scanlineElapsed == 0) // First scanline of of V-BLANK
     {
@@ -189,20 +200,15 @@ void PPU::updateBackground()
         if (m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & STAT_BIT_MODE_1_INT_EN)
             reqStatInterrupt();
 
-        // Copy the texture to the renderer
-        SDL_Rect winRect{
-                0, 0,
-                TILE_MAP_TILES_PER_ROW*TILE_SIZE*PIXEL_SCALE, TILE_MAP_TILES_PER_COL*TILE_SIZE*PIXEL_SCALE};
-        if (SDL_RenderCopy(m_rendererPtr, m_texture, nullptr, &winRect))
-            Logger::fatal("Failed to copy PPU texture: " + std::string(SDL_GetError()));
+        SDL_UnlockTexture(m_texture);
+        SDL_RenderCopy(m_rendererPtr, m_texture, nullptr, nullptr);
+        SDL_LockTexture(m_texture, nullptr, (void**)&m_texDataPtr, &m_texPitch);
     }
     else if (lyRegValue > 153 && m_scanlineElapsed == 0) // End of V-BLANK
     {
         m_memoryPtr->set(REGISTER_ADDR_LY, 0, false);
         //Logger::info("V-Blank");
     }
-
-    // TODO: Interrupts
 
     {
         const uint8_t lycVal = m_memoryPtr->get(REGISTER_ADDR_LYC, false);
@@ -222,6 +228,11 @@ void PPU::updateBackground()
             m_memoryPtr->set(REGISTER_ADDR_LCDSTAT, statVal & ~STAT_BIT_COINCIDENCE, false);
         }
     }
+
+#if 0 // TESTING
+    m_memoryPtr->set(REGISTER_ADDR_LCDSTAT, m_memoryPtr->get(REGISTER_ADDR_LCDSTAT, false) & ~2, false);
+#endif
+
 
     ++m_scanlineElapsed;
     if (m_scanlineElapsed == PPU_SCANLINE_TCYCLES) // If this is the end of a scanline
