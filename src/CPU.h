@@ -507,8 +507,8 @@ private:
     // ----
     inline int relativeJump(i8 offset)
     {
-        // FIXME: Add 2?
-        jpToAddress(m_registers->getPC()+offset+2);
+        jpToAddress(m_registers->getPC()+offset);
+        m_wasJump = false;
 
         return 3;
     }
