@@ -134,6 +134,8 @@ void TextRenderer::renderText(const std::string &string)
         switch (charCode)
         {
         case ' ':
+            // Adjust cursor position to grid
+            m_cursX -= (m_cursX - TEXT_PADDING_PX)%getCharW();
             m_cursX += getCharW();
             continue;
 
@@ -147,6 +149,8 @@ void TextRenderer::renderText(const std::string &string)
             continue;
 
         case '\t':
+            // Adjust cursor position to grid
+            m_cursX -= (m_cursX - TEXT_PADDING_PX)%getCharW();
             m_cursX += getCharW()*4;
             break;
 
