@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-link_libraries(SDL2 SDL2_ttf)
+link_libraries(SDL2 SDL2_ttf fontconfig)
 include_directories(/usr/include/SDL2)
 
 set(CMAKE_CXX_FLAGS "\

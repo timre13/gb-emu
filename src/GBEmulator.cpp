@@ -6,6 +6,8 @@
 #include <SDL2/SDL_hints.h>
 #include <SDL2/SDL_ttf.h>
 
+#define FONT_NAME_OR_PATH "DejaVuSansMono"
+
 //#define DEBUG_MODE
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
 //#define LOG_OPCODE
@@ -94,7 +96,7 @@ void GBEmulator::initGUI()
             SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 #endif
 
-    m_fontLdr = new FontLoader{"/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"};
+    m_fontLdr = new FontLoader{FONT_NAME_OR_PATH};
 }
 
 void GBEmulator::initDebugWindow()

@@ -3,6 +3,7 @@
 #include "string_formatting.h"
 
 #include <SDL2/SDL_ttf.h>
+#include <fontconfig/fontconfig.h>
 
 #include <cassert>
 #include <string>
@@ -18,11 +19,55 @@ static SDL_Surface* loadGlyphSurface(TTF_Font* font, Uint16 charCode)
     return surf;
 }
 
+static std::string findFontByName(const std::string& fontName)
+{
+    std::string result;
+
+    FcConfig* conf = FcInitLoadConfigAndFonts();
+
+    FcPattern* patt = FcNameParse((const FcChar8*)fontName.c_str());
+    FcConfigSubstitute(conf, patt, FcMatchPattern);
+    FcDefaultSubstitute(patt);
+
+    FcResult res{};
+    FcPattern* font = FcFontMatch(conf, patt, &res);
+    if (font)
+    {
+        FcChar8* path{};
+        if (FcPatternGetString(font, FC_FILE, 0, &path) == FcResultMatch)
+        {
+            result = (char*)path;
+        }
+        FcPatternDestroy(font);
+    }
+
+    FcPatternDestroy(patt);
+
+    return result;
+}
+
 FontLoader::FontLoader(const std::string& fontNameOrPath)
 {
-    Logger::info("Loading font...");
+    std::string fontPath;
+    if (fontNameOrPath.find('/') != fontNameOrPath.npos
+     || fontNameOrPath.find('\\') != fontNameOrPath.npos)
+    {
+        // This is probably a path
+        fontPath = fontNameOrPath;
+    }
+    else
+    {
+        // This is probably a font name, so find the path
+        fontPath = findFontByName(fontNameOrPath);
+        if (fontPath.empty())
+        {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "",
+                    ("Failed to find font by name: "+fontNameOrPath).c_str(), nullptr);
+            return;
+        }
+    }
 
-    const std::string fontPath = fontNameOrPath;
+    Logger::info("Loading font: "+fontPath);
 
     TTF_Font* font = TTF_OpenFont(fontPath.c_str(), 14);
     if (!font)

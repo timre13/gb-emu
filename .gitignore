@@ -2,4 +2,8 @@ roms/
 codegens/
 build/
 game_boy_emulator.project
+tests/
+*.vim
+.runcfg
 .ccls-cache/
+logdiff.py
