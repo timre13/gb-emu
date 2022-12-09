@@ -9,7 +9,7 @@
 #include "Registers.h"
 #include "Memory.h"
 
-#include "FontManager.h"
+#include "TextRenderer.h"
 
 #include <SDL2/SDL.h>
 
@@ -18,26 +18,28 @@ class DebugWindow final
 private:
     SDL_Window      *m_window;
     SDL_Renderer    *m_renderer;
-    FontManager     *m_fontManager;
-
-    int m_fontW{};
-    int m_fontH{};
-
-    void renderText(const std::string &string, int rowI, uint8_t colorR=0, uint8_t colorG=0, uint8_t colorB=0);
+    std::unique_ptr<TextRenderer> m_textRend;
+    std::string     m_content;
 
 public:
-    DebugWindow(int x, int y);
+    DebugWindow(FontLoader* fontLdr, int x, int y);
 
     inline void show() { SDL_ShowWindow(m_window); }
     inline void hide() { SDL_HideWindow(m_window); }
 
     inline void clearRenderer()
     {
-        SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
+        SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
         SDL_RenderClear(m_renderer);
     }
 
-    inline void updateRenderer() { SDL_RenderPresent(m_renderer); }
+    inline void updateRenderer()
+    {
+        m_textRend->renderText(m_content);
+        SDL_RenderPresent(m_renderer);
+        m_textRend->endFrame();
+        m_content.clear();
+    }
 
     void updateRegisterValues(const Registers *registers);
     void updateOpcodeValue(const CPU *cpu);

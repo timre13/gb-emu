@@ -34,6 +34,8 @@ private:
     uint32_t        m_windowId{};
     SDL_Renderer    *m_renderer{nullptr};
 
+    FontLoader      *m_fontLdr{};
+
     CPU             *m_cpu{nullptr}; // the registers are in the CPU
     PPU             *m_ppu{nullptr};
     Memory          *m_memory{nullptr};

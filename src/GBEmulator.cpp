@@ -4,6 +4,7 @@
 #include "opcode_names.h"
 
 #include <SDL2/SDL_hints.h>
+#include <SDL2/SDL_ttf.h>
 
 //#define DEBUG_MODE
 //#define SHOW_CARTRIDGE_INFO_MESSAGEBOX
@@ -36,6 +37,8 @@ GBEmulator::GBEmulator(const std::string &romFilename)
     SDL_RenderClear(m_renderer);
     SDL_RenderPresent(m_renderer);
 
+    toggleTileWindow();
+
     Logger::info("========== Emulator Started ==========");
 }
 
@@ -45,6 +48,12 @@ void GBEmulator::initGUI()
 
     if (SDL_Init(SDL_INIT_VIDEO))
         Logger::fatal("Failed to initialize SDL2");
+
+    Logger::info("Initializing SDL2_ttf");
+
+    if (TTF_Init())
+        Logger::fatal("Failed to initialize SDL2_ttf");
+
 
     Logger::info("Creating window");
 
@@ -84,11 +93,13 @@ void GBEmulator::initGUI()
         if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
             SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 #endif
+
+    m_fontLdr = new FontLoader{"/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"};
 }
 
 void GBEmulator::initDebugWindow()
 {
-    m_debugWindow = new DebugWindow{0, 0};
+    m_debugWindow = new DebugWindow{m_fontLdr, 20, 20};
 
     m_debugWindow->clearRenderer();
     m_debugWindow->updateRenderer();
@@ -96,14 +107,18 @@ void GBEmulator::initDebugWindow()
 
 void GBEmulator::initTileWindow()
 {
-    m_tileWindow = new TileWindow{1500, 0};
+    int winx{};
+    SDL_GetWindowPosition(m_window, &winx, nullptr);
+    int winw{};
+    SDL_GetWindowSize(m_window, &winw, nullptr);
+    m_tileWindow = new TileWindow{winx+winw+20, 20};
 
     m_tileWindow->updateRenderer();
 }
 
 void GBEmulator::initSerialViewer()
 {
-    m_serialViewer = new SerialViewer{200, 0};
+    m_serialViewer = new SerialViewer{m_fontLdr, 200, 0};
 
     m_serialViewer->updateRenderer();
 }
@@ -397,6 +412,7 @@ void GBEmulator::toggleSerialViewer()
 void GBEmulator::deinit()
 {
     delete m_debugWindow;
+    delete m_fontLdr;
 
     delete m_cpu;
     delete m_ppu;
@@ -410,6 +426,7 @@ void GBEmulator::deinit()
     SDL_DestroyWindow(m_window);
 
     SDL_Quit();
+    TTF_Quit();
 
     Logger::info("SDL2 exited");
 }
