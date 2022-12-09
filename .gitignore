@@ -1,6 +1,6 @@
 roms/
 codegens/
-build/
+build*/
 game_boy_emulator.project
 tests/
 *.vim

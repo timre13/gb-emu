@@ -22,24 +22,24 @@ Memory::Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad, 
 
 uint8_t Memory::get(uint16_t address, bool log/*=true*/)
 {
-    if (log) Logger::info("Memory read at address: "+toHexStr(address));
+    //if (log) Logger::info("Memory read at address: "+toHexStr(address));
 
     if      (address <= 0x3fff) // ROM0 - Non-switchable ROM bank
         return m_rom0[address];
     else if (address <= 0x7fff) // ROMX - Switchable ROM bank
-        return m_romBanks.at(m_currentRomBank).at(address-0x3fff-1);
+        return m_romBanks.at(m_currentRomBank)[address-0x3fff-1];
     else if (address <= 0x9fff) // VRAM - Video RAM
-        return m_vram.at(address-0x7fff-1);
+        return m_vram[address-0x7fff-1];
     else if (address <= 0xbfff) // SRAM - External cartridge RAM
-        return m_ramBanks.at(m_currentRamBank).at(address-0x9fff-1);
+        return m_ramBanks.at(m_currentRamBank)[address-0x9fff-1];
     else if (address <= 0xcfff) // WRAM0 - Work RAM
-        return m_wram0.at(address-0xbfff-1);
+        return m_wram0[address-0xbfff-1];
     else if (address <= 0xdfff) // WRAMX - Work RAM
-        return m_wram1.at(address-0xcfff-1);
+        return m_wram1[address-0xcfff-1];
     else if (address <= 0xfdff) // ECHO - Mirror RAM
         return get(address-0xbfff-1, log); // map the address to the start of WRAM0
     else if (address <= 0xfe9f) // OAM - Object Attribute RAM / Sprite information table
-        return m_oam.at(address-0xfdff-1);
+        return m_oam[address-0xfdff-1];
     else if (address <= 0xfeff) // UNUSED
         return 0;
     else if (address <= 0xff7f) // I/O Registers
@@ -105,7 +105,6 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
             return m_nr33Register;
         case REGISTER_ADDR_NR34:
             return m_nr34Register;
-        // TODO: Wave pattern RAM: 0xff30 - 0xff3f
         case REGISTER_ADDR_NR41:
             return m_nr41Register;
         case REGISTER_ADDR_NR42:
@@ -120,6 +119,24 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
             return m_nr51Register;
         case REGISTER_ADDR_NR52:
             return m_nr52Register;
+        case 0xff30:
+        case 0xff31:
+        case 0xff32:
+        case 0xff33:
+        case 0xff34:
+        case 0xff35:
+        case 0xff36:
+        case 0xff37:
+        case 0xff38:
+        case 0xff39:
+        case 0xff3a:
+        case 0xff3b:
+        case 0xff3c:
+        case 0xff3d:
+        case 0xff3e:
+        case 0xff3f:
+            // TODO: Wave pattern RAM: 0xff30 - 0xff3f
+            return 0;
         case REGISTER_ADDR_LCDC:
             return m_lcdControlRegister;
         case REGISTER_ADDR_LCDSTAT:
@@ -156,13 +173,15 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
         case 0xff6b: // OCPD  - GBC only - always reads 0xff
         case 0xff70: // WRAM bank selector, but DMG does not have switchable WRAM, so this returns 0xff
             return 0xff;
+        case 0xff7f: // Undocumented
+            return 0xff;
         default:
             Logger::error("Unimplemented I/O register: " +toHexStr(address));
             UNIMPLEMENTED(); // TODO: And the rest I/O registers?
             return 0;
         }
     else if (address <= 0xfffe) // HRAM - High RAM / internal CPU RAM
-        return m_hram.at(address-0xff7f-1);
+        return m_hram[address-0xff7f-1];
     else if (address == REGISTER_ADDR_IE) // IE Registers - Interrupt enable flags
         return m_ie; // the IE register is only one byte
     else
@@ -170,28 +189,49 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
         IMPOSSIBLE();
         return 0;
     }
+
+    Logger::error("Read memory address: "+toHexStr(address));
+    IMPOSSIBLE();
+    return 0;
 }
 
 void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
 {
-    if (log) Logger::info("Memory written to address: "+toHexStr(address)+" with value: "+toHexStr(value));
+    //if (log) Logger::info("Memory written to address: "+toHexStr(address)+" with value: "+toHexStr(value));
+
+    /*
+    TODO: Implement this thing
+    // If the LCD and PPU is disabled
+    if ((lcdcRegValue & 0b10000000) == 0)
+    {
+        // If they were disabled outside a V-BLANK
+        if (lyRegValue < 144)
+            SDL_ShowSimpleMessageBox(
+                SDL_MESSAGEBOX_WARNING,
+                "Emulation Warning",
+                "LDC disabled outside V-BLANK! This would damage a real hardware.",
+                nullptr);
+
+        return;
+    }
+    */
 
     if      (address <= 0x3fff) // ROM0 - Non-switchable ROM bank
-        m_rom0.at(address) = value;
+        m_rom0[address] = value;
     else if (address <= 0x7fff) // ROMX - Switchable ROM bank
-        m_romBanks.at(m_currentRomBank).at(address-0x3fff-1) = value;
+        m_romBanks.at(m_currentRomBank)[address-0x3fff-1] = value;
     else if (address <= 0x9fff) // VRAM - Video RAM
-        m_vram.at(address-0x7fff-1) = value;
+        m_vram[address-0x7fff-1] = value;
     else if (address <= 0xbfff) // SRAM - External cartridge RAM
-        m_ramBanks.at(m_currentRamBank).at(address-0x9fff-1) = value;
+        m_ramBanks.at(m_currentRamBank)[address-0x9fff-1] = value;
     else if (address <= 0xcfff) // WRAM0 - Work RAM
-        m_wram0.at(address-0xbfff-1) = value;
+        m_wram0[address-0xbfff-1] = value;
     else if (address <= 0xdfff) // WRAMX - Work RAM
-        m_wram1.at(address-0xcfff-1) = value;
+        m_wram1[address-0xcfff-1] = value;
     else if (address <= 0xfdff) // ECHO - Mirror RAM
         set(address-0xbfff-1, value); // map the address to the start of WRAM0
     else if (address <= 0xfe9f) // OAM - Object Attribute Ram / Sprite information table
-        m_oam.at(address-0xfdff-1) = value;
+        m_oam[address-0xfdff-1] = value;
     else if (address <= 0xfeff) // UNUSED
     {
         // Writes are ignored
@@ -275,7 +315,6 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
         case REGISTER_ADDR_NR34:
             m_nr34Register = value;
             break;
-        // TODO: Wave pattern RAM: 0xff30 - 0xff3f
         case REGISTER_ADDR_NR41:
             break;
             m_nr41Register = value;
@@ -297,6 +336,24 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
             break;
         case REGISTER_ADDR_NR52:
             m_nr52Register = value;
+            break;
+        case 0xff30:
+        case 0xff31:
+        case 0xff32:
+        case 0xff33:
+        case 0xff34:
+        case 0xff35:
+        case 0xff36:
+        case 0xff37:
+        case 0xff38:
+        case 0xff39:
+        case 0xff3a:
+        case 0xff3b:
+        case 0xff3c:
+        case 0xff3d:
+        case 0xff3e:
+        case 0xff3f:
+            // TODO: Wave pattern RAM: 0xff30 - 0xff3f
             break;
         case REGISTER_ADDR_LCDC:
             m_lcdControlRegister = value;
@@ -347,13 +404,16 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
         case 0xff70: // WRAM bank selector, but DMG does not have switchable WRAM, so writes are ignored
             (void)value;
             break;
+        case 0xff7f: // Undocumented
+            (void)value;
+            break;
         default:
             Logger::error("Unimplemented I/O register: " + toHexStr(address));
             UNIMPLEMENTED(); // TODO: And the rest I/O registers?
             break;
         }
     else if (address <= 0xfffe) // HRAM - High RAM / internal CPU RAM
-        m_hram.at(address-0xff7f-1) = value;
+        m_hram[address-0xff7f-1] = value;
     else if (address == REGISTER_ADDR_IE) // IE Register - Interrupt enable flags
         m_ie = value;
     else
