@@ -161,7 +161,14 @@ void TextRenderer::renderText(const std::string &string)
         default: ;
         }
 
-        assert(std::isprint(charCode));
+        if (!std::isprint(charCode))
+        {
+            SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);
+            const SDL_Rect rect{(int)m_cursX, (int)m_cursY, (int)getCharW(), (int)getCharH()};
+            SDL_RenderDrawRect(m_rend, &rect);
+            m_cursX += getCharW();
+            continue;
+        }
 
         const size_t glyphIndex = charCode-PRINTABLE_CHAR_FIRST;
         assert(glyphIndex < m_glyphs.size());

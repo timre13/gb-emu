@@ -22,7 +22,7 @@ DebugWindow::DebugWindow(FontLoader* fontLdr, int x, int y)
 
     m_textRend = std::unique_ptr<TextRenderer>(new TextRenderer{m_renderer, fontLdr});
 
-    SDL_SetWindowSize(m_window, TEXT_PADDING_PX*2+m_textRend->getCharW()*40, TEXT_PADDING_PX*2+m_textRend->getCharH()*49);
+    SDL_SetWindowSize(m_window, TEXT_PADDING_PX*2+m_textRend->getCharW()*40, TEXT_PADDING_PX*2+m_textRend->getCharH()*51);
     SDL_HideWindow(m_window);
 
     Logger::info("Debug window created");
@@ -122,6 +122,10 @@ void DebugWindow::updateMemoryValues(Memory *memory)
     m_content+= "TMA:  "+toHexStr(regTMA, 2)+" | "+alignRight(std::to_string(regTMA), ' ', 3)+" | "+toBinStr(regTMA, 8)+'\n';
     auto regTAC{memory->get(REGISTER_ADDR_TAC, false)};
     m_content+= "TAC:  "+toHexStr(regTAC, 2)+" | "+alignRight(std::to_string(regTAC), ' ', 3)+" | "+toBinStr(regTAC, 8)+'\n';
+    auto regJOYP{memory->get(REGISTER_ADDR_JOYP, false)};
+    m_content+= "JOYP: "+toHexStr(regJOYP, 2)+" | "+alignRight(std::to_string(regJOYP), ' ', 3)+" | "+toBinStr(regJOYP, 8)+'\n';
+    auto regDMA{memory->get(REGISTER_ADDR_DMA, false)};
+    m_content+= "DMA:  "+toHexStr(regDMA, 2)+" | "+alignRight(std::to_string(regDMA), ' ', 3)+" | "+toBinStr(regDMA, 8)+'\n';
     m_content+= "=============================";
 }
 
