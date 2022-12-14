@@ -24,6 +24,17 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
 {
     //if (log) Logger::info("Memory read at address: "+toHexStr(address));
 
+    if (log && m_dmaRemainingCycles > 0)
+    {
+        // While DMA is active, only the HRAM is usable
+        // Other areas return 0xff
+        if (address >= 0xff80 && address <= 0xfffe)
+            return m_hram[address-0xff7f-1];
+        else
+            return 0xff;
+    }
+
+
     if      (address <= 0x3fff) // ROM0 - Non-switchable ROM bank
         return m_rom0[address];
     else if (address <= 0x7fff) // ROMX - Switchable ROM bank
@@ -198,6 +209,15 @@ uint8_t Memory::get(uint16_t address, bool log/*=true*/)
 void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
 {
     //if (log) Logger::info("Memory written to address: "+toHexStr(address)+" with value: "+toHexStr(value));
+    
+    if (log && m_dmaRemainingCycles > 0)
+    {
+        // While DMA is active, only the HRAM is usable
+        // Writing to other areas is ignored
+        if (address >= 0xff80 && address <= 0xfffe)
+            m_hram[address-0xff7f-1] = value;
+        return;
+    }
 
     /*
     TODO: Implement this thing
@@ -389,7 +409,19 @@ void Memory::set(uint16_t address, uint8_t value, bool log/*=true*/)
             m_obp1Register = value;
             break;
         case REGISTER_ADDR_DMA:
+        {
+            m_dmaRemainingCycles = 160;
             m_dmaRegister = value;
+            Logger::info("Starting DMA: "+toHexStr(value));
+            assert(value <= 0xdf);
+            const uint16_t source = (uint16_t(value) << 8);
+            for (int i{}; i < 160; ++i)
+            {
+                m_oam[i] = get(source+i, false);
+                //set(0xfe00+i, get(source+i, false), false);
+                //Logger::info("DMA transfer from "+toHexStr(source+i)+" to "+toHexStr(0xfe00+i));
+            }
+        }
             break;
         case 0xff4f: // VRAM bank selector, but DMG does not have switchable VRAM, so writes are ignored
         case 0xff51: // HDMA1 - GBC only - writes are ignored

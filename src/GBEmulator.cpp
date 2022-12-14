@@ -277,6 +277,10 @@ void GBEmulator::emulateCycle()
 
         for (int i{}; i < elapsedMCycles*4; ++i)
             m_timer->tick();
+        for (int i{}; i < elapsedMCycles; ++i)
+        {
+            m_memory->tickDma();
+        }
 
         // If the timer interrupt is requested
         if (m_timer->isInterruptRequested())

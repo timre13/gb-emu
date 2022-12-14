@@ -216,6 +216,7 @@ private:
     SerialViewer                                    *m_serial{nullptr};
     Joypad                                          *m_joypadPtr{nullptr};
     Timer                                           *m_timerPtr{nullptr};
+    int                                             m_dmaRemainingCycles{};
 
 public:
     Memory(const CartridgeInfo *info, SerialViewer *serial, Joypad *joypad, Timer *timer);
@@ -243,6 +244,12 @@ public:
             (get(address+0, false) << 24) |
             (get(address+1, false) << 16) |
             (get(address+2, false) <<  8);
+    }
+
+    void tickDma()
+    {
+        if (m_dmaRemainingCycles > 0)
+            --m_dmaRemainingCycles;
     }
 
     void printRom0();
